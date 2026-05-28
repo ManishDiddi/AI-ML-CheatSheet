@@ -1,0 +1,201 @@
+{
+  "main": {
+    "id": "0b98d359bc40eae8",
+    "type": "split",
+    "children": [
+      {
+        "id": "0167dd9b7b9396f3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "95a75653b5d6b223",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Python/Pandas/pandas_cheatsheet_ml.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "pandas_cheatsheet_ml"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "3b259e7d0abbe118",
+    "type": "split",
+    "children": [
+      {
+        "id": "0403ab2378ce8bd8",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a98f73bdfa897128",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "cc7611b2b6d88e30",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "f38d9abf3c4e1138",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "6eb2a2a7a923f935",
+    "type": "split",
+    "children": [
+      {
+        "id": "db42285f25efd5c2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e3430808b097283a",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Python/Pandas/pandas_cheatsheet_ml.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for pandas_cheatsheet_ml"
+            }
+          },
+          {
+            "id": "81ebc1c97b76b9ef",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Python/Pandas/pandas_cheatsheet_ml.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from pandas_cheatsheet_ml"
+            }
+          },
+          {
+            "id": "8a480a2bf12d608e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "03751e171684a1fe",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "494423b314896a0a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Python/Pandas/pandas_cheatsheet_ml.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of pandas_cheatsheet_ml"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "95a75653b5d6b223",
+  "lastOpenFiles": [
+    "Python/Numpy/numpy_cheatsheet_ml.md",
+    "Python/Pandas/pandas_cheatsheet_ml.md",
+    "Untitled.canvas",
+    "2026-05-28.md",
+    "Untitled.base",
+    "numpy_pandas_ml_cheatsheet.md",
+    "Python/Numpy/pandas_cheatsheet_ml.md",
+    "Python/Numpy",
+    "Python/Pandas",
+    "Python",
+    "untitled folder",
+    "Numpy",
+    "Pandas"
+  ]
+}
