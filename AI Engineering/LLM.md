@@ -100,7 +100,7 @@ INPUT TEXT  "The cat sat on the"
    7. APPEND it and GO TO step 2  (autoregressive loop; cache past K,V so step t costs O(t) not O(t²))
 ```
 
-![[gpt-2-decoder-block.png]]
+![GPT-2 decoder block architecture](attachments/gpt-2-decoder-block.png)
 *GPT-2 decoder block: token + positional embeddings → ×12 [Masked Multi-Head Attention + MLP, each with a residual + LayerNorm] → final LayerNorm → unembed → softmax over the vocab.*
 
 - **Masked (causal) self-attention** is the one structural difference from BERT: future positions' attention scores are set to `−∞` before softmax → 0 weight → the model can't peek at the answer. Train and inference behave identically.
@@ -125,7 +125,7 @@ logits z = [2.0, 1.0, 0.0]
  T→0  = greedy (argmax)      T↑ = more creative/chaotic
 ```
 
-![[temperature_probability_distribution.png]]
+![Probability distribution under different temperatures](attachments/temperature_probability_distribution.png)
 *Same logits `[2, 1, 0]` under different temperatures: low T sharpens the distribution (toward greedy), high T flattens it (toward uniform).*
 
 ### Greedy search — always take the argmax
