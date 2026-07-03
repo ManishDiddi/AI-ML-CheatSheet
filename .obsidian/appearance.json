@@ -1,1 +1,6 @@
-{}
+{
+  "theme": "obsidian",
+  "accentColor": "",
+  "baseFontSize": 16,
+  "baseFontSizeAction": false
+}
