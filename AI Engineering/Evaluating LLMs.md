@@ -79,12 +79,20 @@ The single most-asked framing. Six axes:
 Two levels, and conflating them is a classic mistake.
 
 ```
-MODEL-LEVEL (is GPT-4 better than Llama-3?)      APPLICATION / SYSTEM-LEVEL (is MY app good?)
-   → benchmarks: MMLU, HumanEval, MT-Bench          → end-to-end task success on YOUR data
-   → generic, task-agnostic, public                 → plus each COMPONENT of the pipeline
+MODEL EVALUATION (is GPT-4 better than Llama-3?)   PRODUCT / SYSTEM EVALUATION (is MY app good?)
+   → benchmarks: MMLU, HumanEval, TruthfulQA          → end-to-end task success on YOUR data, plus each
+   → generic, task-agnostic, public                     COMPONENT: prompt, RAG retrieval, workflow, API,
+                                                         business logic, safety guardrails
 ```
 
-A real AI app is a **pipeline**, and end-to-end score alone can't tell you *where* it failed. You evaluate **component by component**:
+**The LLM systems you'd be evaluating** (instructor's four types — complexity rising):
+```
+1. SIMPLE PROMPT-BASED   input → prompt → LLM → output          e.g. product-description generator
+2. RAG                   input → retrieve docs → LLM → answer   e.g. support bot over a knowledge base
+3. AGENTIC               multi-step reasoning + tools + planning + memory   e.g. auto-debugging assistant
+4. MULTI-PROMPT CHAINS   prompts run in sequence                e.g. generate → improve style → fact-check
+```
+The more components a system has, the more you must evaluate each **stage** separately, not just the final output. A real AI app is a **pipeline**, and end-to-end score alone can't tell you *where* it failed:
 
 ```
 user query
@@ -119,6 +127,14 @@ The new axis RAG introduces is **faithfulness / groundedness**: not "is the answ
 
 ## 4. Objectives & Goals of LLM Evaluation
 
+At bottom, every evaluation answers one of two kinds of question (instructor's split) — the goal is output that is **accurate, safe, and aligned with user needs**:
+```
+CAPABILITY questions        RISK questions
+   Is it correct?              Is it safe?
+   Is it useful?               Is it leaking data?
+   Is it complete?             Is it biased / toxic?
+```
+
 *Why* you evaluate — each goal picks different methods:
 
 1. **Model selection** — pick the best model *for your task* (not the top of a public leaderboard). Objective, comparative eval on your own dataset.
@@ -140,6 +156,7 @@ Why this is genuinely hard (interviewers want the list):
 - **Multi-dimensional quality.** One output can be factually right but verbose, or fluent but hallucinated. A scalar can't capture correctness + faithfulness + fluency + safety + format at once.
 - **Non-determinism.** Sampling (temperature > 0) means the *same prompt scores differently across runs* → you need multiple runs, fixed seeds/`temperature=0`, and statistical treatment, not a single number.
 - **Prompt sensitivity.** Reword the prompt or few-shot examples and the score swings — so you're partly evaluating the *prompt*, not the model.
+- **Huge input diversity.** Real users bring typos, multiple languages, ambiguous requests, and even jailbreak / adversarial prompts → your test set must *cover many scenarios*, not just the happy path, or the eval lies about production.
 - **Subjectivity.** "Helpful," "coherent," "on-brand" resist formulas; humans disagree (low inter-annotator agreement).
 - **Reference cost.** Gold answers are expensive to write and go stale; many real tasks never have them.
 - **Data contamination.** If the benchmark leaked into pretraining, a high score measures *memorization*, not capability (§9).
@@ -212,84 +229,98 @@ F1:  pred tokens = {denver, broncos, won} (3)   gold tokens = {denver, broncos} 
 🎯 EM is unforgiving (one extra word → 0); **F1 gives partial credit** for overlapping spans → 0.80. Report both.
 
 ### 7.3 BLEU — precision of n-gram overlap (machine translation)
+**BLEU** = **B**i**l**ingual **E**valuation **U**nderstudy. It measures **precision**: of the n-grams the candidate produced, how many appear in the reference?
 ```
-BLEU = BP · exp( Σₙ wₙ · log pₙ )         typically n=1..4, wₙ = 1/4
-  pₙ = CLIPPED n-gram matches / n-grams in candidate      (PRECISION: of what you SAID, how much is right?)
-  BP = brevity penalty = 1 if c>r else exp(1 − r/c)       (c=cand len, r=ref len; punishes too-short output)
-  "clipped" = a candidate n-gram can't be counted more times than it appears in the reference
+BLEU = BP · exp( Σₙ wₙ · log pₙ )         n = 1..4 (unigram→4-gram), wₙ = 1/4
+  pₙ = CLIPPED n-gram matches / n-grams in candidate      (a candidate n-gram can't be counted more times than it appears in the reference)
+  BP = brevity penalty = 1 if c>r else exp(1 − r/c)       (only docks output that's too SHORT; c,r = candidate/reference length)
 ```
 
-**Worked example** (used again for ROUGE in §7.4, so you see precision vs recall on the *same* data):
+**Worked example** (the instructor's — one word swapped, `sat → slept`):
 ```
-Reference (R): "the cat is on the mat"     r = 6 tokens   ("the" appears twice)
-Candidate (C): "the cat on the mat"        c = 5 tokens   ← correct but DROPPED the word "is"
+Generated (candidate): "cat sat on the mat"
+Reference:             "cat slept on the mat"
 ```
-*Step 1 — unigram precision p₁:* candidate words = {the, cat, on, the, mat}. Every one appears in R (clipped: "the" allowed twice, R has two) → **5 of 5 match** → `p₁ = 5/5 = 1.0`.
-*Step 2 — bigram precision p₂:* candidate bigrams = {the·cat, cat·on, on·the, the·mat} (4). In R? the·cat ✓, cat·on ✗ (R has cat·is), on·the ✓, the·mat ✓ → **3 of 4** → `p₂ = 3/4 = 0.75`.
-*Step 3 — brevity penalty:* c=5 < r=6 → `BP = exp(1 − 6/5) = exp(−0.2) = 0.82`.
-*Step 4 — combine (BLEU-2):* `BP · exp(½·ln1.0 + ½·ln0.75) = 0.82 · 0.866 = ` **`0.71`**.
+| n-gram | candidate n-grams | matches in reference | precision pₙ |
+|---|---|---|---|
+| 1 (unigram) | cat, sat, on, the, mat | cat, on, the, mat | **4/5 = 0.80** |
+| 2 (bigram)  | cat·sat, sat·on, on·the, the·mat | on·the, the·mat | **2/4 = 0.50** |
+| 3 (trigram) | cat·sat·on, sat·on·the, on·the·mat | on·the·mat | **1/3 = 0.33** |
+| 4 (4-gram)  | cat·sat·on·the, sat·on·the·mat | — | **0/2 = 0.00** |
 
-🎯 **Read it:** the candidate said *nothing wrong* (precision 1.0) yet BLEU is only **0.71** — the brevity penalty docks it for being too short. That penalty is *why* BLEU exists: without it you'd game precision by outputting one word you're sure of. (Real BLEU-4 also multiplies in p₃, p₄ and uses smoothing to avoid a single zero collapsing the score.)
+- Lengths are equal (5 = 5) → **BP = 1** (no brevity penalty here).
+- BLEU **multiplies** the precisions (geometric mean), so the single **p₄ = 0 collapses standard BLEU-4 to 0**. That's why real BLEU applies **smoothing** — add a tiny constant (e.g. `0.01`) to zero counts so one missing 4-gram doesn't nuke the score. Smoothed, this lands around the geometric mean of the non-zero precisions ≈ **0.5**.
+
+**Rough interpretation bands** (the instructor's rule of thumb):
+```
+0.00–0.25  poor      0.25–0.50  okay      0.50–0.75  good/strong      0.75–1.00  near-identical
+```
+🎯 BLEU = **precision + a brevity penalty** — "of what you generated, how much matches, and don't reward being too short." Corpus-level; built for translation.
 
 ### 7.4 ROUGE — recall of n-gram overlap (summarization)
+**ROUGE** = **R**ecall-**O**riented **U**nderstudy for **G**isting **E**valuation — the flip of BLEU. It measures **recall**: of the reference's n-grams, how many did the candidate cover? Variants:
 ```
-ROUGE-N recall = matching n-grams / n-grams in the REFERENCE   (RECALL: of what SHOULD be there, how much did you COVER?)
-ROUGE-L        = based on Longest Common Subsequence (order-aware, gap-tolerant):
-                 R = LCS/|ref|,  P = LCS/|cand|,  F = 2PR/(P+R)
+ROUGE-1    unigram overlap            ROUGE-2    bigram overlap
+ROUGE-L    Longest Common Subsequence (order-aware, gap-tolerant)
+ROUGE-Lsum ROUGE-L aggregated sentence-by-sentence over a whole summary
 ```
 
-**Same pair as §7.3** — now measured by recall:
+**Worked example** (the instructor's — an *extra-word* candidate):
 ```
-R = "the cat is on the mat" (6 unigrams)    C = "the cat on the mat" (5 unigrams)
+Reference:             "the cat sat on the mat"            (6 unigrams)
+Generated (candidate): "the cat sat on the mat happily"   (7 unigrams — one extra word)
 ```
-- **ROUGE-1 (recall):** matched unigrams / *reference* unigrams = **5/6 = 0.83**. (C covers everything except "is".)
-- **ROUGE-2 (recall):** matched bigrams / reference bigrams = 3/5 = **0.60**.
-- **ROUGE-L:** LCS = "the cat on the mat" = 5 tokens → recall = 5/6 = **0.83**, precision = 5/5 = 1.0.
+- **ROUGE-1 recall** = matched / *reference* unigrams = **6/6 = 1.0** — the candidate **covered the whole reference**.
+- **ROUGE-1 precision** = matched / *candidate* unigrams = 6/7 = **0.86** — docked for the extra "happily".
+- **ROUGE-2 recall** = 5/5 = 1.0;  **ROUGE-L recall** = LCS("the cat sat on the mat") = 6 → 6/6 = **1.0**.
 
-🎯 **Same candidate, different lens:** BLEU (precision + brevity) = **0.71**; ROUGE-1 (recall) = **0.83**. **BLEU asks "was what you said right?"; ROUGE asks "did you cover what mattered?"** — that's the whole BLEU-vs-ROUGE distinction, and here you can see them diverge on one example.
+**Precision vs recall as FP/FN** (the way the instructor drew it):
+```
+   Precision = TP / (TP + FP)                 Recall = TP / (TP + FN)
+   FP = a token the model GENERATED that is NOT in the reference  → hurts PRECISION (BLEU)   e.g. "happily"
+   FN = a reference token the model did NOT generate              → hurts RECALL   (ROUGE)
+```
+🎯 **Same idea, opposite lens:** BLEU asks *"was what you said right?"* (precision — punishes extra/wrong words); ROUGE asks *"did you cover what mattered?"* (recall — punishes missing words). Summarization uses ROUGE because covering the reference is what counts.
 
 ### 7.5 BERTScore — semantic similarity + IDF weighting
-The fatal flaw of BLEU/ROUGE: they only match **identical tokens**, so a correct *paraphrase* scores near zero. BERTScore fixes this by comparing **meaning**: embed every token with a contextual model (BERT/RoBERTa), then greedily match each token to its most-similar token in the other sentence by **cosine similarity**.
+BLEU/ROUGE only match **identical tokens**, so a correct *paraphrase* scores low. BERTScore compares **meaning**: embed every token with a contextual model (BERT), then greedily match each token to its most-similar token in the other sentence by **cosine similarity**.
+
+**Worked example** (the instructor's paraphrase — `cat→feline`, `mat→carpet`):
 ```
-Recall    = (Σ_{x∈ref}  max_{y∈cand} cos(x, y)) / |ref|         (each REFERENCE token → its best match in the candidate)
-Precision = (Σ_{y∈cand} max_{x∈ref}  cos(x, y)) / |cand|        (each CANDIDATE token → its best match in the reference)
+Reference:             "cat sat on the mat"
+Generated (candidate): "feline sat on the carpet"
+```
+Keyword metrics first: only *sat, on, the* overlap (cat≠feline, mat≠carpet) → BLEU/ROUGE drop sharply **even though the meaning is identical**. BERTScore instead sees the embeddings are close:
+```
+cat↔feline ≈ 0.80,  mat↔carpet ≈ 0.80,  sat↔sat = 1.0,  on↔on = 1.0,  the↔the = 1.0
+
+Recall    = (Σ_{x∈ref}  max_{y∈cand} cos(x,y)) / |ref|     (each REFERENCE token → best match in candidate)
+Precision = (Σ_{y∈cand} max_{x∈ref}  cos(x,y)) / |cand|
 F1        = 2PR/(P+R)
+
+Unweighted recall = (0.80 + 1.0 + 1.0 + 1.0 + 0.80) / 5 = 4.6/5 = 0.92     ← paraphrase correctly credited
 ```
 
-**Worked example** — a pure paraphrase, where n-gram metrics fail:
+**IDF weighting (what your instructor stressed).** The 0.92 was propped up by *perfect but meaningless* matches on common words (`sat/on/the` = 1.0). Weight each token by how **rare/informative** it is, using **inverse document frequency**:
 ```
-Reference (R): "the dog is running"       [the, dog, is, running]
-Candidate (C): "a puppy is sprinting"     [a,  puppy, is, sprinting]
-   n-gram check first: only "is" overlaps → ROUGE-1 recall = 1/4 = 0.25, BLEU ≈ 0.  ❌ badly under-credits a correct paraphrase.
-```
-Contextual cosine similarities (illustrative): `puppy↔dog = 0.85`, `sprinting↔running = 0.88`, `is↔is = 1.0`, `a↔the = 0.90`.
+idf(w) = log( N / c(w) )     N = # reference docs,  c(w) = # docs that contain w
+   → common words (the, on) appear everywhere → LOW idf;   rare content words (feline, carpet) → HIGH idf
 
-*Unweighted recall* (each R token → best C token):
+IDF-weighted recall = Σ_x idf(x)·max_y cos(x,y)  /  Σ_x idf(x)
+   idf:  cat=0.9, sat=0.2, on=0.1, the=0.1, mat=0.9        ← illustrative weights
+   = (0.9·0.80 + 0.2·1.0 + 0.1·1.0 + 0.1·1.0 + 0.9·0.80) / (0.9 + 0.2 + 0.1 + 0.1 + 0.9)
+   = (0.72     + 0.20    + 0.10    + 0.10    + 0.72)     / 2.2
+   = 1.84 / 2.2
+   = 0.84
 ```
-the→a 0.90,  dog→puppy 0.85,  is→is 1.00,  running→sprinting 0.88
-Recall = (0.90 + 0.85 + 1.00 + 0.88) / 4 = 3.63/4 = 0.91
-```
-BERTScore ≈ **0.91** vs n-gram ≈ 0.25 — it correctly sees the paraphrase. `(certain)`
-
-**Now the IDF weighting (what your instructor stressed).** Notice the unweighted 0.91 was propped up by *easy* matches on common words — `is↔is = 1.0` and `a↔the = 0.90` — which carry almost no information. A system could look good just by reproducing stopwords. **IDF (inverse document frequency) fixes this: weight each token by how rare/informative it is** — common words (the, is, a) get a *small* weight, rare content words (dog, running) get a *large* one — so the score depends on matching the words that actually carry meaning:
-```
-IDF-weighted Recall = Σ_x ( idf(x) · max_y cos(x,y) )  /  Σ_x idf(x)
-
-idf:  the=0.1,  dog=0.8,  is=0.1,  running=0.9     ← stopwords down-weighted, content words up-weighted
-    = (0.1·0.90 + 0.8·0.85 + 0.1·1.00 + 0.9·0.88) / (0.1 + 0.8 + 0.1 + 0.9)
-    = (0.09    + 0.68     + 0.10     + 0.792   ) / 1.9
-    = 1.662 / 1.9
-    = 0.87
-```
-🎯 **What IDF did:** the score dropped 0.91 → **0.87** because it stopped rewarding the trivial `is↔is`/`a↔the` matches and now reflects how well the *content* words (dog→puppy, running→sprinting) were captured. **IDF weighting stops a model from gaming BERTScore with common words** — it makes rare, meaning-bearing tokens count most. (Precision is computed the same way with candidate-side IDF; F1 combines them → also ≈ 0.87 here.)
+🎯 **What IDF did:** the score moved 0.92 → **0.84** because it stopped rewarding the trivial stopword matches and now reflects how well the **content** words (cat→feline, mat→carpet) were captured. **IDF stops a model gaming BERTScore by nailing common words** — rare, meaning-bearing tokens count most. (Precision is computed the same way with candidate-side IDF; F1 combines them.) `(certain)`
 
 ### 7.6 The three side by side — why they disagree
-Running the same two examples through all three:
 
-| Example (Ref → Cand) | BLEU (precision) | ROUGE-1 (recall) | BERTScore (meaning) |
+| Example (Reference → Candidate) | BLEU (precision) | ROUGE-1 (recall) | BERTScore (meaning) |
 |---|---|---|---|
-| "the cat is on the mat" → "the cat on the mat" (dropped a word) | 0.71 | 0.83 | ~0.96 |
-| "the dog is running" → "a puppy is sprinting" (paraphrase) | ~0.00 | 0.25 | 0.87 (IDF) |
+| "cat slept on the mat" → "cat sat on the mat" (one word swapped) | ~0.5 | 0.80 | ~0.95 |
+| "cat sat on the mat" → "feline sat on the carpet" (paraphrase) | ~0.3 | 0.60 | 0.92 → 0.84 (IDF) |
 
 🎯 **The lesson of the whole metrics unit:** n-gram metrics (BLEU/ROUGE) are cheap and reproducible but **blind to meaning** — they punish valid paraphrases and reward lexical mimicry. BERTScore captures semantics (and IDF makes it weight the words that matter) but still needs a reference and can over-credit fluent-but-wrong text. **None of them judge factual correctness** — which is why open-ended and production eval moves to LLM-as-Judge (§8).
 
@@ -305,23 +336,50 @@ If the model assigns the true next token an average probability of 0.1:
 
 ## 8. LLM-as-Judge — the Reference-less Flagship
 
-Use a strong LLM to grade outputs against a rubric — the only method that scales to open-ended quality with no reference. Three modes:
-
+Use a strong LLM to grade another LLM's output against a rubric — the only method that scales to open-ended quality with **no reference**. The instructor's mental model: **content creation vs critique** — the model being judged is the *player*; the judge LLM is the *commentator/critic*. Same domain skill, different job.
 ```
-1. POINTWISE (single-answer grading)  → "Score this answer 1–5 for helpfulness & correctness."
-2. PAIRWISE  (A vs B)                  → "Which answer is better, A or B?"  (most reliable; powers MT-Bench/Arena)
-3. REFERENCE-GUIDED                    → "Here is a gold answer; grade the candidate against it."  (hybrid)
+Candidate LLM  →  generates output  →  Judge LLM  →  score / verdict
 ```
 
-**Judge biases you MUST name** (this wins the follow-up):
-- **Position bias** — favors whichever answer is shown first (or second). *Fix:* run both orders, average / require consistency.
-- **Verbosity (length) bias** — prefers longer answers regardless of quality. *Fix:* control for length, instruct otherwise.
+### 8.1 Three evaluation scenarios
+```
+1. SINGLE OUTPUT (binary / pointwise)  → grade one answer: "Is it safe? correct? polite?"  → score or yes/no
+2. PAIRWISE COMPARISON (A vs B)        → "Which output is better, A or B?"  → preference (powers MT-Bench / Arena)
+3. FULL-CONVERSATION evaluation        → grade a whole multi-turn dialogue, not just one turn
+```
+Two ways to give the judge a target:
+- **Reference-free** — judge from criteria alone (safe? relevant? hallucinated?). No gold answer needed.
+- **With reference / context** — also hand the judge a source document and ask "is the answer *supported* by this?" → this is how you do **hallucination detection**.
+
+### 8.2 The 4-step process (how you actually build one)
+```
+1. DEFINE the evaluation scenario   → single / pairwise / full-conversation (§8.1)
+2. PREPARE an evaluation dataset    → real + SYNTHETIC examples, chosen to be REPRESENTATIVE of production
+3. CREATE the evaluation prompt     → the rubric + scale as a prompt template — this prompt IS your metric
+4. EVALUATE & ITERATE               → run the judge on a LABELLED set, compare to ground truth, refine the prompt
+                                       (calibrating the judge against gold labels this way is the "G-Eval" idea)
+```
+Step 3 is where **[[Prompt Engineering]]** pays off — the rubric prompt *is* the metric, so a clear scale, few-shot examples, and chain-of-thought make the judge sharper (that's the natural next topic after this lecture).
+
+### 8.3 Three judge metrics from the demo (Opik built-ins)
+The instructor's live judge used three concrete metrics — memorize the **ranges and directions**:
+
+| Metric | Range | Good direction | Asks |
+|---|---|---|---|
+| **Relevance** (Answer-Relevance) | 0–1 | **higher** | does the answer actually address the prompt? |
+| **Hallucination** | 0–1 | **lower** | is anything unsupported / made up? |
+| **Moderation** | binary | safe = pass | explicit content? hate? unsafe / policy violation? |
+
+(Opik ships these as `AnswerRelevance`, `Hallucination`, `Moderation` — see §11. A judge can also test a *reasoning* claim, e.g. "is `2 + 2 = 5` relevant/correct?" — the score should catch it.)
+
+### 8.4 Judge biases you MUST name (wins the follow-up)
+- **Position bias** — favors whichever answer is shown first (or second). *Fix:* run both orders, require consistency.
+- **Verbosity (length) bias** — prefers longer answers regardless of quality. *Fix:* control for length.
 - **Self-enhancement bias** — a model rates *its own* outputs higher. *Fix:* judge ≠ generator, or use a panel.
 - **Sycophancy / format bias** — swayed by confident tone or nice formatting over substance.
 
-**Make judges reliable:** give an explicit rubric + scale; **G-Eval** style (chain-of-thought reasoning then a score, probability-weighted); use a strong judge model; **calibrate against human labels** and report agreement (Cohen's κ); for high stakes use a **panel/jury of judges** and majority-vote. 🎯 *"An LLM judge is only trustworthy once you've measured its agreement with humans and de-biased for position and verbosity — otherwise you've automated a biased grader."*
-
-Trade-off: judges are flexible and cheap-ish vs humans, but add **cost + latency** (an extra LLM call per example) and can be gamed. `(certain)`
+### 8.5 Making judges reliable
+Give an explicit rubric + scale; use a **strong** judge model; **calibrate against human labels** and report agreement (Cohen's κ); for high stakes use a **panel/jury of judges** and majority-vote. 🎯 *"An LLM judge is only trustworthy once you've measured its agreement with humans and de-biased for position and verbosity — otherwise you've automated a biased grader."* Trade-off: flexible and cheap-ish vs humans, but adds **cost + latency** (an extra LLM call per example) and can be gamed. `(certain)`
 
 ---
 
@@ -382,12 +440,12 @@ references  = [{"id": "1", "answers": {"text": ["Denver Broncos"], "answer_start
 print(squad.compute(predictions=predictions, references=references))  # {'exact_match': 0.0, 'f1': 80.0}
 
 # ---- Generation quality: compare generated output vs reference (the §7 paraphrase pair) ----
-ref  = [["the dog is running"]]                  # BLEU takes a LIST of references per prediction
-cand = ["a puppy is sprinting"]
-print(evaluate.load("bleu").compute(predictions=cand, references=ref))       # ~0    (only "is" overlaps)
-print(evaluate.load("rouge").compute(predictions=cand, references=[r[0] for r in ref]))  # ROUGE-1 ~0.25
+ref  = [["cat sat on the mat"]]                  # BLEU takes a LIST of references per prediction
+cand = ["feline sat on the carpet"]
+print(evaluate.load("bleu").compute(predictions=cand, references=ref))       # low  (cat≠feline, mat≠carpet)
+print(evaluate.load("rouge").compute(predictions=cand, references=[r[0] for r in ref]))  # ROUGE-1 ~0.6
 print(evaluate.load("bertscore").compute(predictions=cand,
-        references=[r[0] for r in ref], lang="en"))                          # F1 ~0.87  ← semantics win
+        references=[r[0] for r in ref], lang="en"))                          # F1 ~0.92  ← semantics win
 ```
 
 ### 11.2 LLM-as-Judge (reference-less) — the prompt is the metric
@@ -406,7 +464,7 @@ Opik (open-source, by Comet) = **datasets + experiments + built-in metrics/judge
 ```python
 from opik import Opik
 from opik.evaluation import evaluate
-from opik.evaluation.metrics import Equals, Hallucination, AnswerRelevance  # heuristic + LLM-judge metrics
+from opik.evaluation.metrics import Equals, AnswerRelevance, Hallucination, Moderation  # heuristic + LLM-judge
 
 client  = Opik()
 dataset = client.get_or_create_dataset(name="sst2-eval")
@@ -416,11 +474,12 @@ def task(item, model):                          # run ONE model on one dataset r
     out = call_llm(model, item["input"])        # your model call
     return {"output": out}
 
-for model in ["gpt-4o", "claude-sonnet-4-6", "llama-3.1-8b"]:   # loop the SAME dataset over MANY LLMs
+# The instructor's four models: Llama-3.1 & Llama-3.3 via a hosted API (Groq), Phi & Qwen via HuggingFace
+for model in ["llama-3.1-8b", "llama-3.3-70b", "phi-3", "qwen-2.5"]:   # SAME dataset, MANY LLMs
     evaluate(
         dataset=dataset,
         task=lambda item, m=model: task(item, m),
-        scoring_metrics=[Equals(), AnswerRelevance(), Hallucination()],  # mix reference-based + judge
+        scoring_metrics=[Equals(), AnswerRelevance(), Hallucination(), Moderation()],  # reference-based + judge
         experiment_name=f"sst2-{model}",
     )
 # Opik logs per-example traces + aggregate scores → compare models side by side in the UI.
@@ -483,6 +542,8 @@ OFFLINE (pre-ship)                          ONLINE (post-ship, on real traffic)
 
 **"Problems with LLM-as-Judge?"** → position, verbosity, self-enhancement, sycophancy bias; fix by swapping order, controlling length, judge≠generator, panel-of-judges, and calibrating agreement with humans.
 
+**"How would you set up an LLM judge?"** → pick a scenario (single/pairwise/full-conversation), prepare a representative (incl. synthetic) dataset, write the rubric as a prompt, then calibrate against gold labels (G-Eval). Common metrics: Relevance (↑), Hallucination (↓), Moderation (safe/unsafe).
+
 **"Why not just trust MMLU / the leaderboard?"** → contamination (memorization) + saturation (Goodhart); evaluate on your own private set and human-preference Arena.
 
 **"How do you evaluate an AI app, not just a model?"** → component-wise down the pipeline (retriever, generation, parser) + end-to-end + online (implicit feedback, A/B, monitoring).
@@ -491,7 +552,23 @@ OFFLINE (pre-ship)                          ONLINE (post-ship, on real traffic)
 
 ## 15. Alternatives & How to Choose a Metric
 
-Decision table — pick by task shape:
+**The instructor's decision tree** — walk it top-down to land on the right metric:
+```
+                        ┌─ Do we have a REFERENCE (ground truth)? ─┐
+                       YES                                         NO
+                        │                                          │
+        ┌─ Only ONE correct answer? ─┐              ┌─ Objective QUALITY criteria exist? ─┐
+       YES                          NO             YES                                    NO
+        │                           │               │                                     │
+ ┌ Predictive task? ┐     ROUGE · BLEU ·      Valid-code checks ·              LLM-AS-A-JUDGE
+YES               NO       BERTScore ·        structured-output / JSON          (context, readability,
+ │                 │       LLM-as-Judge         validation                       length, tone…)
+Hit-rate ·    Exact Match ·  (+ BLEURT)
+Precision ·   string match ·
+Recall · F1   keyword match
+```
+
+Same thing as a table — pick by task shape:
 
 | Task | Primary metric | Why |
 |---|---|---|
@@ -517,8 +594,8 @@ Decision table — pick by task shape:
    <details><summary>answer</summary>**Reference-based:** compare to a gold answer — EM, F1, BLEU, ROUGE, BERTScore, accuracy. **Reference-less:** judge quality with no gold answer — LLM-as-Judge, perplexity, heuristics (valid JSON?), human rating.</details>
 3. BLEU vs ROUGE vs BERTScore — the one-line distinction for each.
    <details><summary>answer</summary>BLEU = n-gram **precision** (translation); ROUGE = n-gram **recall** (summarization); BERTScore = **cosine similarity of contextual embeddings** → captures meaning, not just surface overlap.</details>
-4. Reference "the dog is running", candidate "a puppy is sprinting": why does BERTScore ≫ BLEU, and what does IDF weighting change?
-   <details><summary>answer</summary>Only "is" overlaps as an exact token → BLEU ≈ 0, ROUGE-1 ≈ 0.25 — n-gram metrics are blind to paraphrase. BERTScore embeds tokens, so puppy≈dog (0.85) and sprinting≈running (0.88) match → ~0.91. **IDF weighting** down-weights the trivial stopword matches (is↔is, a↔the) and up-weights rare content words (dog, running), dropping it to ~0.87 so the score reflects meaning-bearing tokens, not stopword mimicry.</details>
+4. Reference "cat sat on the mat", candidate "feline sat on the carpet": why does BERTScore ≫ BLEU, and what does IDF weighting change?
+   <details><summary>answer</summary>Only *sat, on, the* overlap as exact tokens (cat≠feline, mat≠carpet) → BLEU/ROUGE drop sharply — n-gram metrics are blind to paraphrase. BERTScore embeds tokens, so cat≈feline (0.80) and mat≈carpet (0.80) match → recall ~0.92. **IDF weighting** (`idf(w)=log(N/c(w))`) down-weights the trivial stopword matches (sat/on/the = 1.0) and up-weights rare content words (feline, carpet), dropping it to ~0.84 so the score reflects meaning-bearing tokens, not stopword mimicry.</details>
 5. What are the official SQuAD metrics, and why report both?
    <details><summary>answer</summary>**Exact Match** (harsh, binary) and **token-level F1** (partial credit for overlapping spans). EM alone under-credits answers that are correct but include extra/missing tokens.</details>
 6. Name three LLM-as-Judge biases and a fix for each.
@@ -529,7 +606,11 @@ Decision table — pick by task shape:
    <details><summary>answer</summary>Two stages instead of one — **retrieval** (did it fetch the right context?) and **generation faithfulness/groundedness** (is the answer supported by that context, not hallucinated?). A standalone LLM has neither failure mode.</details>
 9. Offline vs online evaluation — what does each catch?
    <details><summary>answer</summary>**Offline:** reference-based + judge on a golden set in CI → gates releases, catches regressions. **Online:** implicit feedback (👍/👎, regen), A/B tests, live judging, drift monitoring → proves it works on real traffic.</details>
+10. Name the three LLM-as-Judge evaluation scenarios and the three judge metrics from the demo (with their good direction).
+    <details><summary>answer</summary>**Scenarios:** single-output / binary, pairwise (A vs B), full-conversation. **Metrics:** Relevance 0–1 (higher better), Hallucination 0–1 (**lower** better), Moderation (binary — safe/unsafe). Build a judge in 4 steps: define scenario → prepare representative dataset → create the eval-prompt rubric → evaluate & iterate against gold labels.</details>
+11. In the instructor's BLEU example ("cat sat on the mat" vs ref "cat slept on the mat"), why can standard BLEU-4 read 0, and what's the fix?
+    <details><summary>answer</summary>Unigram precision 4/5, bigram 2/4, trigram 1/3, but **4-gram = 0/2 = 0**; BLEU multiplies the precisions, so one zero collapses the product to 0. Fix = **smoothing** (add a small constant like 0.01 to zero counts). Rough bands: <0.25 poor, 0.25–0.5 okay, 0.5–0.75 good, 0.75–1 near-identical.</details>
 
 ---
 
-*Covers: LLM vs ML evaluation · model-level vs application/component-level (+ high-level RAG-vs-LLM contrast) · objectives/goals · challenges · reference-based vs reference-less methods · metrics (accuracy, EM/F1, BLEU, ROUGE, BERTScore, perplexity) with formulas + a worked paraphrase example · LLM-as-Judge modes & biases · benchmarks/leaderboards + contamination/saturation · safety/bias/hallucination + cost/latency · SST-2 / SQuAD / Opik multi-LLM code · metric pitfalls · production & online eval · interview lens · metric-choice decision table.*
+*Covers: LLM vs ML evaluation · model vs product evaluation · the 4 LLM system types · component/pipeline eval (+ high-level RAG-vs-LLM contrast) · objectives (capability vs risk) · challenges (incl. input diversity) · reference-based vs reference-less methods · metrics (accuracy, EM/F1, BLEU, ROUGE, BERTScore + IDF, perplexity) each worked on the instructor's examples, with BLEU interpretation bands & smoothing · LLM-as-Judge — 3 scenarios, 4-step build, Relevance/Hallucination/Moderation metrics, biases · benchmarks + contamination/saturation · safety/bias/hallucination + cost/latency · SST-2 / SQuAD / Opik 4-model code · metric pitfalls · production & online eval · interview lens · metric-choice decision tree.*
