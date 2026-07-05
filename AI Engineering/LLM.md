@@ -265,7 +265,7 @@ Decide along these axes — there is no single "best":
 | **Adaptability** | Fine-tunable? Good at **tool/function calling** & JSON? | Needed for agents / structured output |
 | **Multilinguality / domain** | Your languages & domain covered? | Domain models (code, medical) may beat generalists |
 
-**Practical recipe:** prototype on a strong **API** model to prove value → if cost/privacy/control demand it, move to an **open-weights** model (+ quantization) → **evaluate on your own task**, not leaderboards → prefer **RAG** (grounding, fresh knowledge) over fine-tuning unless you need a specific style/format the base model can't produce. 🎯 *"Don't fine-tune to add knowledge (use RAG); fine-tune to change behaviour/format."*
+**Practical recipe:** prototype on a strong **API** model to prove value → if cost/privacy/control demand it, move to an **open-weights** model (+ quantization) → **[[Evaluating LLMs|evaluate]] on your own task**, not leaderboards → prefer **RAG** (grounding, fresh knowledge) over fine-tuning unless you need a specific style/format the base model can't produce. 🎯 *"Don't fine-tune to add knowledge (use RAG); fine-tune to change behaviour/format."*
 
 ---
 
