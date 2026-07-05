@@ -174,10 +174,24 @@ Rule of thumb: **closed-ended or has a canonical answer → reference-based; ope
 
 ## 7. Reference-based Metrics — BLEU · ROUGE · BERTScore · EM/F1 · Accuracy · Perplexity
 
-All answer "how close is the output to the reference?" — they differ in *what* "close" means: **exact match → n-gram overlap → semantic similarity.**
+All answer "how close is the output to the reference?" — they differ in *what* "close" means, on a ladder of strictness:
+
+```
+exact string  →  overlapping words (n-grams)  →  meaning (embeddings)
+   EM              BLEU / ROUGE / F1               BERTScore
+ (harshest)        (surface overlap)             (semantic — most forgiving)
+```
+Every metric below is worked end-to-end on a tiny example so the formula turns into something you can *see*.
 
 ### 7.1 Accuracy (closed-ended tasks — SST-2)
-When you force the output into fixed classes, LLM eval *is* classic eval: `accuracy = correct / total`, plus precision/recall/F1 for class imbalance. This is exactly the SST-2 sentiment demo (§11).
+When you force the output into fixed classes, LLM eval *is* classic ML eval: `accuracy = correct / total`.
+```
+Task: classify 5 movie reviews.   (SST-2-style, §11)
+gold  = [pos, neg, pos, pos, neg]
+LLM   = [pos, neg, NEG, pos, neg]        ← 3rd one wrong (said neg, truth pos)
+accuracy = 4 / 5 = 0.80
+```
+Use precision/recall/F1 instead when classes are imbalanced (e.g. 95% negative — a model that always says "negative" scores 0.95 accuracy but is useless). This is exactly the SST-2 sentiment demo.
 
 ### 7.2 Exact Match (EM) & token-F1 (extractive QA — SQuAD)
 SQuAD's **official** metrics (not BLEU/ROUGE):
@@ -185,58 +199,107 @@ SQuAD's **official** metrics (not BLEU/ROUGE):
 - **F1** = token-overlap F1 between prediction and gold: `precision = shared / |pred tokens|`, `recall = shared / |gold tokens|`, `F1 = 2PR/(P+R)`; take the **max over gold answers**, average over the set.
 
 ```
-gold = "Denver Broncos"        pred = "Denver Broncos won"
-EM  = 0                         (extra token "won" → not exact)
-F1: shared={denver,broncos}=2;  P=2/3, R=2/2=1  →  F1 = 2(0.667·1)/(0.667+1) = 0.80
+question: "Who won Super Bowl 50?"
+gold = "Denver Broncos"            pred = "the Denver Broncos won"
+                                   → normalize: drop "the" → "denver broncos won"
+
+EM = 0                             (extra token "won" → not an exact match)
+F1:  pred tokens = {denver, broncos, won} (3)   gold tokens = {denver, broncos} (2)
+     shared = {denver, broncos} = 2
+     precision = 2/3 = 0.67   recall = 2/2 = 1.0
+     F1 = 2·(0.67·1.0)/(0.67+1.0) = 1.33/1.67 = 0.80
 ```
-🎯 EM is unforgiving; **F1 gives partial credit** for overlapping spans — report both.
+🎯 EM is unforgiving (one extra word → 0); **F1 gives partial credit** for overlapping spans → 0.80. Report both.
 
 ### 7.3 BLEU — precision of n-gram overlap (machine translation)
 ```
 BLEU = BP · exp( Σₙ wₙ · log pₙ )         typically n=1..4, wₙ = 1/4
-  pₙ = CLIPPED n-gram matches / n-grams in candidate      (precision-oriented)
+  pₙ = CLIPPED n-gram matches / n-grams in candidate      (PRECISION: of what you SAID, how much is right?)
   BP = brevity penalty = 1 if c>r else exp(1 − r/c)       (c=cand len, r=ref len; punishes too-short output)
   "clipped" = a candidate n-gram can't be counted more times than it appears in the reference
 ```
-Precision-based (of the words it *did* produce, how many are right), corpus-level, 0→1 (often ×100). Built for translation where adequacy ≈ n-gram overlap.
+
+**Worked example** (used again for ROUGE in §7.4, so you see precision vs recall on the *same* data):
+```
+Reference (R): "the cat is on the mat"     r = 6 tokens   ("the" appears twice)
+Candidate (C): "the cat on the mat"        c = 5 tokens   ← correct but DROPPED the word "is"
+```
+*Step 1 — unigram precision p₁:* candidate words = {the, cat, on, the, mat}. Every one appears in R (clipped: "the" allowed twice, R has two) → **5 of 5 match** → `p₁ = 5/5 = 1.0`.
+*Step 2 — bigram precision p₂:* candidate bigrams = {the·cat, cat·on, on·the, the·mat} (4). In R? the·cat ✓, cat·on ✗ (R has cat·is), on·the ✓, the·mat ✓ → **3 of 4** → `p₂ = 3/4 = 0.75`.
+*Step 3 — brevity penalty:* c=5 < r=6 → `BP = exp(1 − 6/5) = exp(−0.2) = 0.82`.
+*Step 4 — combine (BLEU-2):* `BP · exp(½·ln1.0 + ½·ln0.75) = 0.82 · 0.866 = ` **`0.71`**.
+
+🎯 **Read it:** the candidate said *nothing wrong* (precision 1.0) yet BLEU is only **0.71** — the brevity penalty docks it for being too short. That penalty is *why* BLEU exists: without it you'd game precision by outputting one word you're sure of. (Real BLEU-4 also multiplies in p₃, p₄ and uses smoothing to avoid a single zero collapsing the score.)
 
 ### 7.4 ROUGE — recall of n-gram overlap (summarization)
 ```
-ROUGE-N recall = matching n-grams / n-grams in the REFERENCE      (recall-oriented — did you COVER the reference?)
+ROUGE-N recall = matching n-grams / n-grams in the REFERENCE   (RECALL: of what SHOULD be there, how much did you COVER?)
 ROUGE-L        = based on Longest Common Subsequence (order-aware, gap-tolerant):
-                 R = LCS/|ref|,  P = LCS/|cand|,  F = (1+β²)PR / (R + β²P)
+                 R = LCS/|ref|,  P = LCS/|cand|,  F = 2PR/(P+R)
 ```
-Recall-based (of what *should* be there, how much did you capture) → the default for summarization. **BLEU vs ROUGE in one line:** BLEU asks "was what you said correct?" (precision), ROUGE asks "did you cover what mattered?" (recall).
 
-### 7.5 BERTScore — semantic similarity, not surface overlap
-Fixes the fatal flaw of BLEU/ROUGE: they only match **exact tokens**, so synonyms and paraphrases score low. BERTScore embeds every token with a contextual model (BERT/RoBERTa), greedily matches each candidate token to its most-similar reference token by **cosine similarity**, then:
+**Same pair as §7.3** — now measured by recall:
 ```
-Recall    = (1/|ref|)  Σ_{x∈ref}  max_{y∈cand} cos(x, y)
-Precision = (1/|cand|) Σ_{y∈cand} max_{x∈ref}  cos(x, y)
-F1        = 2PR/(P+R)                          (optionally IDF-weighted to down-weight stopwords)
+R = "the cat is on the mat" (6 unigrams)    C = "the cat on the mat" (5 unigrams)
 ```
-"man" ≈ "person", "big" ≈ "large" now score high because their embeddings are close — the metric rewards *meaning*, not spelling.
+- **ROUGE-1 (recall):** matched unigrams / *reference* unigrams = **5/6 = 0.83**. (C covers everything except "is".)
+- **ROUGE-2 (recall):** matched bigrams / reference bigrams = 3/5 = **0.60**.
+- **ROUGE-L:** LCS = "the cat on the mat" = 5 tokens → recall = 5/6 = **0.83**, precision = 5/5 = 1.0.
 
-### 7.6 Worked example — why the three disagree (the demo's whole point)
-```
-Reference:  "a man is playing a guitar"
-Candidate:  "a person is playing the guitar"     ← same meaning, two words swapped for synonyms
-```
-| n | matching n-grams | precision pₙ |
-|---|---|---|
-| 1-gram | a, is, playing, guitar (4/6) | 0.667 |
-| 2-gram | "is playing" (1/5) | 0.200 |
-| 3-gram | none | 0.000 |
-| 4-gram | none | 0.000 |
+🎯 **Same candidate, different lens:** BLEU (precision + brevity) = **0.71**; ROUGE-1 (recall) = **0.83**. **BLEU asks "was what you said right?"; ROUGE asks "did you cover what mattered?"** — that's the whole BLEU-vs-ROUGE distinction, and here you can see them diverge on one example.
 
-- **BLEU-4** = 0 — the geometric mean hits a zero (no 3-/4-gram match) → collapses to **0** without smoothing. A semantically *perfect* paraphrase scores **zero**.
-- **ROUGE-1 / ROUGE-L** ≈ 0.667 — better, but still docked a third for the synonym swaps.
-- **BERTScore-F1** ≈ **0.97** — recognizes "person"≈"man", "the"≈"a" → near-perfect, correctly.
+### 7.5 BERTScore — semantic similarity + IDF weighting
+The fatal flaw of BLEU/ROUGE: they only match **identical tokens**, so a correct *paraphrase* scores near zero. BERTScore fixes this by comparing **meaning**: embed every token with a contextual model (BERT/RoBERTa), then greedily match each token to its most-similar token in the other sentence by **cosine similarity**.
+```
+Recall    = (Σ_{x∈ref}  max_{y∈cand} cos(x, y)) / |ref|         (each REFERENCE token → its best match in the candidate)
+Precision = (Σ_{y∈cand} max_{x∈ref}  cos(x, y)) / |cand|        (each CANDIDATE token → its best match in the reference)
+F1        = 2PR/(P+R)
+```
 
-🎯 **This is the lesson of the whole metrics unit:** n-gram metrics (BLEU/ROUGE) are cheap and reproducible but **blind to meaning** — they punish valid paraphrases and reward lexical mimicry. BERTScore captures semantics but still needs a reference and can over-credit fluent-but-wrong text. **None of them judge factual correctness** — which is why open-ended and production eval moves to LLM-as-Judge (§8).
+**Worked example** — a pure paraphrase, where n-gram metrics fail:
+```
+Reference (R): "the dog is running"       [the, dog, is, running]
+Candidate (C): "a puppy is sprinting"     [a,  puppy, is, sprinting]
+   n-gram check first: only "is" overlaps → ROUGE-1 recall = 1/4 = 0.25, BLEU ≈ 0.  ❌ badly under-credits a correct paraphrase.
+```
+Contextual cosine similarities (illustrative): `puppy↔dog = 0.85`, `sprinting↔running = 0.88`, `is↔is = 1.0`, `a↔the = 0.90`.
+
+*Unweighted recall* (each R token → best C token):
+```
+the→a 0.90,  dog→puppy 0.85,  is→is 1.00,  running→sprinting 0.88
+Recall = (0.90 + 0.85 + 1.00 + 0.88) / 4 = 3.63/4 = 0.91
+```
+BERTScore ≈ **0.91** vs n-gram ≈ 0.25 — it correctly sees the paraphrase. `(certain)`
+
+**Now the IDF weighting (what your instructor stressed).** Notice the unweighted 0.91 was propped up by *easy* matches on common words — `is↔is = 1.0` and `a↔the = 0.90` — which carry almost no information. A system could look good just by reproducing stopwords. **IDF (inverse document frequency) fixes this: weight each token by how rare/informative it is** — common words (the, is, a) get a *small* weight, rare content words (dog, running) get a *large* one — so the score depends on matching the words that actually carry meaning:
+```
+IDF-weighted Recall = Σ_x ( idf(x) · max_y cos(x,y) )  /  Σ_x idf(x)
+
+idf:  the=0.1,  dog=0.8,  is=0.1,  running=0.9     ← stopwords down-weighted, content words up-weighted
+    = (0.1·0.90 + 0.8·0.85 + 0.1·1.00 + 0.9·0.88) / (0.1 + 0.8 + 0.1 + 0.9)
+    = (0.09    + 0.68     + 0.10     + 0.792   ) / 1.9
+    = 1.662 / 1.9
+    = 0.87
+```
+🎯 **What IDF did:** the score dropped 0.91 → **0.87** because it stopped rewarding the trivial `is↔is`/`a↔the` matches and now reflects how well the *content* words (dog→puppy, running→sprinting) were captured. **IDF weighting stops a model from gaming BERTScore with common words** — it makes rare, meaning-bearing tokens count most. (Precision is computed the same way with candidate-side IDF; F1 combines them → also ≈ 0.87 here.)
+
+### 7.6 The three side by side — why they disagree
+Running the same two examples through all three:
+
+| Example (Ref → Cand) | BLEU (precision) | ROUGE-1 (recall) | BERTScore (meaning) |
+|---|---|---|---|
+| "the cat is on the mat" → "the cat on the mat" (dropped a word) | 0.71 | 0.83 | ~0.96 |
+| "the dog is running" → "a puppy is sprinting" (paraphrase) | ~0.00 | 0.25 | 0.87 (IDF) |
+
+🎯 **The lesson of the whole metrics unit:** n-gram metrics (BLEU/ROUGE) are cheap and reproducible but **blind to meaning** — they punish valid paraphrases and reward lexical mimicry. BERTScore captures semantics (and IDF makes it weight the words that matter) but still needs a reference and can over-credit fluent-but-wrong text. **None of them judge factual correctness** — which is why open-ended and production eval moves to LLM-as-Judge (§8).
 
 ### 7.7 Perplexity — the intrinsic LM metric (know it exists)
-`PPL = exp( −(1/N) Σ log P(xᵢ | x_<ᵢ) )` — how "surprised" the model is by held-out text; lower = better language modeling. **Caveat:** it's **tokenizer-dependent** (can't compare across models with different vocabularies) and measures fluency/likelihood, *not* task correctness. Rarely the headline metric for an app; useful for pretraining/domain-fit checks. `(certain)`
+`PPL = exp( −(1/N) Σ log P(xᵢ | x_<ᵢ) )` — how "surprised" the model is by held-out text; lower = better.
+```
+If the model assigns the true next token an average probability of 0.1:
+   PPL = exp(−ln 0.1) = exp(2.30) = 10  →  "as unsure as picking among ~10 equally-likely words each step."
+```
+**Caveat:** it's **tokenizer-dependent** (can't compare across models with different vocabularies) and measures fluency/likelihood, *not* task correctness. Rarely the headline metric for an app; useful for pretraining/domain-fit checks. `(certain)`
 
 ---
 
@@ -318,13 +381,13 @@ predictions = [{"id": "1", "prediction_text": "Denver Broncos won"}]
 references  = [{"id": "1", "answers": {"text": ["Denver Broncos"], "answer_start": [0]}}]
 print(squad.compute(predictions=predictions, references=references))  # {'exact_match': 0.0, 'f1': 80.0}
 
-# ---- Generation quality: compare generated output vs reference ----
-ref  = [["a man is playing a guitar"]]           # BLEU takes a LIST of references per prediction
-cand = ["a person is playing the guitar"]
-print(evaluate.load("bleu").compute(predictions=cand, references=ref))       # low  (~0, no 3-4gram match)
-print(evaluate.load("rouge").compute(predictions=cand, references=[r[0] for r in ref]))  # ~0.67
+# ---- Generation quality: compare generated output vs reference (the §7 paraphrase pair) ----
+ref  = [["the dog is running"]]                  # BLEU takes a LIST of references per prediction
+cand = ["a puppy is sprinting"]
+print(evaluate.load("bleu").compute(predictions=cand, references=ref))       # ~0    (only "is" overlaps)
+print(evaluate.load("rouge").compute(predictions=cand, references=[r[0] for r in ref]))  # ROUGE-1 ~0.25
 print(evaluate.load("bertscore").compute(predictions=cand,
-        references=[r[0] for r in ref], lang="en"))                          # F1 ~0.97  ← semantics win
+        references=[r[0] for r in ref], lang="en"))                          # F1 ~0.87  ← semantics win
 ```
 
 ### 11.2 LLM-as-Judge (reference-less) — the prompt is the metric
@@ -454,8 +517,8 @@ Decision table — pick by task shape:
    <details><summary>answer</summary>**Reference-based:** compare to a gold answer — EM, F1, BLEU, ROUGE, BERTScore, accuracy. **Reference-less:** judge quality with no gold answer — LLM-as-Judge, perplexity, heuristics (valid JSON?), human rating.</details>
 3. BLEU vs ROUGE vs BERTScore — the one-line distinction for each.
    <details><summary>answer</summary>BLEU = n-gram **precision** (translation); ROUGE = n-gram **recall** (summarization); BERTScore = **cosine similarity of contextual embeddings** → captures meaning, not just surface overlap.</details>
-4. Reference "a man is playing a guitar", candidate "a person is playing the guitar": why does BERTScore ≫ BLEU?
-   <details><summary>answer</summary>BLEU needs exact n-gram matches — the synonym swaps kill the 3-/4-gram precision → BLEU-4 ≈ 0. BERTScore embeds tokens, so "person"≈"man" and "the"≈"a" match semantically → F1 ≈ 0.97. Overlap metrics are blind to paraphrase.</details>
+4. Reference "the dog is running", candidate "a puppy is sprinting": why does BERTScore ≫ BLEU, and what does IDF weighting change?
+   <details><summary>answer</summary>Only "is" overlaps as an exact token → BLEU ≈ 0, ROUGE-1 ≈ 0.25 — n-gram metrics are blind to paraphrase. BERTScore embeds tokens, so puppy≈dog (0.85) and sprinting≈running (0.88) match → ~0.91. **IDF weighting** down-weights the trivial stopword matches (is↔is, a↔the) and up-weights rare content words (dog, running), dropping it to ~0.87 so the score reflects meaning-bearing tokens, not stopword mimicry.</details>
 5. What are the official SQuAD metrics, and why report both?
    <details><summary>answer</summary>**Exact Match** (harsh, binary) and **token-level F1** (partial credit for overlapping spans). EM alone under-credits answers that are correct but include extra/missing tokens.</details>
 6. Name three LLM-as-Judge biases and a fix for each.
