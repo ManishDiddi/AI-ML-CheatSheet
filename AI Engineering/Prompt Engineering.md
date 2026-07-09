@@ -32,7 +32,7 @@ Prompt engineering = choosing "everything so far" so the continuation is what yo
 θ (the weights) never changes — you only change the CONTEXT.
 ```
 
-The model is a pattern-continuation machine (§[[LLM]]). You don't *ask* it in the human sense; you **set up a pattern it will complete**. "Translate to French: cat →" completes with "chat" because that's the most likely continuation. Every technique below is a different way of arranging the context so the most-likely continuation *is* the answer you need.
+The model is a pattern-continuation machine (see [[LLM]]). You don't *ask* it in the human sense; you **set up a pattern it will complete**. "Translate to French: cat →" completes with "chat" because that's the most likely continuation. Every technique below is a different way of arranging the context so the most-likely continuation *is* the answer you need.
 
 ```
    fine-tuning  →  change the WEIGHTS      (expensive, permanent, needs data)
@@ -47,7 +47,7 @@ The model is a pattern-continuation machine (§[[LLM]]). You don't *ask* it in t
 
 Two things make prompting effective, and both are worth stating precisely:
 
-**(a) Instruct models.** A *base* model just continues text; ask it a question and it may reply with more questions. An **instruct model** (base + SFT + RLHF, see [[LLM]]) has been tuned to **follow instructions** and respect **system/user roles**. Prompt engineering assumes an instruct model — that's why "Classify the sentiment…" works at all. The instructor's demo used **Llama-3.1/3.3-Instruct** and **Phi-2** (instruct) exactly for this reason.
+**(a) Instruct models.** A *base* model just continues text; ask it a question and it may reply with more questions. An **instruct model** (base + SFT + RLHF, see [[LLM]]) has been tuned to **follow instructions** and respect **system/user roles**. Prompt engineering leans on an instruct model — that's why "Classify the sentiment…" works reliably at all. The instructor's demo ran **instruction-tuned Llama-3.1/3.3** (via Groq) for exactly this reason — versus **Phi-2** (a small *base* model via HuggingFace), which handles simple prompts thanks to its training data but follows instructions *less* reliably than an instruct-tuned model.
 
 **(b) In-context learning (ICL).** When you put **examples** in the prompt, the model adapts to the pattern **within the forward pass — no weights update**. The "learning" is transient, living only in the context window.
 ```
@@ -158,7 +158,7 @@ A **structured CoT** goes further and *names* the steps ("1. identify pattern �
 🎯 *"CoT trades latency and tokens for accuracy, debuggability, and consistency on multi-step problems — the reasoning trace is both the accuracy boost and your window into failures."*
 
 ### 4.4 Self-consistency (the enrichment worth knowing)
-Sample **several** CoT chains at non-zero temperature and **majority-vote the final answers**. Different reasoning paths that converge on the same answer are more trustworthy — a cheap, reliable accuracy bump over a single greedy chain. `(certain)`
+Sample **several** CoT chains at non-zero temperature and **majority-vote the final answers**. Different reasoning paths that converge on the same answer are more trustworthy — a reliable accuracy bump over a single greedy chain, at the cost of **N× inference** (you run the model N times). `(certain)`
 
 ---
 
