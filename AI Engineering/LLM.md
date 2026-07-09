@@ -2,8 +2,8 @@
 
 > **TL;DR.** A modern LLM is a **decoder-only Transformer** trained to do one thing — predict the next token — at massive scale. That single self-supervised objective on internet-scale text yields a *base model* (a powerful autocomplete like GPT-2). Turning that into a helpful assistant (ChatGPT) is a **3-stage pipeline**: pretraining → **SFT / instruction tuning** → **RLHF** (preference alignment). At inference you turn its next-token probability distribution into text with a **decoding algorithm** (greedy / beam / top-k / top-p + temperature), and you talk to it through a **chat template** that encodes system/user/assistant roles.
 
-**Where it fits:** The generative branch of NLP — builds directly on the Transformer. Read [[RNN · LSTM · Transformers]] first for attention, tokenization, positional encodings, and the KV cache; this note is the decoder-only + training-pipeline + decoding + deployment story on top of it.
-**Prereqs:** [[RNN · LSTM · Transformers]] (self-attention, masking, tokenization), [[softmax]], [[reinforcement-learning-basics]].
+**Where it fits:** The generative branch of NLP — builds directly on the Transformer. Read [RNN · LSTM · Transformers](../Interview%20Prep/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) first for attention, tokenization, positional encodings, and the KV cache; this note is the decoder-only + training-pipeline + decoding + deployment story on top of it.
+**Prereqs:** [RNN · LSTM · Transformers](../Interview%20Prep/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (self-attention, masking, tokenization), [[softmax]], [[reinforcement-learning-basics]].
 
 ---
 
@@ -71,7 +71,7 @@ The most-asked conceptual question. Five reasons, in order of weight:
 1. **Generation is inherently autoregressive.** Producing text is left-to-right, one token at a time — a *causal* decoder is the natural match; you never have the "future" to attend to anyway.
 2. **The objective is free, dense, and unlabeled.** Next-token prediction needs no human labels → train on ~all the internet. And **every position is a training target** (dense signal), so one document yields thousands of supervised examples — extremely data/compute-efficient. `(certain)`
 3. **It scales cleanly.** One homogeneous stack (no encoder + decoder + cross-attention to balance) rides the **scaling laws** predictably as you add parameters/data/compute.
-4. **Task unification + in-context learning.** Frame *any* task as text continuation via the prompt ("Translate to French: …") — no task-specific architecture. With scale, **few-shot in-context learning** emerges for free (the basis of [[Prompt Engineering]]).
+4. **Task unification + in-context learning.** Frame *any* task as text continuation via the prompt ("Translate to French: …") — no task-specific architecture. With scale, **few-shot in-context learning** emerges for free (the basis of [Prompt Engineering](Prompt%20Engineering.md)).
 5. **Encoder pieces become redundant.** Encoder-only (BERT) *can't* generate. Encoder-decoder is great for fixed input→output (translation) but its bidirectional encoder + cross-attention add complexity that decoder-only + prompting matches or beats for open-ended generation at scale.
 
 🎯 **Kill-shot:** *"Generation is autoregressive, and next-token prediction is a free, dense, self-supervised objective that turns raw internet text into training signal — so a single causal decoder is the simplest architecture that scales, and prompting lets it absorb every task an encoder-decoder was built for."*
@@ -265,7 +265,7 @@ Decide along these axes — there is no single "best":
 | **Adaptability** | Fine-tunable? Good at **tool/function calling** & JSON? | Needed for agents / structured output |
 | **Multilinguality / domain** | Your languages & domain covered? | Domain models (code, medical) may beat generalists |
 
-**Practical recipe:** prototype on a strong **API** model to prove value → if cost/privacy/control demand it, move to an **open-weights** model (+ quantization) → **[[Evaluating LLMs|evaluate]] on your own task**, not leaderboards → prefer **RAG** (grounding, fresh knowledge) over fine-tuning unless you need a specific style/format the base model can't produce. 🎯 *"Don't fine-tune to add knowledge (use RAG); fine-tune to change behaviour/format."*
+**Practical recipe:** prototype on a strong **API** model to prove value → if cost/privacy/control demand it, move to an **open-weights** model (+ quantization) → **[evaluate](Evaluating%20LLMs.md) on your own task**, not leaderboards → prefer **RAG** (grounding, fresh knowledge) over fine-tuning unless you need a specific style/format the base model can't produce. 🎯 *"Don't fine-tune to add knowledge (use RAG); fine-tune to change behaviour/format."*
 
 ---
 

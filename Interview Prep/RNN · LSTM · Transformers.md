@@ -245,7 +245,7 @@ No single metric: **perplexity** (LM fit), **BLEU/ROUGE** (translation/summariza
 - **Efficient attention:** Longformer/BigBird (local+global+random sparse), Performer/linear attention (approximate), **FlashAttention** (exact but IO-aware — usually the first thing to try).
 - **State Space Models / Mamba** — `P1`, the live frontier: linear-time sequence modeling with strong long-context, no quadratic attention. Worth knowing as "the post-Transformer contender."
 - **When RNNs still win:** truly streaming inference (one token at a time, bounded memory), very small datasets (their locality/sequentiality inductive bias helps), and constrained edge devices.
-- **Decoder-only LLMs** (GPT/Llama) are this note's decoder taken to scale + a training pipeline — see [[LLM]] for architecture (GPT-2 walk-through), decoding algorithms, and the pretrain→SFT→RLHF path to ChatGPT.
+- **Decoder-only LLMs** (GPT/Llama) are this note's decoder taken to scale + a training pipeline — see [LLM](../AI%20Engineering/LLM.md) for architecture (GPT-2 walk-through), decoding algorithms, and the pretrain→SFT→RLHF path to ChatGPT.
 
 ---
 

@@ -36,7 +36,7 @@ The author is studying ML day by day (Scaler course) and wants one note per topi
 
 - **Author's voice is second-person and opinionated** ("your documented gap," "the sentence that proves you've built one"). Keep that register; don't rewrite into neutral encyclopedia prose.
 - Formulas are written inline as backticked pseudo-math (`s = (b − a) / max(a, b)`), not LaTeX/MathJax.
-- Wiki-links (`[[note]]`) and the Obsidian graph are in play — when adding a note that relates to an existing one, link it so the graph stays connected.
+- **Note-to-note links — same GitHub rule as images.** For a link whose target note **already exists**, use a **standard markdown relative link** — `[LLM](LLM.md)`, cross-folder `[RNN · LSTM · Transformers](../Interview%20Prep/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)` (URL-encode spaces as `%20`, `·`/U+00B7 as `%C2%B7`). These are **clickable on GitHub** *and* still counted by Obsidian's graph + backlinks pane, whereas `[[wikilinks]]` render as dead literal text on GitHub. Reserve `[[wiki-links]]` **only for not-yet-written notes** (forward-placeholders — a markdown link there would 404 on GitHub, so plain non-clickable text is preferable until the note exists; convert it to a markdown link when you create the target). Never bulk-convert `[[...]]` with a blind regex — numpy/pandas code (`df[["a","b"]]`) and this file's own examples use the same brackets.
 - Prefer precision over hedging in the *content*, but the interview notes deliberately flag uncertainty with the confidence tags above — those are a feature, not sloppiness.
 
 ## Git

@@ -2,8 +2,8 @@
 
 > **TL;DR.** Prompt engineering is programming an LLM **through its input**, not its weights — you shape the context so the frozen next-token predictor "continues the pattern" the way you want. There's a **ladder of techniques** in rising power/cost: **simple → zero-shot → one-shot → few-shot → Chain-of-Thought (CoT) → ReAct**. Few-shot teaches format/task from in-prompt examples (in-context learning, no training); **CoT** makes the model *show its reasoning* ("let's think step by step") to unlock multi-step problems; **ReAct** adds a **Thought → Action → Observation** loop so the model can **call tools** and pull in external, fresh information. Reach for the *cheapest rung that works*: prompt first, then RAG for knowledge, then fine-tuning for behavior.
 
-**Where it fits:** The cheapest, first-reach lever in AI engineering — you adapt an LLM's behavior with words before touching data or weights. Builds directly on [[LLM]] (next-token prediction, instruct-tuning, decoding params); pairs with [[Evaluating LLMs]] (how you *measure* whether a prompt is better) and points forward to [[RAG]] (grounding) and agents.
-**Prereqs:** [[LLM]] (base vs instruct models, chat roles, temperature/top-p), and the idea that generation is autoregressive.
+**Where it fits:** The cheapest, first-reach lever in AI engineering — you adapt an LLM's behavior with words before touching data or weights. Builds directly on [LLM](LLM.md) (next-token prediction, instruct-tuning, decoding params); pairs with [Evaluating LLMs](Evaluating%20LLMs.md) (how you *measure* whether a prompt is better) and points forward to [[RAG]] (grounding) and agents.
+**Prereqs:** [LLM](LLM.md) (base vs instruct models, chat roles, temperature/top-p), and the idea that generation is autoregressive.
 
 ---
 
@@ -32,7 +32,7 @@ Prompt engineering = choosing "everything so far" so the continuation is what yo
 θ (the weights) never changes — you only change the CONTEXT.
 ```
 
-The model is a pattern-continuation machine (see [[LLM]]). You don't *ask* it in the human sense; you **set up a pattern it will complete**. "Translate to French: cat →" completes with "chat" because that's the most likely continuation. Every technique below is a different way of arranging the context so the most-likely continuation *is* the answer you need.
+The model is a pattern-continuation machine (see [LLM](LLM.md)). You don't *ask* it in the human sense; you **set up a pattern it will complete**. "Translate to French: cat →" completes with "chat" because that's the most likely continuation. Every technique below is a different way of arranging the context so the most-likely continuation *is* the answer you need.
 
 ```
    fine-tuning  →  change the WEIGHTS      (expensive, permanent, needs data)
@@ -47,7 +47,7 @@ The model is a pattern-continuation machine (see [[LLM]]). You don't *ask* it in
 
 Two things make prompting effective, and both are worth stating precisely:
 
-**(a) Instruct models.** A *base* model just continues text; ask it a question and it may reply with more questions. An **instruct model** (base + SFT + RLHF, see [[LLM]]) has been tuned to **follow instructions** and respect **system/user roles**. Prompt engineering leans on an instruct model — that's why "Classify the sentiment…" works reliably at all. The instructor's demo ran **instruction-tuned Llama-3.1/3.3** (via Groq) for exactly this reason — versus **Phi-2** (a small *base* model via HuggingFace), which handles simple prompts thanks to its training data but follows instructions *less* reliably than an instruct-tuned model.
+**(a) Instruct models.** A *base* model just continues text; ask it a question and it may reply with more questions. An **instruct model** (base + SFT + RLHF, see [LLM](LLM.md)) has been tuned to **follow instructions** and respect **system/user roles**. Prompt engineering leans on an instruct model — that's why "Classify the sentiment…" works reliably at all. The instructor's demo ran **instruction-tuned Llama-3.1/3.3** (via Groq) for exactly this reason — versus **Phi-2** (a small *base* model via HuggingFace), which handles simple prompts thanks to its training data but follows instructions *less* reliably than an instruct-tuned model.
 
 **(b) In-context learning (ICL).** When you put **examples** in the prompt, the model adapts to the pattern **within the forward pass — no weights update**. The "learning" is transient, living only in the context window.
 ```
@@ -210,14 +210,14 @@ The ReAct paper's HotpotQA example (Apple-Remote question) is the one to remembe
 The techniques above are *what*; this is *how to write the actual prompt well* (audited in as a senior would — these are the levers that separate a flaky prompt from a robust one):
 
 - **Be specific & unambiguous.** Vague in → vague out. State the task, constraints, and audience ("explain to a 3rd grader").
-- **Specify the output format explicitly.** Ask for JSON / a single label / "only the number." Pair with low temperature. This is what makes outputs *parseable* downstream (and testable — see [[Evaluating LLMs]]).
+- **Specify the output format explicitly.** Ask for JSON / a single label / "only the number." Pair with low temperature. This is what makes outputs *parseable* downstream (and testable — see [Evaluating LLMs](Evaluating%20LLMs.md)).
 - **Use delimiters** to separate instructions from data (` ``` `, `###`, XML tags, the `//` label separator). Prevents the model from confusing your data for instructions — and blunts **prompt injection**.
 - **Assign a role / persona** via the system message ("You are a financial research assistant"). Steers tone and domain.
 - **Decompose** hard tasks into steps (structured CoT) or multiple prompts (prompt chaining: generate → critique → refine).
 - **Give the model an "out"** ("If the context doesn't contain the answer, say 'I don't know'") — cuts hallucination.
 - **Prefer positive instructions** ("respond in ≤2 sentences") over negative ("don't be verbose"); models follow *do* better than *don't*.
-- **Control decoding to the task:** temperature 0 for extraction/classification/math; higher for creative generation (see [[LLM]] decoding).
-- **Iterate against an eval set**, not vibes — prompts are sensitive; measure changes (§10, [[Evaluating LLMs]]).
+- **Control decoding to the task:** temperature 0 for extraction/classification/math; higher for creative generation (see [LLM](LLM.md) decoding).
+- **Iterate against an eval set**, not vibes — prompts are sensitive; measure changes (§10, [Evaluating LLMs](Evaluating%20LLMs.md)).
 
 **Common pitfalls:** overstuffed prompts (bury the instruction), inconsistent few-shot formats, examples that leak the wrong pattern, no format spec (unparseable output), and assuming a prompt that works on one model transfers to another (it often doesn't).
 
@@ -302,7 +302,7 @@ RAG (Retrieval-Augmented Generation) = restrict/ground the answer to a DEFINED K
      • UNTRAINED / private domains
      • cost-effective vs fine-tuning (no retraining; just index documents)
 ```
-You met RAG as a *system* to evaluate in [[Evaluating LLMs]]; the full retrieval + grounding mechanism gets its own note → **[[RAG]]**. The decision rule:
+You met RAG as a *system* to evaluate in [Evaluating LLMs](Evaluating%20LLMs.md); the full retrieval + grounding mechanism gets its own note → **[[RAG]]**. The decision rule:
 
 ```
 Need better FORMAT / behavior / reasoning?   → PROMPT ENGINEERING (this note): few-shot, CoT, ReAct
@@ -318,7 +318,7 @@ Need a permanent new STYLE/skill the base model can't do even with good prompts?
 The part study notes skip — prompts in a real system:
 
 - **Version & template your prompts.** Treat them as code: store templates, version them, diff changes. A prompt edit is a deploy.
-- **Regression-test every change** against a fixed eval set ([[Evaluating LLMs]]) — prompts are sensitive, so gate changes in CI, don't ship on vibes.
+- **Regression-test every change** against a fixed eval set ([Evaluating LLMs](Evaluating%20LLMs.md)) — prompts are sensitive, so gate changes in CI, don't ship on vibes.
 - **Token budget = cost & latency.** Few-shot examples and CoT traces are *input/output tokens you pay for on every call*. Trim examples to the minimum; cap `max_tokens`; consider CoT only where it moves the metric.
 - **Prompt caching.** Providers cache stable prefixes (long system prompts, fixed few-shot blocks) → put the invariant part first to cut cost/latency.
 - **Structured output & validation.** Ask for JSON/schema, then *validate* it; retry or repair on parse failure. Function/tool-calling APIs make this robust for ReAct.
