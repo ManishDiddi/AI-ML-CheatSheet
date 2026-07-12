@@ -179,7 +179,7 @@ Same tree, two swaps: `(certain)`
 - **Impurity → variance / MSE.** Entropy and Gini need class probabilities, which regression doesn't have. Instead score a node by the **variance (MSE) of its target values**; a good split reduces total variance.
 - **Prediction → the mean** of the target values in the leaf (not a majority vote).
 
-Consequence: a regression tree outputs a **piecewise-constant** surface (one value per leaf box). It therefore **cannot extrapolate** beyond the training range — predict outside it and you get the nearest leaf's flat mean, never a rising trend. (This is why trees struggle with time-series trends; see [Time Series](../Seasonal%20ARIMA%20with%20Exogenous%20Regressors.md).) `(certain)`
+Consequence: a regression tree outputs a **piecewise-constant** surface (one value per leaf box). It therefore **cannot extrapolate** beyond the training range — predict outside it and you get the nearest leaf's flat mean, never a rising trend. (This is why trees struggle with time-series trends; see [Time Series](../Time%20Series/Seasonal%20ARIMA%20with%20Exogenous%20Regressors.md).) `(certain)`
 
 ---
 
