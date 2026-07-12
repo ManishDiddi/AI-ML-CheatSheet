@@ -3,7 +3,7 @@
 > **TL;DR.** SARIMAX = **AR** (past values) + **I** (differencing to remove trend) + **MA** (past errors) + **Seasonal** versions of all three + **eXogenous** regressors. Notation `(p,d,q)(P,D,Q)[s] + X`. It's the classical, interpretable workhorse for a *single* time series with trend, one seasonal cycle, and known external drivers. The non-negotiables: make the series **stationary** first, read orders from **ACF/PACF**, only use exogenous variables whose **future values you'll have at forecast time**, and validate with **walk-forward** CV — never k-fold.
 
 **Where it fits:** Univariate forecasting (demand, sales, traffic) with modest data and a need for interpretable coefficients + uncertainty intervals. For many series, multiple seasonalities, or nonlinear drivers, move to the alternatives in §10.
-**Prereqs:** [[stationarity]], [[autocorrelation-acf-pacf]], [[linear-regression]], [[time-series-cross-validation]].
+**Prereqs:** [[stationarity]], [[autocorrelation-acf-pacf]], [linear regression](Supervised%20ML/Linear%20Regression.md), [[time-series-cross-validation]].
 
 ```
 Running example — monthly ice-cream sales (3 yrs), exog = avg temperature (°C):
@@ -199,7 +199,7 @@ Formal test: Ljung–Box (want p > 0.05 → cannot reject "no autocorrelation").
 
 ### Operating the model
 - **Retraining cadence + drift:** time series drift by nature; schedule refits and monitor rolling forecast error — a sustained rise signals **concept drift / structural break** → retrain or re-specify.
-- **Scaling to many series:** SARIMAX is **one model per series** and doesn't share learning. For thousands of SKUs/stores this is slow and weak on short/cold-start series → use a **global model** (one [[gradient-boosting]] or deep model over all series with lag+calendar features) — see §10.
+- **Scaling to many series:** SARIMAX is **one model per series** and doesn't share learning. For thousands of SKUs/stores this is slow and weak on short/cold-start series → use a **global model** (one [gradient boosting](Supervised%20ML/Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md) or deep model over all series with lag+calendar features) — see §10.
 - **Reproducibility:** persist the fitted state, the exact differencing/transform pipeline, and the exog schema; set the index frequency.
 
 ---
