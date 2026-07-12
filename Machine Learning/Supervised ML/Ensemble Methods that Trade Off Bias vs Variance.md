@@ -34,6 +34,12 @@ Boosting →  solves HIGH BIAS      (model underfits) → train SEQUENTIALLY, ea
 - **Bagging** = *"ask 100 independent experts and average their votes."* Each expert overfits in a different direction; averaging cancels the noise.
 - **Boosting** = *"a single expert who keeps studying their own past mistakes."* Each round it focuses on what the ensemble still gets wrong.
 
+**The four ensemble families** (be able to name all four; this note dives into the first two, the bias/variance workhorses):
+- **Bagging** — parallel learners on bootstrap samples, then averaged → cuts **variance** (Random Forest).
+- **Boosting** — sequential learners, each correcting the last's errors → cuts **bias** (GBDT/XGBoost).
+- **Stacking** — train several *diverse* base models, then a **meta-model** learns how best to combine their (out-of-fold) predictions.
+- **Cascading** — chain models by **confidence**: pass only the low-confidence cases on to the next, costlier stage (often a human) — common in fraud/medical screening.
+
 ---
 
 ## 2. The Formal Core
@@ -370,4 +376,4 @@ Simple 5-fold CV is fine when: dataset is large (>10K), search space is small, a
 
 ---
 
-*Covers: Bagging, Random Forest, Boosting, GBDT, XGBoost, LightGBM, CatBoost, SHAP/interpretability, calibration, imbalanced classification, cross-validation & leakage.*
+*Covers: the four ensemble families (bagging/boosting/stacking/cascading), Random Forest, Boosting, GBDT, XGBoost, LightGBM, CatBoost, SHAP/interpretability, calibration, imbalanced classification, cross-validation & leakage.*
