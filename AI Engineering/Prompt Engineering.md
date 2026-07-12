@@ -2,7 +2,7 @@
 
 > **TL;DR.** Prompt engineering is programming an LLM **through its input**, not its weights — you shape the context so the frozen next-token predictor "continues the pattern" the way you want. There's a **ladder of techniques** in rising power/cost: **simple → zero-shot → one-shot → few-shot → Chain-of-Thought (CoT) → ReAct**. Few-shot teaches format/task from in-prompt examples (in-context learning, no training); **CoT** makes the model *show its reasoning* ("let's think step by step") to unlock multi-step problems; **ReAct** adds a **Thought → Action → Observation** loop so the model can **call tools** and pull in external, fresh information. Reach for the *cheapest rung that works*: prompt first, then RAG for knowledge, then fine-tuning for behavior.
 
-**Where it fits:** The cheapest, first-reach lever in AI engineering — you adapt an LLM's behavior with words before touching data or weights. Builds directly on [LLM](LLM.md) (next-token prediction, instruct-tuning, decoding params); pairs with [Evaluating LLMs](Evaluating%20LLMs.md) (how you *measure* whether a prompt is better) and points forward to [[RAG]] (grounding) and agents.
+**Where it fits:** The cheapest, first-reach lever in AI engineering — you adapt an LLM's behavior with words before touching data or weights. Builds directly on [LLM](LLM.md) (next-token prediction, instruct-tuning, decoding params); pairs with [Evaluating LLMs](Evaluating%20LLMs.md) (how you *measure* whether a prompt is better) and points forward to [RAG](RAG.md) (grounding) and agents.
 **Prereqs:** [LLM](LLM.md) (base vs instruct models, chat roles, temperature/top-p), and the idea that generation is autoregressive.
 
 ---
@@ -302,7 +302,7 @@ RAG (Retrieval-Augmented Generation) = restrict/ground the answer to a DEFINED K
      • UNTRAINED / private domains
      • cost-effective vs fine-tuning (no retraining; just index documents)
 ```
-You met RAG as a *system* to evaluate in [Evaluating LLMs](Evaluating%20LLMs.md); the full retrieval + grounding mechanism gets its own note → **[[RAG]]**. The decision rule:
+You met RAG as a *system* to evaluate in [Evaluating LLMs](Evaluating%20LLMs.md); the full retrieval + grounding mechanism gets its own note → **[RAG](RAG.md)**. The decision rule:
 
 ```
 Need better FORMAT / behavior / reasoning?   → PROMPT ENGINEERING (this note): few-shot, CoT, ReAct
@@ -355,7 +355,7 @@ Climb only as high as the task demands:
 | Need an exact format / boundary | **Few-shot** | Examples pin format via in-context learning |
 | Multi-step math / logic / decisions | **Chain-of-Thought** | Reasoning trace boosts accuracy + debuggability |
 | Needs fresh / external / exact-computed info | **ReAct (tools)** | Thought→Action→Observation fetches real data |
-| Grounding in a fixed document corpus | **[[RAG]]** | Restricts answers to a knowledge base; kills hallucination |
+| Grounding in a fixed document corpus | **[RAG](RAG.md)** | Restricts answers to a knowledge base; kills hallucination |
 | Durable new style/skill the base model lacks | **Fine-tuning** | Only weight changes give a permanent new behavior |
 
 **Meta-rule:** start at the **bottom** of the ladder and climb only when an eval shows you must — every rung adds tokens, latency, and failure surface. 🎯 *"The best prompt is the simplest one that passes your eval; reach for CoT/ReAct/RAG only when a cheaper rung provably falls short."*
@@ -380,7 +380,7 @@ Climb only as high as the task demands:
 7. When do you pick ReAct over plain CoT?
    <details><summary>answer</summary>When the answer needs **external information** (beyond the model's knowledge/cutoff), **multiple lookups**, **multi-step research**, or **tool calling** (DB, calculator, web). CoT only uses the model's own knowledge; ReAct pulls in fresh facts via tools in a loop.</details>
 8. Prompting can't fix which problem, and what do you reach for instead?
-   <details><summary>answer</summary>It can't add **knowledge** the model lacks or that post-dates its cutoff → use **tools (ReAct)** or **[[RAG]]** to ground answers in a defined knowledge base; fine-tune only for a durable new skill/style.</details>
+   <details><summary>answer</summary>It can't add **knowledge** the model lacks or that post-dates its cutoff → use **tools (ReAct)** or **[RAG](RAG.md)** to ground answers in a defined knowledge base; fine-tune only for a durable new skill/style.</details>
 
 ---
 

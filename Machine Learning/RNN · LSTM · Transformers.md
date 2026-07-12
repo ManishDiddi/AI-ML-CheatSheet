@@ -179,7 +179,7 @@ T5          Encoder-Decoder  Text-to-text         SEQ2SEQ: translation, summariz
 Attention weights are *seductively* readable — you can plot which tokens "it" attended to (§4a) and it often looks like a clean explanation. Use it, but know the trap:
 
 - **"Attention is not explanation."** `(certain)` High attention weight ≠ causal importance: you can often permute/alter attention without changing the prediction, and multiple attention distributions yield the same output. Treat attention maps as a *hint*, not proof.
-- **Better tools:** **Integrated Gradients / gradient×input** for token attribution, **probing classifiers** (can you recover POS/syntax from a layer's activations?), and **mechanistic interpretability** (identifying circuits like *induction heads* that do in-context copying). For LLM outputs specifically, attribution to retrieved context (in [[rag]]) is the practical "why."
+- **Better tools:** **Integrated Gradients / gradient×input** for token attribution, **probing classifiers** (can you recover POS/syntax from a layer's activations?), and **mechanistic interpretability** (identifying circuits like *induction heads* that do in-context copying). For LLM outputs specifically, attribution to retrieved context (in [RAG](../AI%20Engineering/RAG.md)) is the practical "why."
 
 🎯 **Interview line:** *"I'll show attention maps for intuition, but I won't claim them as explanations — 'attention is not explanation' is well established; for real attribution I use integrated gradients or probing."*
 
@@ -204,7 +204,7 @@ Top-k / Top-p random sample from top k / nucleus mass p  → the default for ope
 
 ### Adapting models
 - **Fine-tuning:** full FT (update all weights) vs **PEFT/LoRA** (train tiny low-rank adapters, ~0.1% of params, swap per task) — LoRA is the practical default. **Instruction tuning** + **RLHF/DPO** align base LMs to follow instructions/preferences.
-- **Grounding:** plain LMs **hallucinate**; retrieve relevant documents and condition on them → **[[rag]]** is the standard production pattern for factual tasks.
+- **Grounding:** plain LMs **hallucinate**; retrieve relevant documents and condition on them → **[RAG](../AI%20Engineering/RAG.md)** is the standard production pattern for factual tasks.
 
 ### Evaluation & monitoring
 No single metric: **perplexity** (LM fit), **BLEU/ROUGE** (translation/summarization, weak), task accuracy/F1, and increasingly **human or LLM-as-judge** for open-ended quality. Monitor **input drift** (new topics/languages), **latency/cost per token**, **toxicity/safety**, and refusal/hallucination rates.
