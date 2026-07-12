@@ -109,7 +109,7 @@ If the end-to-end answer is wrong, component evals tell you whether the **retrie
 
 ### High-level: evaluating a RAG *system* vs evaluating an LLM
 
-You haven't covered [[RAG]] yet, so just the shape of the difference (deep-dive belongs in a future RAG note):
+You haven't covered [RAG](RAG.md) yet, so just the shape of the difference (deep-dive belongs in a future RAG note):
 
 ```
 Evaluating an LLM alone        →  ONE thing to judge: the generated text.
@@ -121,7 +121,7 @@ Evaluating a RAG SYSTEM        →  TWO stages to judge separately, because eith
       grounded in it and not hallucinated, and does it answer the question?
 ```
 
-The new axis RAG introduces is **faithfulness / groundedness**: not "is the answer true in general?" but "is it *supported by the retrieved context?*" A perfectly true answer the model knew from pretraining but that *isn't* in the retrieved docs still signals a retrieval failure. 🎯 *"For a bare LLM you ask 'is the answer good?'; for RAG you also ask 'did we retrieve the right context, and is the answer faithful to it?' — retrieval and grounding are extra failure modes a standalone LLM doesn't have."* (Frameworks like RAGAS score exactly this — faithfulness, answer relevance, context precision/recall — you'll meet them with [[RAG]].) `(likely)`
+The new axis RAG introduces is **faithfulness / groundedness**: not "is the answer true in general?" but "is it *supported by the retrieved context?*" A perfectly true answer the model knew from pretraining but that *isn't* in the retrieved docs still signals a retrieval failure. 🎯 *"For a bare LLM you ask 'is the answer good?'; for RAG you also ask 'did we retrieve the right context, and is the answer faithful to it?' — retrieval and grounding are extra failure modes a standalone LLM doesn't have."* (Frameworks like RAGAS score exactly this — faithfulness, answer relevance, context precision/recall — you'll meet them with [RAG](RAG.md).) `(likely)`
 
 ---
 
@@ -578,7 +578,7 @@ Same thing as a table — pick by task shape:
 | Summarization | **ROUGE** + BERTScore + faithfulness | Recall of key content + semantic + not-hallucinated |
 | Open-ended chat / writing | **LLM-as-Judge + human/Arena** | No reference; multi-dim quality |
 | Code generation | **pass@k** | Correctness = passes unit tests, not text overlap |
-| RAG app | retrieval metrics + **faithfulness** | Two failure stages ([[RAG]]) |
+| RAG app | retrieval metrics + **faithfulness** | Two failure stages ([RAG](RAG.md)) |
 | Production system | **implicit feedback + A/B + online judge** | Real users, no static reference |
 
 **Meta-rule:** prefer the **cheapest metric that's valid for the task**, and *layer* — deterministic checks (format/EM) → overlap/semantic (F1/BERTScore) → judge → human — using the expensive ones only where the cheap ones can't discriminate. 🎯 *"There is no universal LLM metric; there's a metric per task shape, and a good eval stack combines several."*

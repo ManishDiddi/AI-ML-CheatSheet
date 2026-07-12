@@ -239,7 +239,7 @@ This is the concrete fix for the base model's *"no roles / no behavioural contro
 ## 8. When It Breaks
 
 ```
-❌ Hallucination — fluent, confident, wrong. It optimizes plausibility, not truth → ground with [[rag]].
+❌ Hallucination — fluent, confident, wrong. It optimizes plausibility, not truth → ground with [RAG](RAG.md).
 ❌ Context window limit — can only attend to N tokens (GPT-2: 1024; modern: 8k–1M). Beyond it, info is dropped.
 ❌ Knowledge cutoff — frozen at training time; no new events without retrieval/tools.
 ❌ Decoding sensitivity — too-high temperature → incoherent; greedy → repetition loops.
