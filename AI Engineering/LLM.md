@@ -2,8 +2,8 @@
 
 > **TL;DR.** A modern LLM is a **decoder-only Transformer** trained to do one thing — predict the next token — at massive scale. That single self-supervised objective on internet-scale text yields a *base model* (a powerful autocomplete like GPT-2). Turning that into a helpful assistant (ChatGPT) is a **3-stage pipeline**: pretraining → **SFT / instruction tuning** → **RLHF** (preference alignment). At inference you turn its next-token probability distribution into text with a **decoding algorithm** (greedy / beam / top-k / top-p + temperature), and you talk to it through a **chat template** that encodes system/user/assistant roles.
 
-**Where it fits:** The generative branch of NLP — builds directly on the Transformer. Read [RNN · LSTM · Transformers](../Interview%20Prep/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) first for attention, tokenization, positional encodings, and the KV cache; this note is the decoder-only + training-pipeline + decoding + deployment story on top of it.
-**Prereqs:** [RNN · LSTM · Transformers](../Interview%20Prep/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (self-attention, masking, tokenization), [[softmax]], [[reinforcement-learning-basics]].
+**Where it fits:** The generative branch of NLP — builds directly on the Transformer. Read [RNN · LSTM · Transformers](../Machine%20Learning/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) first for attention, tokenization, positional encodings, and the KV cache; this note is the decoder-only + training-pipeline + decoding + deployment story on top of it.
+**Prereqs:** [RNN · LSTM · Transformers](../Machine%20Learning/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (self-attention, masking, tokenization), [[softmax]], [[reinforcement-learning-basics]].
 
 ---
 
