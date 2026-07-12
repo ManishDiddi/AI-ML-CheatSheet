@@ -2,7 +2,7 @@
 
 > **TL;DR.** Linear regression models a continuous target as a weighted sum of features, `ŷ = w·x + b`, and finds the weights that minimise **mean squared error**. Two ways to solve it: the **closed-form normal equation** (exact, but `O(d³)`) or **gradient descent** (iterative, scales to many features). It's the *first model you reach for* on tabular regression — fast, cheap, and fully interpretable (each weight = "effect of this feature, holding others fixed"). Reach for it when the relationship is roughly linear and you need to *explain* the model; drop it when relationships are strongly non-linear or features are highly collinear (fix the latter with **regularization**: Ridge/Lasso).
 
-**Where it fits:** The foundation of supervised **regression** (continuous `y`). Everything downstream — [[Logistic Regression]] (swap the output through a sigmoid), regularized models, even a single neuron in a [[Neural Network Fundamentals]] — is this idea with one twist added.
+**Where it fits:** The foundation of supervised **regression** (continuous `y`). Everything downstream — [Logistic Regression](Logistic%20Regression.md) (swap the output through a sigmoid), regularized models, even a single neuron in a [[Neural Network Fundamentals]] — is this idea with one twist added.
 **Prereqs:** basic linear algebra (dot product, matrix inverse), [[Gradient Descent]], mean/variance, train/test split.
 
 ---
@@ -229,7 +229,7 @@ Remember them as **L.I.N.E. + no collinearity**. Each has a *diagnostic* and a *
 | #     | Assumption                                                          | How to check                                         | If violated                                                                                              |                                                                |
 | ----- | ------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | **L** | **Linearity** — `E[y                                                | x]` is linear in the features                        | residual-vs-fitted plot shows no curve                                                                   | add polynomial/interaction features, or transform (`log`, `√`) |
-| **I** | **Independent errors** — no autocorrelation                         | Durbin–Watson ≈ 2; residuals vs time show no pattern | common in [[Time Series]] → use ARIMA/add lags                                                           |                                                                |
+| **I** | **Independent errors** — no autocorrelation                         | Durbin–Watson ≈ 2; residuals vs time show no pattern | common in [Time Series](../Seasonal%20ARIMA%20with%20Exogenous%20Regressors.md) → use ARIMA/add lags                                                           |                                                                |
 | **N** | **Normality of residuals**                                          | Q–Q plot, histogram of residuals                     | usually from outliers/skew → transform `y` (e.g. `log(price)`); large-n CLT often rescues inference      |                                                                |
 | **E** | **Equal variance (homoscedasticity)**                               | residual-vs-fitted "funnel" = bad                    | transform `y`, use **Weighted Least Squares**, or robust (heteroscedasticity-consistent) standard errors |                                                                |
 | **—** | **No multicollinearity** — features not linear combos of each other | **VIF**                                              | drop/combine features, PCA, or use **Ridge**                                                             |                                                                |
@@ -309,8 +309,8 @@ This is the **bias–variance tradeoff** made tunable: increasing `λ` adds bias
 | Many/correlated features, overfitting | **Ridge / Lasso / ElasticNet** | shrink or select weights |
 | Outlier-heavy target | **Huber / RANSAC regression** | linear-in-tails loss resists outliers |
 | Strong non-linearity, interactions, tabular | **[Gradient-boosted trees](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md)** | capture non-linearity automatically, usually win on tabular accuracy |
-| Predicting a **class**, not a number | **[[Logistic Regression]]** | same linear core, squashed by a sigmoid into a probability |
-| Errors autocorrelated over time | **[[Time Series]] (ARIMA/SARIMAX)** | linear regression assumes independent errors |
+| Predicting a **class**, not a number | **[Logistic Regression](Logistic%20Regression.md)** | same linear core, squashed by a sigmoid into a probability |
+| Errors autocorrelated over time | **[Time Series](../Seasonal%20ARIMA%20with%20Exogenous%20Regressors.md) (ARIMA/SARIMAX)** | linear regression assumes independent errors |
 
 **Decision rule:** start with linear regression as the baseline you must beat. If residual plots show curvature → add polynomial features or move to trees. If coefficients are unstable → regularize. If you need probabilities/classes → logistic. Only accept a complex model if it beats the linear baseline by enough to justify the loss of interpretability (**Occam's razor**).
 

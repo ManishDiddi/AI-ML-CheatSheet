@@ -2,7 +2,7 @@
 
 > **TL;DR.** A decision tree carves the feature space into boxes with **axis-parallel splits**, choosing each split to make the resulting nodes as **pure** (single-class) as possible — measured by **entropy** or **Gini impurity**, maximised via **information gain**. Predict by dropping a point down the tree to a leaf and taking the **majority class** (classification) or **mean** (regression). It's the most **interpretable** model there is (it's literally a flowchart), needs **no feature scaling**, and handles mixed data types — but a single deep tree **overfits badly** (high variance), which is exactly why we wrap trees in [ensembles](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md).
 
-**Where it fits:** Supervised **classification and regression** on tabular data. Captures non-linear boundaries that [Logistic Regression](Logistic%20Regression.md) can't, and unlike [[KNN]] it does its work at *training* time so inference is cheap. The building block of Random Forests & Gradient Boosting.
+**Where it fits:** Supervised **classification and regression** on tabular data. Captures non-linear boundaries that [Logistic Regression](Logistic%20Regression.md) can't, and unlike [KNN](KNN.md) it does its work at *training* time so inference is cheap. The building block of Random Forests & Gradient Boosting.
 **Prereqs:** [Classification Metrics](Classification%20Metrics.md) (confusion matrix), the [bias–variance tradeoff](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md), basic probability (for entropy).
 
 ---
@@ -39,7 +39,7 @@ Age < 35 ?
 ```
 
 - **Why trees, not a line?** Real boundaries are often non-linear; a line underfits. Trees stack simple cuts to fit any shape. `(certain)`
-- **Why not [[KNN]], which also fits non-linear data?** KNN stores *all* training data and searches it at every prediction → you can't productionise it at scale. A tree learns compact rules at training time, so inference is a handful of comparisons. `(certain)`
+- **Why not [KNN](KNN.md), which also fits non-linear data?** KNN stores *all* training data and searches it at every prediction → you can't productionise it at scale. A tree learns compact rules at training time, so inference is a handful of comparisons. `(certain)`
 - 🎯 The killer feature is **interpretability**: "employees under 35 who work >2.5h overtime tend to churn" is a sentence a business acts on — no other model gives you that for free. `(certain)`
 - **Training = finding the questions.** Given the features, learning a tree means discovering *which feature and threshold to split on, in what order*. The objective: each split should make child nodes **purer** than the parent.
 
@@ -179,7 +179,7 @@ Same tree, two swaps: `(certain)`
 - **Impurity → variance / MSE.** Entropy and Gini need class probabilities, which regression doesn't have. Instead score a node by the **variance (MSE) of its target values**; a good split reduces total variance.
 - **Prediction → the mean** of the target values in the leaf (not a majority vote).
 
-Consequence: a regression tree outputs a **piecewise-constant** surface (one value per leaf box). It therefore **cannot extrapolate** beyond the training range — predict outside it and you get the nearest leaf's flat mean, never a rising trend. (This is why trees struggle with time-series trends; see [[Time Series]].) `(certain)`
+Consequence: a regression tree outputs a **piecewise-constant** surface (one value per leaf box). It therefore **cannot extrapolate** beyond the training range — predict outside it and you get the nearest leaf's flat mean, never a rising trend. (This is why trees struggle with time-series trends; see [Time Series](../Seasonal%20ARIMA%20with%20Exogenous%20Regressors.md).) `(certain)`
 
 ---
 
@@ -232,7 +232,7 @@ Consequence: a regression tree outputs a **piecewise-constant** surface (one val
 | Best tabular accuracy, variance is hurting you | **[Random Forest / Gradient Boosting](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md)** | many trees average out a single tree's instability |
 | Linear-ish boundary, want probabilities | **[Logistic Regression](Logistic%20Regression.md)** | simpler, calibrated, fewer ways to overfit |
 | Smooth/continuous relationship, extrapolation needed | **[Linear Regression](Linear%20Regression.md)** | trees are piecewise-constant and can't extrapolate |
-| Small data, non-linear, latency not a concern | **[[KNN]]** | no training, but can't productionise at scale |
+| Small data, non-linear, latency not a concern | **[KNN](KNN.md)** | no training, but can't productionise at scale |
 
 **Decision rule:** use a single decision tree when **interpretability is the deliverable**; the moment accuracy matters more than explainability, move to a tree **ensemble** — same building block, dramatically lower variance. Everything you learn here (impurity, information gain, splitting) *is* the machinery inside Random Forests and XGBoost.
 

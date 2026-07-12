@@ -3,7 +3,7 @@
 > **TL;DR.** Both combine many weak learners into one strong model, but they attack opposite problems. **Bagging** trains learners *in parallel* on bootstrap samples and averages them → kills **variance** (use when your model overfits; Random Forest is the flagship). **Boosting** trains learners *sequentially*, each fixing the last one's errors → kills **bias** (use for max accuracy on clean data; XGBoost / LightGBM / CatBoost are the flagships). Reach for bagging when data is noisy/outlier-heavy, boosting when data is clean and you need every last point of accuracy.
 
 **Where it fits:** Supervised tabular ML — still the *default winning approach* on structured/tabular data (boosting wins most Kaggle tabular competitions; deep learning rarely beats it there).
-**Prereqs:** [[decision-trees]], [[bias-variance-tradeoff]], [[gradient-descent]], [[cross-validation]].
+**Prereqs:** [decision trees](Decision%20Trees.md), [[bias-variance-tradeoff]], [[gradient-descent]], [[cross-validation]].
 
 ---
 

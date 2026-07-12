@@ -2,7 +2,7 @@
 
 > **TL;DR.** Take [Linear Regression](Linear%20Regression.md)'s linear score `z = w·x + b`, squash it through a **sigmoid** into a probability in `(0, 1)`, and threshold that to a class. Train it by minimising **log-loss** (cross-entropy), *not* MSE — because MSE-with-sigmoid is non-convex. The output is a genuine, well-calibrated probability and each weight has a clean **odds-ratio** interpretation (`exp(wⱼ)`), which is why it's the default in credit scoring and medicine. Reach for it as your classification baseline when you want speed, probabilities, and interpretability; drop it when the decision boundary is strongly non-linear (it can only draw a hyperplane).
 
-**Where it fits:** The workhorse of **binary (and multiclass) classification**. It's [Linear Regression](Linear%20Regression.md) + a sigmoid + a new loss — master that note first. Its evaluation lives in [[Classification Metrics]] (confusion matrix, precision/recall, ROC).
+**Where it fits:** The workhorse of **binary (and multiclass) classification**. It's [Linear Regression](Linear%20Regression.md) + a sigmoid + a new loss — master that note first. Its evaluation lives in [Classification Metrics](Classification%20Metrics.md) (confusion matrix, precision/recall, ROC).
 **Prereqs:** [Linear Regression](Linear%20Regression.md) (hyperplanes, weights, [[Gradient Descent]], regularization), sigmoid, logs, basic probability.
 
 ---
@@ -90,7 +90,7 @@ J(w) = (1/n) Σᵢ −[ yᵢ log(p̂ᵢ) + (1−yᵢ) log(1−p̂ᵢ) ]   +   λ
 2. Fit            gradient descent minimises log-loss → learns w, b   (no closed form!)
 3. Score          z = w·x + b  →  p̂ = σ(z)
 4. Threshold      ŷ = 1 if p̂ ≥ t else 0     (t is a business choice, not always 0.5)
-5. Evaluate       confusion matrix / precision-recall / ROC — see [[Classification Metrics]]
+5. Evaluate       confusion matrix / precision-recall / ROC — see [Classification Metrics](Classification%20Metrics.md)
 ```
 
 **No normal equation.** Unlike linear regression, there's no closed-form `(XᵀX)⁻¹Xᵀy`; the sigmoid makes it non-linear in `w`, so you *must* iterate (gradient descent / Newton's method / L-BFGS). `(certain)`
@@ -101,7 +101,7 @@ J(w) = (1/n) Σᵢ −[ yᵢ log(p̂ᵢ) + (1−yᵢ) log(1−p̂ᵢ) ]   +   λ
 - **Cancer screening** — missing a case (FN) is catastrophic, so **lower** the threshold (e.g. 0.3) to catch more positives at the cost of more false alarms.
 - **Spam-to-inbox** — a false positive (real mail → spam) is costly, so **raise** the threshold.
 
-Threshold choice is downstream of the *probability*, so you tune it on validation data against a cost matrix — see [[Classification Metrics]].
+Threshold choice is downstream of the *probability*, so you tune it on validation data against a cost matrix — see [Classification Metrics](Classification%20Metrics.md).
 
 ---
 
@@ -221,7 +221,7 @@ Example: `wⱼ = 0.7` → `exp(0.7) ≈ 2.0` → "each extra unit **doubles the 
 - **Non-linear boundaries.** It draws only hyperplanes. If classes interleave in a circle/XOR, it underfits — add polynomial features, or use trees/SVM-RBF/neural nets.
 - **Outliers — a nuanced story.** Because the sigmoid **saturates**, an outlier *far on the correct side* contributes ~0 loss and ~0 gradient → logistic regression is actually **more robust** to those than linear regression. But an outlier on the **wrong side** (or a mislabeled point) sits where the loss `−log(p̂)` blows up → it drags the boundary. So: correct-side outliers, mostly harmless; wrong-side/mislabeled, damaging → find and fix. `(certain)`
 - **Perfect separation** — the classic gotcha. If a feature (or combination) perfectly splits the classes, MLE pushes the weights to **±∞** to make `p̂` exactly 0/1; training won't converge and coefficients explode. **Regularization (L2) is the fix** — it caps the weights. `(certain)`
-- **Class imbalance.** With 99% negatives, it can learn "always predict negative" (99% accuracy, useless). Use `class_weight='balanced'`, resampling, threshold tuning, and judge with PR-AUC/F1 — **not accuracy** ([[Classification Metrics]]).
+- **Class imbalance.** With 99% negatives, it can learn "always predict negative" (99% accuracy, useless). Use `class_weight='balanced'`, resampling, threshold tuning, and judge with PR-AUC/F1 — **not accuracy** ([Classification Metrics](Classification%20Metrics.md)).
 - **Multicollinearity.** Like linear regression, correlated features make coefficients (and their odds-ratio interpretations) unstable — drop/combine features or lean on L2.
 - **Assumptions** it *does* make: linearity **of the log-odds** in the features, independent observations, little multicollinearity, and a reasonably large sample. It does **not** assume normally-distributed features or residuals (a common confusion with linear regression). `(likely)`
 
@@ -252,7 +252,7 @@ Example: `wⱼ = 0.7` → `exp(0.7) ≈ 2.0` → "each extra unit **doubles the 
 - *What is the C parameter?* → Inverse regularization strength (`C = 1/λ`); small C = strong regularization. Opposite direction to Ridge's `alpha`.
 - *When does training blow up?* → Perfect separation → weights → ∞; fix with L2 regularization.
 - *Is it robust to outliers?* → Correct-side outliers barely matter (sigmoid saturates); wrong-side/mislabeled ones hurt.
-- *Why not evaluate with accuracy?* → Under imbalance a trivial model scores high; use precision/recall/F1/ROC-AUC — see [[Classification Metrics]].
+- *Why not evaluate with accuracy?* → Under imbalance a trivial model scores high; use precision/recall/F1/ROC-AUC — see [Classification Metrics](Classification%20Metrics.md).
 
 ---
 
@@ -264,7 +264,7 @@ Example: `wⱼ = 0.7` → `exp(0.7) ≈ 2.0` → "each extra unit **doubles the 
 | Curved boundary, still want a linear model | **LogReg + polynomial features** | boundary becomes linear in expanded space |
 | Strong non-linearity / interactions on tabular data | **[Gradient-boosted trees](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md)** | capture non-linearity, usually top tabular accuracy |
 | Max-margin separation, high-dim (e.g. text) | **[[SVM]]** | margin objective; kernels for non-linearity |
-| Simple, fast, high-dim text baseline | **[[Naive Bayes]]** | trains in one pass, strong on bag-of-words |
+| Simple, fast, high-dim text baseline | **[Naive Bayes](Naive%20Bayes.md)** | trains in one pass, strong on bag-of-words |
 | Predicting a **number**, not a class | **[Linear Regression](Linear%20Regression.md)** | wrong tool for continuous targets |
 | Deep feature learning (images/text) | **[[Neural Network Fundamentals]]** | a logistic unit is literally the last layer |
 
@@ -288,8 +288,8 @@ Example: `wⱼ = 0.7` → `exp(0.7) ≈ 2.0` → "each extra unit **doubles the 
 6. Is logistic regression sensitive to outliers? Be precise.
    <details><summary>answer</summary>Depends on side: outliers far on the *correct* side barely matter (sigmoid saturates → ~0 loss/gradient); outliers on the *wrong* side (or mislabeled) blow up `−log(p̂)` and shift the boundary.</details>
 7. Why is accuracy a poor metric here, and where do you go instead?
-   <details><summary>answer</summary>Under class imbalance a trivial "predict majority" model scores high but is useless. Use the confusion matrix, precision/recall/F1, PR-AUC, ROC-AUC — see [[Classification Metrics]].</details>
+   <details><summary>answer</summary>Under class imbalance a trivial "predict majority" model scores high but is useless. Use the confusion matrix, precision/recall/F1, PR-AUC, ROC-AUC — see [Classification Metrics](Classification%20Metrics.md).</details>
 
 ---
 
-*Covers: sigmoid & the linear score, log-loss/cross-entropy & its MLE origin, why-not-MSE (convexity), the gradient, decision boundary & thresholding, C = 1/λ regularization & perfect separation, OvR vs softmax multiclass, log-odds & odds-ratio interpretation, outlier nuance, calibration, solvers, and class imbalance. Sourced from the Scaler Logistic Regression lecture; evaluation depth continues in [[Classification Metrics]].*
+*Covers: sigmoid & the linear score, log-loss/cross-entropy & its MLE origin, why-not-MSE (convexity), the gradient, decision boundary & thresholding, C = 1/λ regularization & perfect separation, OvR vs softmax multiclass, log-odds & odds-ratio interpretation, outlier nuance, calibration, solvers, and class imbalance. Sourced from the Scaler Logistic Regression lecture; evaluation depth continues in [Classification Metrics](Classification%20Metrics.md).*

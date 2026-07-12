@@ -2,7 +2,7 @@
 
 > **TL;DR.** Accuracy lies under class imbalance (predict "all majority" and score 99%). Everything trustworthy is built from the **confusion matrix**: **precision** = of what you flagged positive, how much was right (punishes false positives); **recall** = of the real positives, how many you caught (punishes false misses); **F1** = their harmonic mean (punishes either one dropping). These are all measured at *one threshold*; **ROC-AUC** and **PR-AUC** summarise performance across *all* thresholds. Pick the metric from the *cost of errors*: recall for cancer/fraud (a miss is deadly), precision for spam-to-inbox (a false alarm is costly), F1/PR-AUC when positives are rare.
 
-**Where it fits:** The measurement layer for every classifier — [Logistic Regression](Logistic%20Regression.md), [trees](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md), [[Naive Bayes]], [[KNN]]. Choosing the wrong metric is how good-looking models fail in production.
+**Where it fits:** The measurement layer for every classifier — [Logistic Regression](Logistic%20Regression.md), [trees](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md), [Naive Bayes](Naive%20Bayes.md), [KNN](KNN.md). Choosing the wrong metric is how good-looking models fail in production.
 **Prereqs:** [Logistic Regression](Logistic%20Regression.md) (probabilities, thresholding), the notion of positive/negative class.
 
 ---
