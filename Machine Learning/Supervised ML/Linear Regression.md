@@ -2,7 +2,7 @@
 
 > **TL;DR.** Linear regression models a continuous target as a weighted sum of features, `ŷ = w·x + b`, and finds the weights that minimise **mean squared error**. Two ways to solve it: the **closed-form normal equation** (exact, but `O(d³)`) or **gradient descent** (iterative, scales to many features). It's the *first model you reach for* on tabular regression — fast, cheap, and fully interpretable (each weight = "effect of this feature, holding others fixed"). Reach for it when the relationship is roughly linear and you need to *explain* the model; drop it when relationships are strongly non-linear or features are highly collinear (fix the latter with **regularization**: Ridge/Lasso).
 
-**Where it fits:** The foundation of supervised **regression** (continuous `y`). Everything downstream — [Logistic Regression](Logistic%20Regression.md) (swap the output through a sigmoid), regularized models, even a single neuron in a [[Neural Network Fundamentals]] — is this idea with one twist added.
+**Where it fits:** The foundation of supervised **regression** (continuous `y`). Everything downstream — [Logistic Regression](Logistic%20Regression.md) (swap the output through a sigmoid), regularized models, even a single neuron in a [Neural Network Fundamentals](../Neural%20Networks/Neural%20Network%20Fundamentals.md) — is this idea with one twist added.
 **Prereqs:** basic linear algebra (dot product, matrix inverse), [[Gradient Descent]], mean/variance, train/test split.
 
 ---

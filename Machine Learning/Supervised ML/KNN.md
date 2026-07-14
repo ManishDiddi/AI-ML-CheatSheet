@@ -219,7 +219,7 @@ K = K_best   → tune on validation: plot error vs K, pick the minimum
 | Small data, non-linear boundary, latency OK | **KNN** | zero training, flexible boundary |
 | Same shape but must serve fast / at scale | **[Decision Trees](Decision%20Trees.md) / ensembles** | learn compact rules → cheap inference |
 | Linear-ish boundary, want probabilities | **[Logistic Regression](Logistic%20Regression.md)** | parametric, calibrated, fast |
-| High-dimensional data (text, images) | **linear models / [[Neural Network Fundamentals]]** | KNN's distances collapse in high-d |
+| High-dimensional data (text, images) | **linear models / [Neural Network Fundamentals](../Neural%20Networks/Neural%20Network%20Fundamentals.md)** | KNN's distances collapse in high-d |
 | Similarity search / recommendations / RAG | **KNN via ANN index (FAISS/HNSW)** | KNN *is* the right tool — just approximate it |
 | Missing-value imputation | **KNNImputer** | fills from similar rows, distribution-preserving |
 
