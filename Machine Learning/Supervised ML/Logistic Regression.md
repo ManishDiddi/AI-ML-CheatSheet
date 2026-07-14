@@ -266,7 +266,7 @@ Example: `wⱼ = 0.7` → `exp(0.7) ≈ 2.0` → "each extra unit **doubles the 
 | Max-margin separation, high-dim (e.g. text) | **[[SVM]]** | margin objective; kernels for non-linearity |
 | Simple, fast, high-dim text baseline | **[Naive Bayes](Naive%20Bayes.md)** | trains in one pass, strong on bag-of-words |
 | Predicting a **number**, not a class | **[Linear Regression](Linear%20Regression.md)** | wrong tool for continuous targets |
-| Deep feature learning (images/text) | **[[Neural Network Fundamentals]]** | a logistic unit is literally the last layer |
+| Deep feature learning (images/text) | **[Neural Network Fundamentals](../Neural%20Networks/Neural%20Network%20Fundamentals.md)** | a logistic unit is literally the last layer |
 
 **Decision rule:** logistic regression is the classification baseline you must beat. Keep it if the boundary is roughly linear and you value probabilities/interpretability; move to trees when residual analysis or CV shows it underfitting the non-linear structure. A single logistic unit is also the final layer of most classification neural nets — you're learning the atom of deep learning.
 
