@@ -36,6 +36,13 @@ This hierarchical feature learning is WHY CNNs work for vision.
 - **Filter = a learnable pattern detector** slid across the image. Layer-1 filters are interpretable (edge/colour detectors); deep-layer filters detect abstract combinations that don't map to human-describable concepts.
 - **The big win over a dense net:** a fully-connected layer on a 224×224×3 image needs **150,528 weights per neuron**; a 3×3×3 conv filter covers the same job with **27 weights**, reused everywhere → fewer parameters *and* translation invariance (a cat top-left is detected the same as bottom-right).
 
+**The three image properties CNNs exploit** (name them cold — this is the "why CNN over MLP" answer):
+- **Locality** — neighbouring pixels are correlated; a feature only needs a small patch → *local filters* (sparse connections).
+- **Stationarity** — the same pattern recurs at many positions → *weight sharing* (one filter applied everywhere).
+- **Compositionality** — high-level features are pooled from lower-level ones → *stacked conv + pooling*.
+
+These are the CNN's built-in **inductive bias**; they map one-to-one onto local filters / weight sharing / downsampling, and are *why* a CNN needs far less data than an MLP on images — it doesn't have to learn these facts, the architecture assumes them. The flip side (MLP on images): flattening destroys spatial structure, gives no translation invariance, and needs a separate weight per pixel → parameter explosion + relearning every pattern at every location.
+
 ---
 
 ## 2. The Formal Core
@@ -58,7 +65,7 @@ Pooling:     params = 0                                ← trick question; say i
 FC layer:    params = (n_in + 1) × n_out               ← where param counts explode
 ```
 
-**Receptive field** (region of the *input* one neuron sees) grows `+(f−1)` per stacked layer: three 3×3 layers → 7×7 RF with `3×(3·3)=27` params vs one 7×7 layer's `49` params — same RF, **45% fewer params** (this is why VGG uses only 3×3). `(certain)`
+**Receptive field** (region of the *input* one neuron sees) grows `+(f−1)` per stacked layer: three 3×3 layers → 7×7 RF with `3×(3·3)=27` params vs one 7×7 layer's `49` params — same RF, **45% fewer params** (this is why VGG uses only 3×3). `(certain)` Pooling accelerates this: a 2×2/stride-2 pool roughly *doubles* the RF-growth rate, so RF grows ~exponentially with depth+pooling vs linearly with conv alone — that's a second reason pooling matters beyond compute. The **effective** RF is smaller than this theoretical box: central input pixels reach a neuron through many more paths than border pixels, so influence tapers ~Gaussian from the centre. `(certain)`
 
 **Batch Norm (per channel):** `x̂ = (x − μ)/√(σ²+ε)`, then `y = γx̂ + β` with learnable `γ, β`. `μ, σ²` over `(batch, H, W)`.
 
@@ -67,7 +74,10 @@ FC layer:    params = (n_in + 1) × n_out               ← where param counts e
 ## 3. How It Works
 
 ### Filters & weight sharing
-Example 3×3 vertical-edge detector `[[-1,0,1],[-1,0,1],[-1,0,1]]` → strong response where left is bright and right is dark, zero where no edge. Many filters = many patterns: 32 filters on layer 1 → 32 feature maps, each answering *"where is pattern k present?"* The **same** weights are applied at every position (weight sharing) → translation invariance + parameter efficiency.
+Example 3×3 vertical-edge detector `[-1,0,1] / [-1,0,1] / [-1,0,1]` → strong response where left is bright and right is dark, zero where no edge. Many filters = many patterns: 32 filters on layer 1 → 32 feature maps, each answering *"where is pattern k present?"* The **same** weights are applied at every position (weight sharing) → translation invariance + parameter efficiency.
+
+### Why kernels are odd-sized (3×3, 5×5 — never 2×2 or 4×4)
+An odd kernel has a **single central pixel**, so its output maps back to a well-defined integer centre with the previous-layer pixels sitting symmetrically around it. An even kernel's centre falls *between* pixels (at x=0.5) → asymmetric padding and a half-pixel shift that accumulates distortion across stacked layers. 🎯 *"Odd sizes give a symmetric receptive field with a real centre pixel — that's why 3×3 is the workhorse and you never see 2×2 conv kernels."*
 
 ### Stride & padding
 ```
@@ -275,7 +285,7 @@ heatmap = cam(input_tensor=img)[0]      # overlay on img → "where it looked"
 ### Monitoring & reliability
 - **CNNs are overconfident** — softmax probabilities aren't calibrated; apply **temperature scaling** on a held-out set if you threshold on confidence. `(certain)`
 - **Watch image drift** (brightness/contrast/resolution/source-camera shifts) and **out-of-distribution** inputs (a confident prediction on garbage is the classic failure). Track per-class precision/recall on labeled feedback, not just accuracy.
-- Different vision tasks reuse the CNN backbone with different heads — **detection** ([[yolo]], Faster R-CNN), **segmentation** ([[u-net]], Mask R-CNN); know that the backbone transfers but the head/loss/metrics (mAP, IoU) change.
+- Different vision tasks reuse the CNN backbone with different heads — **detection** ([YOLO, Faster R-CNN](Object%20Detection.md)), **segmentation** ([[u-net]], Mask R-CNN); know that the backbone transfers but the head/loss/metrics (mAP, IoU) change.
 
 ---
 
