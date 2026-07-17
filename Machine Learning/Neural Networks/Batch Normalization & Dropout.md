@@ -3,7 +3,7 @@
 > **TL;DR.** Two layers you sprinkle into a network for two *different* jobs. **Batch Normalization** normalizes each layer's inputs to mean 0 / variance 1 **across the batch**, then rescales with two learned parameters (`γ, β`) — it stabilizes the distribution flowing through the net so you can train **faster, with higher learning rates, and less sensitivity to initialization** (plus a mild regularizing side-effect). **Dropout** randomly **zeros a fraction `p` of activations each training step**, forcing the network not to rely on any single unit → it fights **overfitting** by acting like an implicit ensemble of sub-networks. The catch both share: they behave **differently at training vs inference** — BN switches to running population stats, Dropout switches fully off (with inverted-dropout scaling so no rescaling is needed). Canonical block: `Dense → BatchNorm → Activation → Dropout`.
 
 **Where it fits:** the regularization + normalization toolkit for [neural networks](Neural%20Network%20Fundamentals.md) — what you reach for when a deep net trains slowly, is unstable, or overfits.
-**Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (activations, overfitting, vanishing/exploding gradients), [Weight Initialization & Optimizers](Weight%20Initialization%20%26%20Optimizers.md) (learning rate, why activation scale matters).
+**Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (activations, overfitting, vanishing/exploding gradients), [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md) (learning rate, why activation scale matters).
 
 ---
 
@@ -66,7 +66,7 @@ y_ij = γ_j · x̂_ij + β_j                    # LEARNED scale γ and shift β 
 - **Why `γ, β`?** Forcing every layer to mean-0/var-1 is too rigid — it could remove useful signal (e.g. saturate a sigmoid's usable range). The learnable `γ` (scale) and `β` (shift) let the network **undo the normalization if that's what's best**, so BN never *costs* representational power. `(certain)`
 - 🎯 **The classic story is "internal covariate shift": as earlier layers' weights change during training, the distribution of inputs to later layers keeps shifting, so each layer chases a moving target. BN pins that distribution in place → the layer trains against a stable input → you can use much higher learning rates and converge far faster.** *(Note: later research argues the real benefit is a smoother loss landscape rather than ICS per se — but "reduces internal covariate shift" is the expected interview answer.)* `(likely)`
 - **Train vs inference — the crucial asymmetry:** at **training** BN uses the *current batch's* `μ_B, σ²_B` and updates a **running (EMA) mean & variance**; at **inference** it uses those **fixed running population stats** (a single test example has no meaningful "batch" statistics). Frameworks toggle this via `training=True/False` / `model.eval()`. `(certain)`
-- **Benefits:** higher learning rates, faster convergence, reduced sensitivity to [initialization](Weight%20Initialization%20%26%20Optimizers.md), and **mild regularization** (each sample's normalization depends on the random batch it landed in → noise). `(certain)`
+- **Benefits:** higher learning rates, faster convergence, reduced sensitivity to [initialization](Weight%20Initialization%20&%20Optimizers.md), and **mild regularization** (each sample's normalization depends on the random batch it landed in → noise). `(certain)`
 - **For conv layers** BN normalizes per-channel over `(batch, height, width)` — one `γ, β` per channel, preserving spatial equivariance. `(likely)`
 
 ---
@@ -154,7 +154,7 @@ def dropout_infer(a):
 - **Fine-tuning:** when transfer-learning, it's common to **freeze BN layers** (keep their running stats) so a small new dataset doesn't corrupt population statistics learned on the large source set. `(likely)`
 - **Normalization choice by architecture:** **BatchNorm** for CNNs/vision; **LayerNorm** for Transformers/RNNs (and the default in LLMs); **GroupNorm** for small-batch detection/segmentation. Know that Transformers deliberately use LayerNorm, not BN. `(certain)`
 - **Dropout is mostly a training artifact** — it adds *no* inference cost (it's off), so it's a free-to-serve regularizer; tune `p` on validation loss.
-- **Modern regularization stack:** BN/LayerNorm + weight decay ([AdamW](Weight%20Initialization%20%26%20Optimizers.md)) + data augmentation + early stopping often matters more than Dropout in large models; Dropout remains standard in Transformer FFN/attention and dense heads. `(likely)`
+- **Modern regularization stack:** BN/LayerNorm + weight decay ([AdamW](Weight%20Initialization%20&%20Optimizers.md)) + data augmentation + early stopping often matters more than Dropout in large models; Dropout remains standard in Transformer FFN/attention and dense heads. `(likely)`
 
 ---
 
@@ -189,7 +189,7 @@ def dropout_infer(a):
 | Method | Mechanism | Note |
 |---|---|---|
 | **Dropout** | random activation masking | standard for dense/attention/FFN layers |
-| **Weight decay / L2** | penalize large weights | use [AdamW](Weight%20Initialization%20%26%20Optimizers.md); complements Dropout |
+| **Weight decay / L2** | penalize large weights | use [AdamW](Weight%20Initialization%20&%20Optimizers.md); complements Dropout |
 | **Early stopping** | stop at best val loss | cheapest regularizer |
 | **Data augmentation** | expand effective data | often the strongest for vision/text |
 | **BatchNorm (side-effect)** | batch noise | mild; can reduce need for Dropout |
@@ -216,4 +216,4 @@ def dropout_infer(a):
 
 ---
 
-*Covers: Dropout (Bernoulli mask, inverted-dropout 1/(1−p) scaling, train-on/infer-off, anti-co-adaptation / implicit ensemble, rates & placement, SpatialDropout/DropConnect); BatchNorm (per-feature batch normalization, learned γ/β, internal-covariate-shift story + the smoother-landscape caveat, running stats at inference, conv per-channel, benefits); layer ordering (`Dense→BN→Act→Dropout`, use_bias=False, BN-before/after-activation debate, BN+Dropout variance shift); worked traces; train/inference-mode bug, small-batch BN, BN in RNNs; production (BN folding, batch-size dependence, freezing BN in fine-tuning, LayerNorm/GroupNorm/InstanceNorm alternatives); regularization comparison (Dropout vs L2/AdamW vs early stopping vs augmentation). Sourced from the "AI vs Human text detection" tutorial's BatchNorm & Dropout sections + production practice. Foundations: [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md), [Weight Initialization & Optimizers](Weight%20Initialization%20%26%20Optimizers.md).*
+*Covers: Dropout (Bernoulli mask, inverted-dropout 1/(1−p) scaling, train-on/infer-off, anti-co-adaptation / implicit ensemble, rates & placement, SpatialDropout/DropConnect); BatchNorm (per-feature batch normalization, learned γ/β, internal-covariate-shift story + the smoother-landscape caveat, running stats at inference, conv per-channel, benefits); layer ordering (`Dense→BN→Act→Dropout`, use_bias=False, BN-before/after-activation debate, BN+Dropout variance shift); worked traces; train/inference-mode bug, small-batch BN, BN in RNNs; production (BN folding, batch-size dependence, freezing BN in fine-tuning, LayerNorm/GroupNorm/InstanceNorm alternatives); regularization comparison (Dropout vs L2/AdamW vs early stopping vs augmentation). Sourced from the "AI vs Human text detection" tutorial's BatchNorm & Dropout sections + production practice. Foundations: [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md), [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md).*

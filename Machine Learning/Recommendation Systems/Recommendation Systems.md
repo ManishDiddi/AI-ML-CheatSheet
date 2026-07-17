@@ -2,8 +2,8 @@
 
 > **TL;DR.** A recommender predicts how a user would rate/engage with items and returns the top ones. The data is a huge, **>99% sparse** user×item matrix `A` (missing ≠ dislike). Three classical families: **collaborative filtering** (recommend from the interaction matrix — *item-item* similarity, robust; *user-user*, drifts), **content-based** (use item/user **metadata** — solves cold start), and **hybrid**. The scalable winner is **matrix factorization**: learn a small **latent vector per user and per item** so `A_ij ≈ Uᵢ · Vⱼ`, training **only on observed entries** (SGD/ALS + regularization) — this both compresses and **fills the missing cells** (matrix completion, the Netflix-Prize idea). Its exact linear-algebra cousin is **SVD / truncated SVD** (keep the top themes = denoise). The perennial headache is **cold start** (new users/items have no history).
 
-**Where it fits:** Personalization for Netflix/Amazon/Spotify/YouTube — the scalable answer to what [Association Rules](Association%20Rules%20%26%20Market%20Basket%20Analysis.md) can't do at e-commerce scale. Matrix factorization is [dimensionality reduction](../Unsupervised%20ML/PCA%20%26%20t-SNE.md) applied to interactions.
-**Prereqs:** [KNN](../Supervised%20ML/KNN.md)/cosine similarity, [gradient descent & regularization](../Supervised%20ML/Linear%20Regression.md), [PCA/SVD](../Unsupervised%20ML/PCA%20%26%20t-SNE.md).
+**Where it fits:** Personalization for Netflix/Amazon/Spotify/YouTube — the scalable answer to what [Association Rules](Association%20Rules%20&%20Market%20Basket%20Analysis.md) can't do at e-commerce scale. Matrix factorization is [dimensionality reduction](../Unsupervised%20ML/PCA%20&%20t-SNE.md) applied to interactions.
+**Prereqs:** [KNN](../Supervised%20ML/KNN.md)/cosine similarity, [gradient descent & regularization](../Supervised%20ML/Linear%20Regression.md), [PCA/SVD](../Unsupervised%20ML/PCA%20&%20t-SNE.md).
 
 ---
 
@@ -144,7 +144,7 @@ Matrix Factorization  = the general "A ≈ P·Qᵀ" idea
        └─ Truncated SVD = top-k themes → denoise/compress/complete
        └─ PCA = SVD of mean-centered data, using V as principal components → dimensionality reduction
 ```
-So **PCA is SVD on centered data**, and **learned MF is the sparse/approximate version of SVD** — see [PCA & t-SNE](../Unsupervised%20ML/PCA%20%26%20t-SNE.md) for the eigen/variance details.
+So **PCA is SVD on centered data**, and **learned MF is the sparse/approximate version of SVD** — see [PCA & t-SNE](../Unsupervised%20ML/PCA%20&%20t-SNE.md) for the eigen/variance details.
 
 ---
 
@@ -239,4 +239,4 @@ A_reduced = TruncatedSVD(n_components=20).fit_transform(A)   # scipy/np.linalg.s
 
 ---
 
-*Covers: the sparse user-item matrix (missing≠dislike), the recsys evolution, collaborative filtering (item-item & user-user, cosine similarity, item-item stability), content-based filtering (metadata, cold-start fix, over-specialisation), the cold start problem, matrix factorization (latent factors, observed-only loss, SGD/ALS, matrix completion, Netflix, explicit vs implicit), SVD & truncated SVD (themes, denoising, and the MF/SVD/PCA relationship), ranking evaluation (Precision@k/NDCG/MAP), popularity bias, and deep-learning recommenders. Sourced from the Scaler Recommendation Systems lecture; SVD/PCA linear algebra in [PCA & t-SNE](../Unsupervised%20ML/PCA%20%26%20t-SNE.md).*
+*Covers: the sparse user-item matrix (missing≠dislike), the recsys evolution, collaborative filtering (item-item & user-user, cosine similarity, item-item stability), content-based filtering (metadata, cold-start fix, over-specialisation), the cold start problem, matrix factorization (latent factors, observed-only loss, SGD/ALS, matrix completion, Netflix, explicit vs implicit), SVD & truncated SVD (themes, denoising, and the MF/SVD/PCA relationship), ranking evaluation (Precision@k/NDCG/MAP), popularity bias, and deep-learning recommenders. Sourced from the Scaler Recommendation Systems lecture; SVD/PCA linear algebra in [PCA & t-SNE](../Unsupervised%20ML/PCA%20&%20t-SNE.md).*
