@@ -2,7 +2,7 @@
 
 > **TL;DR.** A neuron is just [logistic regression](../Supervised%20ML/Logistic%20Regression.md): `z = w·x + b`, then a non-linear **activation** `a = f(z)`. Stack layers of them and the **non-linearities** let the network carve *non-linear* decision boundaries that a single linear model can't (spirals, XOR). Training is a loop: **forward propagation** (`Z = XW + b → A = f(Z)`, layer by layer, to a prediction + loss) → **backpropagation** (the chain rule pushes the error backward to get `∂Loss/∂W`) → **gradient descent** (`W ← W − η·∂Loss/∂W`). The gotcha that shaped modern DL: **sigmoid/tanh saturate** (derivative ≤ 0.25) so gradients **vanish** through deep stacks — **ReLU** (`max(0,z)`) fixed that and unlocked depth (at the cost of **dying ReLU**, patched by **Leaky ReLU**).
 
-**Where it fits:** The foundation of **deep learning** — every CNN, RNN, and Transformer is this plus structure. It's [logistic/softmax regression](../Supervised%20ML/Logistic%20Regression.md) stacked and made non-linear. Optimizers/initialization get their own note: [Weight Initialization & Optimizers](Weight%20Initialization%20%26%20Optimizers.md).
+**Where it fits:** The foundation of **deep learning** — every CNN, RNN, and Transformer is this plus structure. It's [logistic/softmax regression](../Supervised%20ML/Logistic%20Regression.md) stacked and made non-linear. Optimizers/initialization get their own note: [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md).
 **Prereqs:** [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md) (sigmoid, log-loss), softmax & [cross-entropy](../Supervised%20ML/Classification%20Metrics.md), [gradient descent & the chain rule](../Supervised%20ML/Linear%20Regression.md), matrix multiplication.
 
 ---
@@ -185,11 +185,11 @@ model.fit(X, y, epochs=20, batch_size=32, validation_split=0.2)
 
 ## 9. When It Breaks
 
-- **Vanishing gradients** — sigmoid/tanh in deep stacks (§7). Fix: **ReLU/variants**, residual connections, batch norm, and careful **initialization** (see [Weight Initialization & Optimizers](Weight%20Initialization%20%26%20Optimizers.md)).
+- **Vanishing gradients** — sigmoid/tanh in deep stacks (§7). Fix: **ReLU/variants**, residual connections, batch norm, and careful **initialization** (see [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md)).
 - **Exploding gradients** — gradients blow up (common in deep/recurrent nets). Fix: gradient clipping, normalization, better init.
 - **Dying ReLU** — dead neurons stuck at 0 gradient → Leaky ReLU / smaller learning rate / better init.
-- **Symmetry — why you must random-initialize.** If all weights start equal, every neuron computes the same thing and receives the same gradient → they stay identical forever and the layer is useless. Random init **breaks symmetry** so neurons specialize. (Init strategy is its own topic — [Weight Initialization & Optimizers](Weight%20Initialization%20%26%20Optimizers.md).) `(certain)`
-- **Overfitting** — lots of parameters memorize noise; combat with **[dropout, batch norm](Batch%20Normalization%20%26%20Dropout.md), early stopping, weight decay (L2)**, and more data.
+- **Symmetry — why you must random-initialize.** If all weights start equal, every neuron computes the same thing and receives the same gradient → they stay identical forever and the layer is useless. Random init **breaks symmetry** so neurons specialize. (Init strategy is its own topic — [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md).) `(certain)`
+- **Overfitting** — lots of parameters memorize noise; combat with **[dropout, batch norm](Batch%20Normalization%20&%20Dropout.md), early stopping, weight decay (L2)**, and more data.
 - **Data & compute hungry** — NNs need large datasets and (usually) GPUs; on small tabular data, [gradient-boosted trees](../Supervised%20ML/Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md) often win.
 
 ---
@@ -245,4 +245,4 @@ model.fit(X, y, epochs=20, batch_size=32, validation_split=0.2)
 
 ---
 
-*Covers: why NN over linear models (non-linearity + universal approximation), the neuron as logistic regression, dense-layer architecture & the matrix form `Z=XW+b`, forward propagation, loss (BCE, softmax/cross-entropy), backpropagation (chain rule, `dZ=A−Y`, `dW=XᵀdZ`, layer-by-layer), activation functions (sigmoid/tanh saturation, vanishing gradients, ReLU, dying ReLU, Leaky ReLU), symmetry-breaking initialization, and overfitting. Sourced from Scaler NN lectures 1–2. Optimizers & initialization: [Weight Initialization & Optimizers](Weight%20Initialization%20%26%20Optimizers.md).*
+*Covers: why NN over linear models (non-linearity + universal approximation), the neuron as logistic regression, dense-layer architecture & the matrix form `Z=XW+b`, forward propagation, loss (BCE, softmax/cross-entropy), backpropagation (chain rule, `dZ=A−Y`, `dW=XᵀdZ`, layer-by-layer), activation functions (sigmoid/tanh saturation, vanishing gradients, ReLU, dying ReLU, Leaky ReLU), symmetry-breaking initialization, and overfitting. Sourced from Scaler NN lectures 1–2. Optimizers & initialization: [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md).*

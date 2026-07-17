@@ -156,7 +156,7 @@ Use GMM when clusters **overlap**, are **elliptical/correlated**, or you need **
 - **Assumes Gaussian components** — if the true clusters aren't blob/ellipse-shaped (rings, crescents), GMM misfits; density-based [DBSCAN](Clustering.md) handles those. 🎯 Scaler's own takeaway: GMM often ends up *close to K-Means*, so people just use K-Means unless they specifically need soft/elliptical clusters. `(certain)`
 - **Singularity collapse** — a Gaussian can shrink onto a single point: its variance → 0 and the likelihood → ∞ (degenerate solution). Fix with covariance **regularization** (sklearn's `reg_covar`) or restarting. `(likely)`
 - **Local optima / init-sensitivity** — EM only finds a local max; use multiple inits (`n_init`) and K-Means initialization.
-- **`full` covariance is parameter-hungry** — `O(K·d²)` covariance parameters; in high `d` it overfits or turns singular → drop to `diag`/`spherical` or reduce dims with [PCA](PCA%20%26%20t-SNE.md) first.
+- **`full` covariance is parameter-hungry** — `O(K·d²)` covariance parameters; in high `d` it overfits or turns singular → drop to `diag`/`spherical` or reduce dims with [PCA](PCA%20&%20t-SNE.md) first.
 
 ---
 

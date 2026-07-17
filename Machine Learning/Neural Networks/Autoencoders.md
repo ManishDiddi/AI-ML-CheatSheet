@@ -1,9 +1,9 @@
 # Autoencoders — Learning Compressed Representations by Reconstructing the Input
 
-> **TL;DR.** An autoencoder is an hourglass-shaped network trained to **output its own input** (`x̂ ≈ x`). Because the signal must squeeze through a narrow **bottleneck** layer, the network is forced to learn a compact **latent representation (embedding)** that keeps only the information needed to rebuild `x`. The **encoder** compresses `x → z`, the **decoder** rebuilds `z → x̂`; you train end-to-end on reconstruction loss, then **throw the decoder away and keep the encoder** as a feature extractor. It's *self-supervised* (the label is the input), so it needs **no labels**. Uses: non-linear dimensionality reduction (a non-linear [PCA](../Unsupervised%20ML/PCA%20%26%20t-SNE.md)), **denoising**, feature extraction / transfer learning, embeddings for recommenders/search/clustering, and [anomaly detection](../Unsupervised%20ML/Anomaly%20Detection.md) via reconstruction error.
+> **TL;DR.** An autoencoder is an hourglass-shaped network trained to **output its own input** (`x̂ ≈ x`). Because the signal must squeeze through a narrow **bottleneck** layer, the network is forced to learn a compact **latent representation (embedding)** that keeps only the information needed to rebuild `x`. The **encoder** compresses `x → z`, the **decoder** rebuilds `z → x̂`; you train end-to-end on reconstruction loss, then **throw the decoder away and keep the encoder** as a feature extractor. It's *self-supervised* (the label is the input), so it needs **no labels**. Uses: non-linear dimensionality reduction (a non-linear [PCA](../Unsupervised%20ML/PCA%20&%20t-SNE.md)), **denoising**, feature extraction / transfer learning, embeddings for recommenders/search/clustering, and [anomaly detection](../Unsupervised%20ML/Anomaly%20Detection.md) via reconstruction error.
 
 **Where it fits:** unsupervised **representation learning** — sits next to [PCA & t-SNE](../Unsupervised%20ML/PCA & t-SNE) but learns *non-linear* compressions with a neural net.
-**Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (dense layers, backprop, reconstruction via BCE/MSE), [PCA & t-SNE](../Unsupervised%20ML/PCA%20%26%20t-SNE.md) (the linear baseline it generalizes).
+**Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (dense layers, backprop, reconstruction via BCE/MSE), [PCA & t-SNE](../Unsupervised%20ML/PCA%20&%20t-SNE.md) (the linear baseline it generalizes).
 
 ---
 
@@ -62,7 +62,7 @@ minimize  L(x, x̂)   over encoder+decoder weights     # reconstruction loss
 
 ## 3. Autoencoders vs PCA
 
-The cleanest way to understand an autoencoder is as a **generalization of [PCA](../Unsupervised%20ML/PCA%20%26%20t-SNE.md)**: `(certain)`
+The cleanest way to understand an autoencoder is as a **generalization of [PCA](../Unsupervised%20ML/PCA%20&%20t-SNE.md)**: `(certain)`
 
 - 🎯 **A single-hidden-layer autoencoder with linear activations and MSE loss learns the same subspace as PCA** (it spans the top-`d'` principal components). The non-linearity is what makes it more powerful. `(likely)`
 - Add **non-linear activations and depth**, and the encoder learns a **curved (non-linear) manifold** that PCA — restricted to a linear projection — cannot represent. On data lying on a non-linear manifold (e.g. MNIST digits), a deep AE gives a much better low-D encoding than PCA. `(certain)`
@@ -80,9 +80,9 @@ The cleanest way to understand an autoencoder is as a **generalization of [PCA](
 ## 4. How It Works
 
 1. **Build** encoder layers stepping *down* to the bottleneck, then decoder layers stepping *back up* to the input size (last decoder activation matches the data: sigmoid for [0,1], linear for continuous). `(certain)`
-2. **Train** end-to-end with `fit(X, X)` — inputs and targets are both `X` — minimizing reconstruction loss with [Adam](Weight%20Initialization%20%26%20Optimizers.md). No labels involved.
+2. **Train** end-to-end with `fit(X, X)` — inputs and targets are both `X` — minimizing reconstruction loss with [Adam](Weight%20Initialization%20&%20Optimizers.md). No labels involved.
 3. **Extract the encoder.** Once trained, build a new model whose output is the **bottleneck layer's activation** — that's your embedding producer. In Keras: `Model(ae.input, ae.layers[k].output)` where layer `k` is the bottleneck. `(certain)`
-4. **Use `z`** for whatever you need — feed embeddings to a classifier, cluster them, compute cosine similarity, or visualize with [t-SNE](../Unsupervised%20ML/PCA%20%26%20t-SNE.md). The decoder is usually discarded (kept only if you actually need reconstructions, e.g. denoising). `(certain)`
+4. **Use `z`** for whatever you need — feed embeddings to a classifier, cluster them, compute cosine similarity, or visualize with [t-SNE](../Unsupervised%20ML/PCA%20&%20t-SNE.md). The decoder is usually discarded (kept only if you actually need reconstructions, e.g. denoising). `(certain)`
 
 ---
 
@@ -114,7 +114,7 @@ train:   x̃ = x + noise   ──▶ encoder ─▶ z ─▶ decoder ──▶ x
 
 ## 7. Worked Example
 
-**MNIST compression (784-D images).** Encoder `784 → 128 → 64 → 32`, decoder `32 → 64 → 128 → 784`, sigmoid output + `binary_crossentropy` (pixels normalized to [0,1]). Train `fit(x_train, x_train)`. The **32-D bottleneck** reconstructs recognizable digits — a 24× compression that kept the essence. Push the bottleneck to **2-D** and you can plot every digit on a plane; the classes separate into clusters, comparably to [t-SNE](../Unsupervised%20ML/PCA%20%26%20t-SNE.md) but via a *learned, reusable* encoder (t-SNE can't embed new points; the AE encoder can). `(certain)`
+**MNIST compression (784-D images).** Encoder `784 → 128 → 64 → 32`, decoder `32 → 64 → 128 → 784`, sigmoid output + `binary_crossentropy` (pixels normalized to [0,1]). Train `fit(x_train, x_train)`. The **32-D bottleneck** reconstructs recognizable digits — a 24× compression that kept the essence. Push the bottleneck to **2-D** and you can plot every digit on a plane; the classes separate into clusters, comparably to [t-SNE](../Unsupervised%20ML/PCA%20&%20t-SNE.md) but via a *learned, reusable* encoder (t-SNE can't embed new points; the AE encoder can). `(certain)`
 
 **Movie recommender (MovieLens).** Ratings matrix pivoted to **movies × users**, ~**1.5% filled** (very sparse), 668 user-columns. AE `668 → 512 → 256 → 128 → 256 → 512 → 668`, **linear output + MSE** (ratings are continuous). After training, slice out the **128-D bottleneck** as each movie's embedding, build the `cosine_similarity` matrix, and for *Liar Liar* the top-cosine neighbors are its recommendations. `(certain)`
 
@@ -200,9 +200,9 @@ ae.fit(x_noisy, x_train, epochs=100, batch_size=256)   # input NOISY, target CLE
 
 | Goal | Reach for | Why |
 |---|---|---|
-| Linear dim-reduction, few samples | **[PCA](../Unsupervised%20ML/PCA%20%26%20t-SNE.md)** | closed-form, cheap, deterministic; AE overkill |
+| Linear dim-reduction, few samples | **[PCA](../Unsupervised%20ML/PCA%20&%20t-SNE.md)** | closed-form, cheap, deterministic; AE overkill |
 | Non-linear dim-reduction, lots of data | **Autoencoder** | learns curved manifolds PCA can't |
-| 2-D visualization only (no reuse) | **[t-SNE / UMAP](../Unsupervised%20ML/PCA%20%26%20t-SNE.md)** | better cluster separation, but can't embed new points |
+| 2-D visualization only (no reuse) | **[t-SNE / UMAP](../Unsupervised%20ML/PCA%20&%20t-SNE.md)** | better cluster separation, but can't embed new points |
 | Denoising / robust features | **Denoising AE** | learns to reconstruct clean signal from corrupted input |
 | **Generating** new samples | **[[Variational Autoencoders|VAE]]** / diffusion | regularized, samplable latent space |
 | Pretrained general text/image features | **BERT / CLIP** | huge self-supervised models beat task-specific AEs |
@@ -232,4 +232,4 @@ ae.fit(x_noisy, x_train, epochs=100, batch_size=256)   # input NOISY, target CLE
 
 ---
 
-*Covers: the encoder–bottleneck–decoder architecture and self-supervised reconstruction; the formal core (`z=f(x)`, `x̂=g(z)`, reconstruction loss by data type, undercomplete vs overcomplete, weight-tying/symmetry); AE as non-linear PCA; extracting the encoder; denoising AEs (and sparse/contractive variants) as regularizers against the identity function; applications (feature extraction, transfer learning, recommender embeddings via cosine, anomaly detection via reconstruction error); MNIST compression + MovieLens recommender worked examples; failure modes (identity, bottleneck sizing, MSE blur, not generative → VAE, reconstruction≠semantics); production (ship the encoder, versioned embeddings, drift). Sourced from the Scaler Autoencoders lecture. Foundations: [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md), [PCA & t-SNE](../Unsupervised%20ML/PCA%20%26%20t-SNE.md).*
+*Covers: the encoder–bottleneck–decoder architecture and self-supervised reconstruction; the formal core (`z=f(x)`, `x̂=g(z)`, reconstruction loss by data type, undercomplete vs overcomplete, weight-tying/symmetry); AE as non-linear PCA; extracting the encoder; denoising AEs (and sparse/contractive variants) as regularizers against the identity function; applications (feature extraction, transfer learning, recommender embeddings via cosine, anomaly detection via reconstruction error); MNIST compression + MovieLens recommender worked examples; failure modes (identity, bottleneck sizing, MSE blur, not generative → VAE, reconstruction≠semantics); production (ship the encoder, versioned embeddings, drift). Sourced from the Scaler Autoencoders lecture. Foundations: [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md), [PCA & t-SNE](../Unsupervised%20ML/PCA%20&%20t-SNE.md).*

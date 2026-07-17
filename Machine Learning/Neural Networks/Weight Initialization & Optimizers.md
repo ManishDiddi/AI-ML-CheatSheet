@@ -75,7 +75,7 @@ Var(z) = n_in · Var(w) · Var(x)
 - 🎯 **He vs Xavier is the classic question: the only difference is the factor of 2 that He adds because ReLU throws away the negative half of the distribution.** Use **He with ReLU-family**, **Xavier with tanh/sigmoid**. `(certain)`
 - **Uniform vs normal** is a minor variant of the same variance: Glorot-uniform draws `w ~ U[−√(6/(n_in+n_out)), +√(6/(n_in+n_out))]` — same variance, bounded support. Keras `Dense` defaults to **`glorot_uniform`** (that's the `kernel_initializer='glorot_uniform'` you see in the lecture); with ReLU you should usually switch it to **`he_normal`/`he_uniform`**. `(certain)`
 - **`n_in` = fan-in** (inputs to the layer), **`n_out` = fan-out** (neurons in the layer). "Fan" = number of connections.
-- **Where this later got automated:** Batch/Layer Norm and residual connections make deep nets far less sensitive to init by renormalizing activations mid-network — but good init still matters for the first steps and for norm-free architectures. See [Batch Normalization & Dropout](Batch%20Normalization%20%26%20Dropout.md).
+- **Where this later got automated:** Batch/Layer Norm and residual connections make deep nets far less sensitive to init by renormalizing activations mid-network — but good init still matters for the first steps and for norm-free architectures. See [Batch Normalization & Dropout](Batch%20Normalization%20&%20Dropout.md).
 
 ---
 

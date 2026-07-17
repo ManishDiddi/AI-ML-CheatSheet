@@ -3,7 +3,7 @@
 > **TL;DR.** SARIMAX = **AR** (past values) + **I** (differencing to remove trend) + **MA** (past errors) + **Seasonal** versions of all three + **eXogenous** regressors. Notation `(p,d,q)(P,D,Q)[s] + X`. It's the classical, interpretable workhorse for a *single* time series with trend, one seasonal cycle, and known external drivers. The non-negotiables: make the series **stationary** first, read orders from **ACF/PACF**, only use exogenous variables whose **future values you'll have at forecast time**, and validate with **walk-forward** CV — never k-fold.
 
 **Where it fits:** Univariate forecasting (demand, sales, traffic) with modest data and a need for interpretable coefficients + uncertainty intervals. For many series, multiple seasonalities, or nonlinear drivers, move to the alternatives in §10.
-**Prereqs:** [Time Series Foundations & Smoothing](Time%20Series%20Foundations%20%26%20Smoothing.md) (components, decomposition, smoothing, stationarity intro), [linear regression](../Supervised%20ML/Linear%20Regression.md).
+**Prereqs:** [Time Series Foundations & Smoothing](Time%20Series%20Foundations%20&%20Smoothing.md) (components, decomposition, smoothing, stationarity intro), [linear regression](../Supervised%20ML/Linear%20Regression.md).
 
 ```
 Running example — monthly ice-cream sales (3 yrs), exog = avg temperature (°C):

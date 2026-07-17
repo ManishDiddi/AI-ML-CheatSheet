@@ -226,7 +226,7 @@ db = DBSCAN(eps=0.5, min_samples=2*X.shape[1]).fit(X)
 
 **Decision rule:** big, roughly-spherical data with a known/guessable `K` → **K-Means++**. Small data where you want to *see* the structure and choose `K` after → **Hierarchical**. Arbitrary shapes and/or you need outliers flagged → **DBSCAN** (→ HDBSCAN for varying density). Overlapping, probabilistic ("soft") clusters where a point can partly belong to several → **[GMM](GMM.md)**.
 
-**Universal gotchas:** always **scale features**; all distance-based methods suffer the **curse of dimensionality** (reduce dims with [PCA](PCA%20%26%20t-SNE.md) first in high-d); and there's **no ground truth**, so validate clusters against business meaning, not just silhouette.
+**Universal gotchas:** always **scale features**; all distance-based methods suffer the **curse of dimensionality** (reduce dims with [PCA](PCA%20&%20t-SNE.md) first in high-d); and there's **no ground truth**, so validate clusters against business meaning, not just silhouette.
 
 ---
 

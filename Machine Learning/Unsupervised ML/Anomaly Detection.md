@@ -158,7 +158,7 @@ Deep-learning alternative worth knowing: an **[autoencoder](../Neural%20Networks
 - **Semi-supervised is the realistic setup:** train (novelty mode) on data you *believe* is clean/normal, then flag deviations — safer than fitting on contaminated data.
 - **Evaluate with what labels you have** — precision@k, PR-AUC on a labeled sample; pure-unsupervised means validating flagged points with domain experts.
 - **Drift is the core risk** — "normal" shifts over time (spending patterns, seasonality), so a static detector rots. Monitor the anomaly-rate and **retrain** as the baseline moves; a spike in flagged rate is itself a signal (real event *or* drift).
-- **Reduce dimensions first** — high-D wrecks distance/density methods (LOF, One-Class SVM); run [PCA](PCA%20%26%20t-SNE.md) before them. Isolation Forest tolerates dimensionality better.
+- **Reduce dimensions first** — high-D wrecks distance/density methods (LOF, One-Class SVM); run [PCA](PCA%20&%20t-SNE.md) before them. Isolation Forest tolerates dimensionality better.
 
 ---
 
