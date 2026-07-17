@@ -133,7 +133,7 @@ LocalOutlierFactor(n_neighbors=20, contamination=0.065).fit_predict(X) # local d
 #  every one returns  -1 = outlier ,  +1 = inlier
 ```
 
-Deep-learning alternative worth knowing: an **[[Autoencoders|autoencoder]]** trained on normal data flags points with high **reconstruction error** as anomalies — strong for images/sequences.
+Deep-learning alternative worth knowing: an **[autoencoder](../Neural%20Networks/Autoencoders.md)** trained on normal data flags points with high **reconstruction error** as anomalies — strong for images/sequences.
 
 ---
 
