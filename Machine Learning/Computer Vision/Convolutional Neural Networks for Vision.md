@@ -285,7 +285,7 @@ heatmap = cam(input_tensor=img)[0]      # overlay on img → "where it looked"
 ### Monitoring & reliability
 - **CNNs are overconfident** — softmax probabilities aren't calibrated; apply **temperature scaling** on a held-out set if you threshold on confidence. `(certain)`
 - **Watch image drift** (brightness/contrast/resolution/source-camera shifts) and **out-of-distribution** inputs (a confident prediction on garbage is the classic failure). Track per-class precision/recall on labeled feedback, not just accuracy.
-- Different vision tasks reuse the CNN backbone with different heads — **detection** ([YOLO, Faster R-CNN](Object%20Detection.md)), **segmentation** ([[u-net]], Mask R-CNN); know that the backbone transfers but the head/loss/metrics (mAP, IoU) change.
+- Different vision tasks reuse the CNN backbone with different heads — **detection** ([YOLO, Faster R-CNN](Object%20Detection.md)), **segmentation** ([U-Net, Mask R-CNN](Image%20Segmentation.md)); know that the backbone transfers but the head/loss/metrics (mAP, IoU) change.
 
 ---
 

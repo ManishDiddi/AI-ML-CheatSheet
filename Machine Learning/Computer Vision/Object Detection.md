@@ -31,7 +31,7 @@ Classification        Localization             Object Detection
    [cat]                 [cat]┌───┐               ┌───┐cat   ┌──┐dog
                               │   │               │   │      │  │
                               └───┘               └───┘  ┌───┴─┐person
-   1 label               1 label + 4 coords       └─────┘
+   1 label               1 label + 4 coords              └─────┘
                                               a SET of (box, class, score)
 ```
 
@@ -275,7 +275,7 @@ For training/fine-tuning use **`ultralytics`** (`YOLO("yolov5s.pt").train(data=.
 - **FPN (Feature Pyramid Network)** — fuse features top-down across scales → detect small and large objects well; now standard in Faster R-CNN, RetinaNet, YOLO.
 - **Anchor-free detectors** — **FCOS, CenterNet** predict boxes per-pixel/as keypoints, dropping anchor tuning entirely.
 - **DETR** — transformer-based *set prediction*: no anchors, no NMS (bipartite matching gives one box per object). Simpler pipeline, needs more training. See [[Vision Transformers]].
-- **Mask R-CNN** — Faster R-CNN + a mask head + RoI Align → instance segmentation; the bridge to [[Image Segmentation]].
+- **Mask R-CNN** — Faster R-CNN + a mask head + RoI Align → instance segmentation; the bridge to [Image Segmentation](Image%20Segmentation.md).
 
 **Deployment & ops.**
 - **Real-time is the constraint.** Autonomous/surveillance need CPU-real-time inference; a pretrained YOLOv5-nano processes a frame in a few hundred ms on CPU. For **video**, sample frames (you rarely need all 24–30 fps) to cut cost proportionally.
@@ -314,7 +314,7 @@ For training/fine-tuning use **`ultralytics`** (`YOLO("yolov5s.pt").train(data=.
 | One-stage but accurate | **RetinaNet (focal loss)** | fixes fg/bg imbalance → one-stage speed, two-stage-ish accuracy |
 | Avoid anchor tuning | **FCOS / CenterNet (anchor-free)** | per-pixel/keypoint boxes, fewer hyperparameters |
 | Simplest pipeline, no NMS | **DETR / transformer detectors** | set prediction via bipartite matching |
-| Also need per-pixel masks | **Mask R-CNN** | Faster R-CNN + mask head → [[Image Segmentation]] |
+| Also need per-pixel masks | **Mask R-CNN** | Faster R-CNN + mask head → [Image Segmentation](Image%20Segmentation.md) |
 | Single object only | **2-head localization CNN** | classification + 4-coord regression, trivial to train |
 | Tiny labeled dataset | **Pretrained COCO detector + fine-tune** | boxes are expensive; transfer learning is the default |
 
