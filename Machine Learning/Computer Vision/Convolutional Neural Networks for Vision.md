@@ -2,8 +2,8 @@
 
 > **TL;DR.** A CNN learns a *hierarchy* of spatial feature detectors: early layers find edges/colours, deeper layers combine them into textures → parts → objects. Three ideas make it work on images where dense nets fail — **local filters** (small learnable kernels), **weight sharing** (same filter everywhere → translation invariance + few parameters), and **spatial downsampling** (pooling/stride → bigger receptive field, less compute). Default backbone for vision tasks; ResNet-style skip connections are what let them go deep.
 
-**Where it fits:** Supervised (and self-supervised) learning on grid-structured data — images first, but also audio spectrograms, video, and 1-D signals. Now sharing the SOTA crown with [[vision-transformers]] (see §11).
-**Prereqs:** [[backpropagation]], [[gradient-descent]], [[activation-functions]] (ReLU), [[batch-normalization]].
+**Where it fits:** Supervised (and self-supervised) learning on grid-structured data — images first, but also audio spectrograms, video, and 1-D signals. Now sharing the SOTA crown with [[Vision Transformers]] (see §11).
+**Prereqs:** [backpropagation](../Neural%20Networks/Neural%20Network%20Fundamentals.md), [gradient descent](../Neural%20Networks/Weight%20Initialization%20&%20Optimizers.md), [activation functions](../Neural%20Networks/Neural%20Network%20Fundamentals.md) (ReLU), [batch normalization](../Neural%20Networks/Batch%20Normalization%20&%20Dropout.md).
 
 ---
 
