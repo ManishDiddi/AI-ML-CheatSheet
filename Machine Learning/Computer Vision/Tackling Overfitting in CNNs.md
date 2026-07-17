@@ -271,7 +271,7 @@ Keras augmentation layers are inert at inference automatically, but keeping augm
 | Tiny batches (big images) | **GroupNorm/LayerNorm** over BN | BN stats too noisy at batch ≲ 8 |
 | Very deep residual net | **Stochastic Depth**, DropBlock | structured regularization designed for depth/convs |
 | Don't know how long to train | **EarlyStopping + Checkpoint** | zero-tuning capacity control, keeps best weights |
-| Still overfitting after all of the above | **more data / transfer learning** | pretrained features need far fewer labels → [[Transfer Learning]] |
+| Still overfitting after all of the above | **more data / transfer learning** | pretrained features need far fewer labels → [Transfer Learning](Transfer%20Learning.md) |
 
 **Decision rule:** *shrink the model until it stops memorizing, then grow the data until it stops underfitting.* When you've exhausted both and still fall short, the real answer is usually **transfer learning** — start from ImageNet features instead of fighting overfitting from scratch.
 
