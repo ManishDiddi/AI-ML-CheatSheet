@@ -2,7 +2,7 @@
 
 > **TL;DR.** A neuron is just [logistic regression](../Supervised%20ML/Logistic%20Regression.md): `z = w·x + b`, then a non-linear **activation** `a = f(z)`. Stack layers of them and the **non-linearities** let the network carve *non-linear* decision boundaries that a single linear model can't (spirals, XOR). Training is a loop: **forward propagation** (`Z = XW + b → A = f(Z)`, layer by layer, to a prediction + loss) → **backpropagation** (the chain rule pushes the error backward to get `∂Loss/∂W`) → **gradient descent** (`W ← W − η·∂Loss/∂W`). The gotcha that shaped modern DL: **sigmoid/tanh saturate** (derivative ≤ 0.25) so gradients **vanish** through deep stacks — **ReLU** (`max(0,z)`) fixed that and unlocked depth (at the cost of **dying ReLU**, patched by **Leaky ReLU**).
 
-**Where it fits:** The foundation of **deep learning** — every CNN, RNN, and Transformer is this plus structure. It's [logistic/softmax regression](../Supervised%20ML/Logistic%20Regression.md) stacked and made non-linear. Optimizers/initialization get their own note: [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md).
+**Where it fits:** The foundation of **deep learning** — every CNN, RNN, and Transformer is this plus structure. It's logistic/softmax regression stacked and made non-linear. Optimizers/initialization get their own note: [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md).
 **Prereqs:** [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md) (sigmoid, log-loss), softmax & [cross-entropy](../Supervised%20ML/Classification%20Metrics.md), [gradient descent & the chain rule](../Supervised%20ML/Linear%20Regression.md), matrix multiplication.
 
 ---

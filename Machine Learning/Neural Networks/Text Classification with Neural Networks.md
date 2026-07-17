@@ -68,8 +68,8 @@ layers.Embedding(input_dim=10000,   # vocab size → number of ROWS
 
 - 🎯 **It's not a fixed encoding — the embedding matrix is *weights*, trained end-to-end with the rest of the network, so words that help the task drift into useful positions** (e.g. "verbose", "furthermore", "moreover" cluster if they signal AI text). `(certain)`
 - **Why not one-hot?** One-hot gives each of 10k words a 10,000-D sparse vector: enormous, and *equidistant* — it encodes zero similarity ("love" and "like" are as far apart as "love" and "banana"). Embeddings are dense (128-D), and similar words end up close (cosine-similar). `(certain)`
-- **Pretrained embeddings** (GloVe/word2vec/fastText) can initialize `E` and be frozen or fine-tuned — a big win on **small datasets** where you can't learn good vectors from scratch. This is [transfer learning](Autoencoders.md) for words. Deeper treatment: [[Word Embeddings]]. `(likely)`
-- These learned vectors are the same kind of object you get from an [autoencoder bottleneck](Autoencoders.md) or use in a [recommender](../Recommendation%20Systems/Recommendation%20Systems.md); you can even visualize them with [PCA / t-SNE](../Unsupervised%20ML/PCA%20&%20t-SNE.md).
+- **Pretrained embeddings** (GloVe/word2vec/fastText) can initialize `E` and be frozen or fine-tuned — a big win on **small datasets** where you can't learn good vectors from scratch. This is transfer learning for words. Deeper treatment: [[Word Embeddings]]. `(likely)`
+- These learned vectors are the same kind of object you get from an [autoencoder bottleneck](Autoencoders.md) or a recommender, and you can visualize them with PCA / t-SNE.
 
 ---
 
