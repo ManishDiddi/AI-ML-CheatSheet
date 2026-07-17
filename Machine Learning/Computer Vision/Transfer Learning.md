@@ -218,7 +218,7 @@ For a broader model zoo (ResNet/ViT/ConvNeXt/EfficientNet + thousands more) use 
 
 **Model zoos are your library.** `torchvision`, **`timm`** (best-in-class, thousands of pretrained CNNs + ViTs), and Hugging Face give you weights in one line. Prefer modern backbones (**ResNet/ConvNeXt/EfficientNet/ViT**) over VGG in production — VGG is a great teaching example but heavy and dated.
 
-**The backbone as an embedding service.** Feature extraction has a second life beyond classification: run the frozen backbone and take the **penultimate vector as an image embedding**, then do k-NN / metric search / clustering / few-shot on top — no head training at all. This is the bridge to [[Siamese Networks & Image Similarity]] and image retrieval.
+**The backbone as an embedding service.** Feature extraction has a second life beyond classification: run the frozen backbone and take the **penultimate vector as an image embedding**, then do k-NN / metric search / clustering / few-shot on top — no head training at all. This is the bridge to [Siamese Networks & Image Similarity](Siamese%20Networks%20&%20Image%20Similarity.md) and image retrieval.
 
 **Beyond ImageNet — self-supervised & foundation models.** When labels are scarce even for pretraining, **self-supervised pretraining** (SimCLR, MoCo, BYOL, DINO, **MAE**) learns transferable features from *unlabeled* images and often transfers better than supervised ImageNet, especially cross-domain. Vision **foundation models** (CLIP for image-text, DINOv2 as a general backbone, SAM for segmentation) are increasingly the thing you fine-tune. `(likely)`
 
