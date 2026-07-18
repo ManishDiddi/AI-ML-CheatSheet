@@ -218,7 +218,7 @@ model.fit(X, y, epochs=20, batch_size=32, validation_split=0.2)
 | Small/medium tabular data | **[Gradient-boosted trees](../Supervised%20ML/Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md)** | usually beat NNs on tabular; less data/compute |
 | Linear-ish, need interpretability | **[Logistic Regression](../Supervised%20ML/Logistic%20Regression.md)** | a single neuron; transparent |
 | Images | **[CNNs](../Computer%20Vision/Convolutional%20Neural%20Networks%20for%20Vision.md)** | weight sharing / spatial structure |
-| Sequences / text | **[RNNs / Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)** | model order and long-range dependencies |
+| Sequences / text | **[RNNs / Transformers](../NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)** | model order and long-range dependencies |
 | Large data, complex non-linear patterns | **Deep neural network (this note)** | learns features automatically, scales |
 
 **Decision rule:** on tabular data start with trees/logistic regression; move to neural networks when the data is large and the structure is complex or perceptual (images, audio, text) — then add the right *structure* (CNN/RNN/Transformer) on top of these fundamentals.
