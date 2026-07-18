@@ -3,7 +3,7 @@
 > **TL;DR.** A neural net eats numbers, not words, so text needs a pipeline: **tokenize** (word → integer id) → **pad/truncate** to a fixed length → an **Embedding layer** that maps each id to a *learned* dense vector (semantic meaning, not one-hot). That gives a `(seq_len × embed_dim)` matrix per document; you then **collapse it to one vector** — `Flatten` (keeps everything but explodes parameters) or **GlobalAveragePooling/MaxPooling** (tiny, regularizing, the modern default) — and finish with `Dense → Dropout → sigmoid`. Everything downstream (Dense, ReLU, backprop, Adam) is ordinary [NN Fundamentals](Neural%20Network%20Fundamentals.md); the *only* text-specific pieces are the **vectorization pipeline, the Embedding layer, and the pooling choice**. Worked example: an **AI-vs-human text detector**.
 
 **Where it fits:** the applied bridge from [neural networks](Neural%20Network%20Fundamentals.md) into **NLP** — how you actually get text *into* a network. Deeper theory lives in the sequence-model note and the future NLP deep-dives.
-**Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (Dense, ReLU, sigmoid, backprop), [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md) (Adam), [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md) (binary output). Deeper token/vector theory → [Text Preprocessing](../NLP/Text%20Preprocessing.md), [[Word Embeddings]]; sequence models → [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
+**Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (Dense, ReLU, sigmoid, backprop), [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md) (Adam), [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md) (binary output). Deeper token/vector theory → [Text Preprocessing](../NLP/Text%20Preprocessing.md), [Word Embeddings](../NLP/Word%20Embeddings.md); sequence models → [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
 
 ---
 
@@ -68,7 +68,7 @@ layers.Embedding(input_dim=10000,   # vocab size → number of ROWS
 
 - 🎯 **It's not a fixed encoding — the embedding matrix is *weights*, trained end-to-end with the rest of the network, so words that help the task drift into useful positions** (e.g. "verbose", "furthermore", "moreover" cluster if they signal AI text). `(certain)`
 - **Why not one-hot?** One-hot gives each of 10k words a 10,000-D sparse vector: enormous, and *equidistant* — it encodes zero similarity ("love" and "like" are as far apart as "love" and "banana"). Embeddings are dense (128-D), and similar words end up close (cosine-similar). `(certain)`
-- **Pretrained embeddings** (GloVe/word2vec/fastText) can initialize `E` and be frozen or fine-tuned — a big win on **small datasets** where you can't learn good vectors from scratch. This is transfer learning for words. Deeper treatment: [[Word Embeddings]]. `(likely)`
+- **Pretrained embeddings** (GloVe/word2vec/fastText) can initialize `E` and be frozen or fine-tuned — a big win on **small datasets** where you can't learn good vectors from scratch. This is transfer learning for words. Deeper treatment: [Word Embeddings](../NLP/Word%20Embeddings.md). `(likely)`
 - These learned vectors are the same kind of object you get from an [autoencoder bottleneck](Autoencoders.md) or a recommender, and you can visualize them with PCA / t-SNE.
 
 ---
