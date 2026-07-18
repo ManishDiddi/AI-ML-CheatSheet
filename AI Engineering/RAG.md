@@ -384,10 +384,10 @@ Everything so far is "naive/linear" RAG. The frontier makes retrieval **adaptive
 - **Fine-tuned retrievers** — adapt the embedding model to your domain when generic embeddings under-retrieve.
 - **RAG vs long-context** — million-token windows don't kill RAG: stuffing everything is expensive, slow, and hits lost-in-the-middle; you *still* need retrieval to choose what's worth putting in the window, plus citations. They're complementary. `(likely)`
 
-**Not covered yet — forward pointers:**
-- **[[Embeddings]]** — the embedding-model deep dive (training, contrastive learning, model choice, dimensions) — *next lecture*.
+**Related & forward pointers:**
+- **[Embeddings](Embeddings.md)** — the embedding-model deep dive: similarity metrics, bi-/cross-encoders, fine-tuning (Triplet / MNR / BCE), model choice, and retrieval eval (Recall@K, MRR, NDCG). ✅ *written*.
 - **[[Multimodal & Tabular RAG]]** — retrieval over images/tables/structured data — *next lecture*.
-- **[[RAG Evaluation]]** — retrieval metrics (Recall@k, MRR, NDCG) + **faithfulness/groundedness, context precision/recall (RAGAS)**. Deferred until taught; the faithfulness concept is previewed in [Evaluating LLMs](Evaluating%20LLMs.md).
+- **[[RAG Evaluation]]** — end-to-end **faithfulness/groundedness, context precision/recall (RAGAS)** (the retrieval metrics Recall@K/MRR/NDCG now live in [Embeddings §7](Embeddings.md#7-evaluating-retrieval--precision-recall-mrr-ndcg)). Deferred until taught; the faithfulness concept is previewed in [Evaluating LLMs](Evaluating%20LLMs.md).
 
 ---
 
