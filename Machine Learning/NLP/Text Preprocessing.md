@@ -80,7 +80,7 @@ Numbered stages. You pick which to run based on the model (§1).
 3. **Segment / tokenize.**
    - **Sentence tokenization** (`nltk.sent_tokenize`, spaCy `doc.sents`) — needed for sentence-level tasks; the hard cases are abbreviations (`U.K.`, `Dr.`) and decimals, which statistical tokenizers handle better than a naïve split on `.`.
    - **Word tokenization** (`nltk.word_tokenize`, spaCy tokens). spaCy handles contractions and attached punctuation more gracefully (`"it's" → ["it", "'s"]`) and each token carries POS/lemma/`is_stop`.
-   - **Subword tokenization** (the modern default for transformers) — **BPE**, **WordPiece** (BERT), **SentencePiece/Unigram** (T5, LLaMA). Learns a fixed vocab of frequent character chunks so any word decomposes into known pieces → **no true OOV** (`"tokenization" → token ##ization`). This one step *replaces* stemming, stopword removal, and OOV handling. It's owned by the model; deeper treatment in [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) and [[BERT]].
+   - **Subword tokenization** (the modern default for transformers) — **BPE**, **WordPiece** (BERT), **SentencePiece/Unigram** (T5, LLaMA). Learns a fixed vocab of frequent character chunks so any word decomposes into known pieces → **no true OOV** (`"tokenization" → token ##ization`). This one step *replaces* stemming, stopword removal, and OOV handling. It's owned by the model; deeper treatment in [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) and [BERT](BERT.md).
 
 4. **Normalize (classical models only).**
    - **Stopword removal** — drop high-frequency low-signal words (`nltk.corpus.stopwords`, spaCy `token.is_stop`). *Audit the list* — it contains `not`, `no`, `against` (deadly for sentiment).
@@ -217,7 +217,7 @@ The question is really testing whether you know **preprocessing is a modeling de
 | **NLTK** | breadth, teaching, corpora (WordNet, VADER) | learning, research, custom/algorithm-swapping pipelines |
 | **spaCy** | fast, accurate, integrated pipeline (tok+POS+lemma+NER+chunks) | production classical NLP, information extraction at scale |
 | **scikit-learn** | `CountVectorizer` / `TfidfVectorizer` end-to-end | classical ML models (NB, SVM, LogReg) on BoW/TF-IDF |
-| **Hugging Face `tokenizers`** | subword (BPE/WordPiece/SentencePiece) | anything feeding a transformer / [[BERT]] / LLM |
+| **Hugging Face `tokenizers`** | subword (BPE/WordPiece/SentencePiece) | anything feeding a transformer / [BERT](BERT.md) / LLM |
 | **gensim** | `simple_preprocess`, phrase detection, LDA/Word2Vec | topic modeling, training your own word embeddings |
 
 **Decision rule:** *Classical model?* → clean heavily with spaCy/NLTK, vectorize with sklearn TF-IDF (bigrams, `min_df`). *Transformer?* → minimal cleaning, feed the model's matched subword tokenizer, skip stemming/stopwords/lowercasing. When in doubt, **preprocess as little as the model allows** and let training discover what matters.

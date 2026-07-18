@@ -90,7 +90,7 @@ clf.fit(train_texts, train_labels)                                   # learns YO
 ```
 Why it beats lexicons: it learns domain-specific polarity (`"unpredictable"` is bad for a car, good for a thriller) and, with n-grams, local negation.
 
-**Transformer / LLM (SOTA).** Fine-tune **[[BERT]]** (`AutoModelForSequenceClassification`) on labeled data, or **zero/few-shot prompt an LLM**. These read the whole sentence in context, so they nail negation, intensity, and much sarcasm — and enable **Aspect-Based Sentiment Analysis (ABSA)**: extract *(aspect, sentiment)* pairs like *(cappuccino, +)*, *(noise, −)* from the coffee-shop review, which no document-level score can do. See [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) and [[BERT]].
+**Transformer / LLM (SOTA).** Fine-tune **[BERT](BERT.md)** (`AutoModelForSequenceClassification`) on labeled data, or **zero/few-shot prompt an LLM**. These read the whole sentence in context, so they nail negation, intensity, and much sarcasm — and enable **Aspect-Based Sentiment Analysis (ABSA)**: extract *(aspect, sentiment)* pairs like *(cappuccino, +)*, *(noise, −)* from the coffee-shop review, which no document-level score can do. See [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) and [BERT](BERT.md).
 
 🎯 *"Lexicons need no data but can't learn negation or domain; supervised TF-IDF+classifier learns your domain from labels; a fine-tuned transformer reads context and enables aspect-level sentiment."*
 
@@ -234,7 +234,7 @@ The question tests whether you can **pick the right tool for the data you actual
 |---|---|
 | **VADER / TextBlob / AFINN / NRC** | no labels, need a baseline now; social text (VADER); emotion breakdown (NRC) |
 | **TF-IDF + [Naive Bayes](../Supervised%20ML/Naive%20Bayes.md)/LogReg/SVM** | you have labels and a fixed domain; want calibrated, cheap, explainable |
-| **Fine-tuned [[BERT]] / LLM** | top accuracy, negation/sarcasm, aspect-based, multilingual, and you can afford it |
+| **Fine-tuned [BERT](BERT.md) / LLM** | top accuracy, negation/sarcasm, aspect-based, multilingual, and you can afford it |
 
 **Topic modeling:**
 

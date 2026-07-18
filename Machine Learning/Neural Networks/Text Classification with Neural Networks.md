@@ -174,7 +174,7 @@ def predict_text(text):
 - **Threshold, don't just argmax.** Sigmoid outputs a probability; the 0.5 cut is a business choice. For a detector, pick the threshold from the precision/recall trade-off you need (e.g. high precision to avoid falsely flagging humans), and **calibrate** if you report probabilities. `(likely)`
 - **Monitoring & drift:** track **OOV rate**, input length distribution, and score distribution over time — language drifts (new AI models write differently), so an AI-vs-human detector decays and needs periodic retraining. `(certain)`
 - **Cost:** the Embedding matrix dominates parameters (vocab×dim); shrink `num_words`/`embed_dim`, or use pretrained + frozen embeddings to cut trainable params.
-- **The real upgrade path** is not a fancier Dense head — it's a **better text representation**: pretrained embeddings → a sequence model (LSTM/GRU) → a **fine-tuned transformer (BERT)**, which sets the SOTA on text classification by contextualizing each token. That's the top of the ladder in §10. See [[BERT]]. `(likely)`
+- **The real upgrade path** is not a fancier Dense head — it's a **better text representation**: pretrained embeddings → a sequence model (LSTM/GRU) → a **fine-tuned transformer (BERT)**, which sets the SOTA on text classification by contextualizing each token. That's the top of the ladder in §10. See [BERT](../NLP/BERT.md). `(likely)`
 - **Baseline first:** a **TF-IDF + [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md)** model trains in seconds and is often within a few points of an embedding-NN on medium data — always ship it as the yardstick before reaching for deep models.
 
 ---

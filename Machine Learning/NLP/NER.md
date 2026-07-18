@@ -3,7 +3,7 @@
 > **TL;DR.** NER is the **information-extraction** task of locating **named-entity spans** (proper names of real-world things) and classifying them into types — `PERSON`, `ORG`, `LOCATION`, `DATE`, `DRUG`, `DISEASE`, … It's framed as **sequence labeling**: tag every token with a **BIO** label (`B-`egin / `I-`nside / `O`utside) so multi-word spans and boundaries are recoverable. The approach ladder climbs from **dictionary/rule-based** (gazetteers + patterns — brittle, no generalization) → **ML with CRF** (models label *transitions*, so illegal tag sequences can't happen) → **BiLSTM-CRF** (learned features + char-level morphology) → **pretrained transformers** (BERT token-classification, SOTA) and **domain models** (scispaCy/Stanza/BioBERT for biomedical). Evaluate at the **entity/span level** with F1 — never token accuracy (the `O` class swamps it).
 
 **Where it fits:** the workhorse of **information extraction** — the first step that turns unstructured text into structured records. It powers PII masking, résumé/invoice parsing, search, question answering, and (the lecture's case) **pharmacovigilance**: pull `DRUG` and `ADVERSE-EVENT` spans from patient reviews, then link them. Uses the same tokenization/POS machinery as [Text Preprocessing](Text%20Preprocessing.md) and the sequence models in [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
-**Prereqs:** [Text Preprocessing](Text%20Preprocessing.md) (tokenization, POS), [Word Embeddings](Word%20Embeddings.md) (token features), sequence models & [[BERT]] (for the DL tiers), [Classification Metrics](../Supervised%20ML/Classification%20Metrics.md) (precision/recall/F1).
+**Prereqs:** [Text Preprocessing](Text%20Preprocessing.md) (tokenization, POS), [Word Embeddings](Word%20Embeddings.md) (token features), sequence models & [BERT](BERT.md) (for the DL tiers), [Classification Metrics](../Supervised%20ML/Classification%20Metrics.md) (precision/recall/F1).
 
 ---
 
@@ -77,7 +77,7 @@ Contrast: **HMM** is *generative* (`P(x,y)`, strong independence assumptions); *
 **C. Deep Learning**
 - **BiLSTM-CRF** — a bidirectional LSTM reads the sentence and emits per-token scores; a CRF layer adds transition scores and Viterbi-decodes. The standard strong pre-transformer architecture.
 - **+ Char-level CNN/BiLSTM** (BiLSTM-CNN-CRF) — encode each word from its **characters** first. This captures morphology and **handles OOV/rare words, capitalization, and suffixes** (`-mab`, `-vir`, `-itis`) that word embeddings miss — crucial for biomedical/entity-heavy text.
-- **Pretrained language models (ELMo, [[BERT]])** — the current SOTA: run the transformer, take each token's contextual vector, and add a linear **token-classification** head over BIO tags (optionally with a CRF on top). Context resolves ambiguity that classical methods can't.
+- **Pretrained language models (ELMo, [BERT](BERT.md))** — the current SOTA: run the transformer, take each token's contextual vector, and add a linear **token-classification** head over BIO tags (optionally with a CRF on top). Context resolves ambiguity that classical methods can't.
 
 **D. Hybrid** — combine a learned model with rules/gazetteers (e.g., spaCy's statistical NER **+** an `EntityRuler`) to inject known entities and guardrails. Common in production.
 
