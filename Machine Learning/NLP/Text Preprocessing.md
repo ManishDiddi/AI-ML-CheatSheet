@@ -2,7 +2,7 @@
 
 > **TL;DR.** Models eat numbers, not words. Preprocessing is the pipeline that turns messy raw text into clean, discrete units (tokens) and then into features: **clean → segment (tokenize) → normalize (stopwords, stemming/lemmatization) → vectorize (BoW/TF-IDF/embeddings)**. The single most important idea is that **preprocessing is task- and model-dependent**: a classical bag-of-words model needs *heavy* cleaning (lowercase, strip punctuation, remove stopwords, stem), while a modern **transformer needs almost none** — you feed nearly-raw text to the model's own **subword tokenizer** and let contextual embeddings do the rest. Over-cleaning silently deletes signal ("not", "!", casing, numbers). NLTK = flexible/educational; spaCy = fast/production; Hugging Face tokenizers = subword for transformers.
 
-**Where it fits:** The **first stage of every NLP pipeline** — the bridge from raw documents to anything downstream: [Naive Bayes](../Supervised%20ML/Naive%20Bayes.md) text classification, [Text Classification with Neural Networks](../Neural%20Networks/Text%20Classification%20with%20Neural%20Networks.md), sequence models ([RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)), sentiment, [[NER]], and topic modeling.
+**Where it fits:** The **first stage of every NLP pipeline** — the bridge from raw documents to anything downstream: [Naive Bayes](../Supervised%20ML/Naive%20Bayes.md) text classification, [Text Classification with Neural Networks](../Neural%20Networks/Text%20Classification%20with%20Neural%20Networks.md), sequence models ([RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)), sentiment, [NER](NER.md), and topic modeling.
 **Prereqs:** basic Python + regular expressions; a feel for high-dimensional sparse vectors. Downstream representation lives in [Word Embeddings](Word%20Embeddings.md).
 
 ---
@@ -86,7 +86,7 @@ Numbered stages. You pick which to run based on the model (§1).
    - **Stopword removal** — drop high-frequency low-signal words (`nltk.corpus.stopwords`, spaCy `token.is_stop`). *Audit the list* — it contains `not`, `no`, `against` (deadly for sentiment).
    - **Stemming** (`PorterStemmer`) or **lemmatization** (spaCy `token.lemma_`, or `WordNetLemmatizer` **with** a POS map). Pick one, not both.
 
-5. **Linguistic enrichment (optional).** **POS tagging** (`token.pos_` coarse / `token.tag_` fine) → grammatical category; **chunking / noun-phrase extraction** (`doc.noun_chunks`) → shallow parsing into phrases; **[[NER]]** (`doc.ents`) → typed entities (PERSON/ORG/GPE/DATE). These feed feature engineering, information extraction, and downstream models.
+5. **Linguistic enrichment (optional).** **POS tagging** (`token.pos_` coarse / `token.tag_` fine) → grammatical category; **chunking / noun-phrase extraction** (`doc.noun_chunks`) → shallow parsing into phrases; **[NER](NER.md)** (`doc.ents`) → typed entities (PERSON/ORG/GPE/DATE). These feed feature engineering, information extraction, and downstream models.
 
 6. **Vectorize.** BoW / TF-IDF (`sklearn` `CountVectorizer` / `TfidfVectorizer`) for classical models; **dense embeddings** (Word2Vec/GloVe/fastText → [Word Embeddings](Word%20Embeddings.md); contextual → BERT) for neural. This is the handoff out of "preprocessing" into "representation."
 
