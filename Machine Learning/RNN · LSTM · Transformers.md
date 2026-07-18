@@ -3,7 +3,7 @@
 > **TL;DR.** Three answers to "how do I model a sequence." **RNN** reads step-by-step into one hidden vector → vanishing gradients + sequential bottleneck. **LSTM/GRU** adds a gated cell state (a gradient "highway") → learns long-range dependencies, but is still sequential and memory-bounded. **Transformer** drops recurrence for **self-attention** — every token attends directly to every other, in parallel → no bottleneck, long-range in one hop, but `O(n²)` cost. Transformers are today's default for almost all NLP (and beyond); RNNs survive in streaming/edge/tiny-data niches.
 
 **Where it fits:** Any ordered data — text, speech, time series, code, biological sequences. The Transformer is the substrate of all modern LLMs.
-**Prereqs:** [[backpropagation]], [[gradient-descent]], [[softmax]], [[word-embeddings]], [[layer-normalization]].
+**Prereqs:** [[backpropagation]], [[gradient-descent]], [[softmax]], [word embeddings](NLP/Word%20Embeddings.md), [[layer-normalization]].
 
 ---
 
