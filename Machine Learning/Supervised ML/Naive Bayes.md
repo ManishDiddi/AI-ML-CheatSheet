@@ -3,7 +3,7 @@
 > **TL;DR.** Naive Bayes picks the class with the highest **posterior** `P(y | features) ∝ P(y) · Πⱼ P(featureⱼ | y)` — a class **prior** times the product of per-feature **likelihoods**. The "naive" part is assuming features are **conditionally independent given the class** — usually false, but it makes the math trivially cheap and works shockingly well, especially for **text** (spam, sentiment). It trains in a single count-and-divide pass, needs no scaling, thrives in high dimensions and on small data — but its probability estimates are overconfident, and a never-seen feature zeroes the whole product unless you apply **Laplace smoothing**.
 
 **Where it fits:** Supervised **classification**, the classic **text** baseline (spam, topic, sentiment). It's the **generative** counterpart to [Logistic Regression](Logistic%20Regression.md)'s discriminative approach — models how the data is generated per class, rather than the boundary directly.
-**Prereqs:** conditional probability & Bayes' theorem, [Classification Metrics](Classification%20Metrics.md), bag-of-words/tokenization (see [[Text Preprocessing]]).
+**Prereqs:** conditional probability & Bayes' theorem, [Classification Metrics](Classification%20Metrics.md), bag-of-words/tokenization (see [Text Preprocessing](../NLP/Text%20Preprocessing.md)).
 
 ---
 
