@@ -2,8 +2,8 @@
 
 > **TL;DR.** BERT is the **encoder** half of the Transformer, pretrained on huge *unlabeled* text with two **self-supervised** objectives — **MLM** (mask 15% of tokens, predict them using *both* left and right context) and **NSP** (does sentence B follow A?) — to produce deeply **contextual** token representations. Being bidirectional makes it a **natural-language-understanding** powerhouse (classification, **NER**, QA) but *not* a text generator (that's GPT, a left-to-right decoder). You use it by **transfer learning**: take the pretrained weights, bolt on a small task head (`[CLS]`→classify, per-token→NER, span→QA), and **fine-tune** end-to-end with a tiny learning rate. Inputs are **WordPiece** subwords wrapped in `[CLS] … [SEP]` with summed token + segment + position embeddings. Family: RoBERTa (drops NSP), DistilBERT (smaller/faster), BioBERT/ClinicalBERT (domain).
 
-**Where it fits:** the model that made **transfer learning the default in NLP** — pretrain once on the internet, fine-tune cheaply per task. It's the contextual successor to static [Word Embeddings](Word%20Embeddings.md), the SOTA engine behind [NER](NER.md), sentiment ([Sentiment Analysis & Topic Modeling](Sentiment%20Analysis%20&%20Topic%20Modeling.md)), and the sentence-embedding models in [Embeddings](../../AI%20Engineering/Embeddings.md). Architecture/attention details live in [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md); its generative cousins in [LLM](../../AI%20Engineering/LLM.md).
-**Prereqs:** [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (self-attention, positional encoding, encoder blocks), [Word Embeddings](Word%20Embeddings.md) (static vs contextual), [Text Preprocessing](Text%20Preprocessing.md) (subword tokenization), transfer learning ([CV analogy](../Computer%20Vision/Transfer%20Learning.md)).
+**Where it fits:** the model that made **transfer learning the default in NLP** — pretrain once on the internet, fine-tune cheaply per task. It's the contextual successor to static [Word Embeddings](Word%20Embeddings.md), the SOTA engine behind [NER](NER.md), sentiment ([Sentiment Analysis & Topic Modeling](Sentiment%20Analysis%20&%20Topic%20Modeling.md)), and the sentence-embedding models in [Embeddings](../../AI%20Engineering/Embeddings.md). Architecture/attention details live in [RNN · LSTM · Transformers](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md); its generative cousins in [LLM](../../AI%20Engineering/LLM.md).
+**Prereqs:** [RNN · LSTM · Transformers](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (self-attention, positional encoding, encoder blocks), [Word Embeddings](Word%20Embeddings.md) (static vs contextual), [Text Preprocessing](Text%20Preprocessing.md) (subword tokenization), transfer learning ([CV analogy](../Computer%20Vision/Transfer%20Learning.md)).
 
 ---
 
@@ -41,7 +41,7 @@ Two framings you must hold at once (the lecture stresses both):
 
 ## 2. Architecture & Input Representation
 
-BERT is a **stack of Transformer *encoder* blocks** (self-attention + feed-forward, [details](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)). No decoder, no causal mask — every token attends to every other token in both directions. Four canonical sizes:
+BERT is a **stack of Transformer *encoder* blocks** (self-attention + feed-forward, [details](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)). No decoder, no causal mask — every token attends to every other token in both directions. Four canonical sizes:
 
 | Variant | Encoder blocks (L) | Attention heads (A) | Hidden (H) | Cased? | Params |
 |---|---|---|---|---|---|
@@ -99,7 +99,7 @@ GPT (decoder)    : "...went for a ___"                 sees LEFT only     → Au
 - **GPT** is a left-to-right **decoder** with a causal mask; it predicts the next token, so it **generates** but sees only the past.
 - **T5/BART** use the full **encoder-decoder** for seq2seq (translation, summarization).
 
-Rule of thumb: **encoder-only = understanding, decoder-only = generation, encoder-decoder = transformation.** Full comparison in [RNN · LSTM · Transformers §7](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) and [LLM](../../AI%20Engineering/LLM.md). 🎯
+Rule of thumb: **encoder-only = understanding, decoder-only = generation, encoder-decoder = transformation.** Full comparison in [RNN · LSTM · Transformers §7](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) and [LLM](../../AI%20Engineering/LLM.md). 🎯
 
 ---
 
@@ -180,7 +180,7 @@ All are used through the same fine-tuning + task-head recipe as §6.
 
 - **Fine-tune, don't pretrain.** Pretraining BERT costs thousands of GPU-hours; you almost always start from public weights and fine-tune (hours). Reserve from-scratch pretraining for a genuinely new domain/language with a large corpus.
 - **Shrink for serving.** Latency/cost come down via **DistilBERT/TinyBERT**, **quantization** (INT8), **ONNX Runtime / TensorRT**, and batching. A distilled model is often the right production choice over BERT-Large.
-- **Parameter-efficient fine-tuning (PEFT).** For many tasks or large models, **LoRA / adapters** fine-tune a tiny fraction of weights — cheaper, and you can hot-swap task adapters (see [RNN · LSTM · Transformers §9](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)).
+- **Parameter-efficient fine-tuning (PEFT).** For many tasks or large models, **LoRA / adapters** fine-tune a tiny fraction of weights — cheaper, and you can hot-swap task adapters (see [RNN · LSTM · Transformers §9](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)).
 - **Tokenizer is part of the model.** Always pair a fine-tuned model with its **exact** tokenizer/vocab; a mismatch corrupts inputs silently. Watch **truncation** (512) — long inputs lose their tails.
 - **Evaluation & monitoring.** Benchmark on **GLUE/SuperGLUE** for general NLU; in prod, monitor task metrics ([precision/recall/F1](../Supervised%20ML/Classification%20Metrics.md), span-F1 for NER) and OOV/length distributions for drift.
 - **Retrieval ≠ classification.** For semantic search/RAG you want **sentence embeddings (SBERT)** indexed in an ANN store, not vanilla BERT — see [Embeddings](../../AI%20Engineering/Embeddings.md).

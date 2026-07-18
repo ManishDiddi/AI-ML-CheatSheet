@@ -3,7 +3,7 @@
 > **TL;DR.** A neural net eats numbers, not words, so text needs a pipeline: **tokenize** (word → integer id) → **pad/truncate** to a fixed length → an **Embedding layer** that maps each id to a *learned* dense vector (semantic meaning, not one-hot). That gives a `(seq_len × embed_dim)` matrix per document; you then **collapse it to one vector** — `Flatten` (keeps everything but explodes parameters) or **GlobalAveragePooling/MaxPooling** (tiny, regularizing, the modern default) — and finish with `Dense → Dropout → sigmoid`. Everything downstream (Dense, ReLU, backprop, Adam) is ordinary [NN Fundamentals](Neural%20Network%20Fundamentals.md); the *only* text-specific pieces are the **vectorization pipeline, the Embedding layer, and the pooling choice**. Worked example: an **AI-vs-human text detector**.
 
 **Where it fits:** the applied bridge from [neural networks](Neural%20Network%20Fundamentals.md) into **NLP** — how you actually get text *into* a network. Deeper theory lives in the sequence-model note and the future NLP deep-dives.
-**Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (Dense, ReLU, sigmoid, backprop), [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md) (Adam), [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md) (binary output). Deeper token/vector theory → [Text Preprocessing](../NLP/Text%20Preprocessing.md), [Word Embeddings](../NLP/Word%20Embeddings.md); sequence models → [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
+**Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (Dense, ReLU, sigmoid, backprop), [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md) (Adam), [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md) (binary output). Deeper token/vector theory → [Text Preprocessing](../NLP/Text%20Preprocessing.md), [Word Embeddings](../NLP/Word%20Embeddings.md); sequence models → [RNN · LSTM · Transformers](../NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
 
 ---
 
@@ -89,7 +89,7 @@ GlobalMaxPooling1D:       out[j] = max  over the L words of embedding[:, j]   # 
 ```
 - 🎯 **Flatten preserves everything but multiplies parameters by `L`; global pooling throws away word order to get a tiny, regularized, position-invariant vector — for a bag-of-words-ish task like AI-vs-human detection, pooling usually generalizes better.** `(likely)`
 - Pooling layers have **zero parameters** — they're pure reductions. `Flatten` also has zero params itself; the cost is in the *next* Dense layer it feeds. `(certain)`
-- **If word order matters** (negation, syntax), don't pool a plain embedding — use a **sequence model** (LSTM/GRU/Transformer, see [RNN · LSTM · Transformers](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)) or **`Conv1D`** to capture local n-gram patterns before pooling. `(certain)`
+- **If word order matters** (negation, syntax), don't pool a plain embedding — use a **sequence model** (LSTM/GRU/Transformer, see [RNN · LSTM · Transformers](../NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)) or **`Conv1D`** to capture local n-gram patterns before pooling. `(certain)`
 
 ---
 
@@ -202,7 +202,7 @@ def predict_text(text):
 | Baseline / small data / need speed | **TF-IDF + [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md)** | seconds to train, strong yardstick, interpretable |
 | Medium data, order not critical | **Embedding + Global Pooling + Dense** (this note) | cheap, regularized, learns task-specific word vectors |
 | Local phrase/n-gram patterns matter | **Embedding + `Conv1D` + pooling** | detects local patterns cheaply; some order sensitivity |
-| Word order / long-range dependencies | **LSTM / GRU** ([sequence models](../RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)) | models sequence, not bag-of-words |
+| Word order / long-range dependencies | **LSTM / GRU** ([sequence models](../NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)) | models sequence, not bag-of-words |
 | Best accuracy, enough compute | **Fine-tuned Transformer (BERT)** | contextual embeddings → SOTA text classification |
 
 **Decision rule:** always start with **TF-IDF + LogReg** as the baseline. Move to an **embedding + pooling** net when you have enough data to learn vectors and want a task-specific representation. Escalate to **Conv1D/LSTM** only if word **order** carries the signal, and to a **fine-tuned transformer** when accuracy justifies the cost. Don't add depth to the Dense head to fix accuracy — upgrade the *representation*.

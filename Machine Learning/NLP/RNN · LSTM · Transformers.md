@@ -3,7 +3,7 @@
 > **TL;DR.** Three answers to "how do I model a sequence." **RNN** reads step-by-step into one hidden vector → vanishing gradients + sequential bottleneck. **LSTM/GRU** adds a gated cell state (a gradient "highway") → learns long-range dependencies, but is still sequential and memory-bounded. **Transformer** drops recurrence for **self-attention** — every token attends directly to every other, in parallel → no bottleneck, long-range in one hop, but `O(n²)` cost. Transformers are today's default for almost all NLP (and beyond); RNNs survive in streaming/edge/tiny-data niches.
 
 **Where it fits:** Any ordered data — text, speech, time series, code, biological sequences. The Transformer is the substrate of all modern LLMs.
-**Prereqs:** [[backpropagation]], [[gradient-descent]], [[softmax]], [word embeddings](NLP/Word%20Embeddings.md), [[layer-normalization]].
+**Prereqs:** [[backpropagation]], [[gradient-descent]], [[softmax]], [word embeddings](Word%20Embeddings.md), [[layer-normalization]].
 
 ---
 
@@ -32,6 +32,15 @@ LSTM        → step by step, but separates short + long term memory (gated cell
               Problem: still sequential, still a fixed-size bottleneck
 Transformer → reads the ENTIRE sequence at once, direct token-to-token attention
               Solves: parallelism + no bottleneck + long-range dependencies (at O(n²) cost)
+```
+
+**RNN input/output shapes — pick by task** (the "types of RNN" an interviewer asks for):
+```
+one-to-one    fixed → fixed          not really sequential (a plain classifier)
+one-to-many   1 → sequence           image captioning (one image → caption)
+many-to-one   sequence → 1           sentiment / news-topic classification   ← the BBC-headline lecture
+many-to-many  seq → seq (aligned)    per-token labels: NER, POS tagging       (see NER)
+many-to-many  seq → seq (seq2seq)    translation: read all, THEN generate     → needs encoder-decoder (§3)
 ```
 
 ---
@@ -75,6 +84,31 @@ LSTM path:  ∂cₜ/∂cₜ₋₁ = fₜ            → JUST the forget gate
             fₜ ≈ 1 → gradient flows unchanged → cell state is a gradient HIGHWAY
 ```
 It's a *learned, adaptive* gate (set `fₜ≈1` to remember) vs RNN's fixed multiplication. **GRU** merges cell+hidden into 2 gates (reset, update) → fewer params, faster, similar accuracy; prefer it when compute is tight / sequences shorter.
+
+### Bidirectional RNN/LSTM
+Run **two** RNNs — one left→right, one right→left — and concatenate their hidden states, so each token's representation sees **both past and future** context. Big accuracy win for **labeling/understanding** tasks where the full sequence is available (NER, POS, sentiment); **impossible for real-time generation** (you don't have the future yet). BiLSTM is the backbone of pre-transformer tagging — see [NER](NER.md). BERT is the attention-era heir to "see both sides."
+
+### Seq2Seq & the birth of attention (the missing link from LSTM to Transformer)
+Translation/summarization are **many-to-many seq2seq**: read the whole input, *then* generate a different-length output. The pre-attention solution was the **encoder–decoder**:
+```
+encoder LSTM reads source → ONE fixed context vector c → decoder LSTM generates target from c
+                                     (trained with teacher forcing: feed the true prev token)
+```
+**The bottleneck:** cramming an entire sentence into a single vector `c` fails as sentences grow — early information is lost, quality collapses on long inputs. **Attention (Bahdanau, 2014) was invented to remove this bottleneck:** instead of one `c`, let the decoder build a *fresh* context at every step by attending over **all** encoder states:
+```
+cₜ = Σᵢ αₜᵢ·hᵢ        αₜᵢ = softmax(eₜᵢ)        eₜᵢ = score(sₜ₋₁, hᵢ)   ← alignment/energy
+```
+**Alignment / energy functions** (the "types of attention" from the attention lecture — the `score` above):
+```
+additive / Bahdanau   eₜᵢ = vᵀ·tanh(W₁·sₜ₋₁ + W₂·hᵢ)   (a small MLP)
+dot / multiplicative  eₜᵢ = sₜ₋₁ᵀ·hᵢ                    (Luong)
+general               eₜᵢ = sₜ₋₁ᵀ·W·hᵢ
+scaled dot-product    eₜᵢ = sₜ₋₁ᵀ·hᵢ / √d_k               ← the Transformer's choice (§2), just dot + scaling
+location-based        eₜᵢ = f(sₜ₋₁)                       (ignores hᵢ)
+```
+**Soft vs hard attention:** *soft* = the differentiable weighted average above (standard); *hard* = **sample one** position to attend to — cheaper but non-differentiable, trained with RL/variance tricks, rarely used.
+
+**The drawback that forced the next leap:** attention fixed the bottleneck, but the encoder/decoder are **still recurrent → still sequential → still un-parallelizable.** *"Attention Is All You Need"* keeps the attention, **throws away the recurrence**, and lets tokens attend to each other directly — that's **self-attention**, and it's the whole Transformer. 🎯
 
 ### Transformer — read everything at once
 High-level: `Embeddings + Positional Encoding → N×[Multi-Head Self-Attn → Add&Norm → FFN → Add&Norm]` (encoder); decoder adds **masked** self-attention + **cross-attention**, then `Linear+Softmax`.
@@ -179,7 +213,7 @@ T5          Encoder-Decoder  Text-to-text         SEQ2SEQ: translation, summariz
 Attention weights are *seductively* readable — you can plot which tokens "it" attended to (§4a) and it often looks like a clean explanation. Use it, but know the trap:
 
 - **"Attention is not explanation."** `(certain)` High attention weight ≠ causal importance: you can often permute/alter attention without changing the prediction, and multiple attention distributions yield the same output. Treat attention maps as a *hint*, not proof.
-- **Better tools:** **Integrated Gradients / gradient×input** for token attribution, **probing classifiers** (can you recover POS/syntax from a layer's activations?), and **mechanistic interpretability** (identifying circuits like *induction heads* that do in-context copying). For LLM outputs specifically, attribution to retrieved context (in [RAG](../AI%20Engineering/RAG.md)) is the practical "why."
+- **Better tools:** **Integrated Gradients / gradient×input** for token attribution, **probing classifiers** (can you recover POS/syntax from a layer's activations?), and **mechanistic interpretability** (identifying circuits like *induction heads* that do in-context copying). For LLM outputs specifically, attribution to retrieved context (in [RAG](../../AI%20Engineering/RAG.md)) is the practical "why."
 
 🎯 **Interview line:** *"I'll show attention maps for intuition, but I won't claim them as explanations — 'attention is not explanation' is well established; for real attribution I use integrated gradients or probing."*
 
@@ -204,7 +238,7 @@ Top-k / Top-p random sample from top k / nucleus mass p  → the default for ope
 
 ### Adapting models
 - **Fine-tuning:** full FT (update all weights) vs **PEFT/LoRA** (train tiny low-rank adapters, ~0.1% of params, swap per task) — LoRA is the practical default. **Instruction tuning** + **RLHF/DPO** align base LMs to follow instructions/preferences.
-- **Grounding:** plain LMs **hallucinate**; retrieve relevant documents and condition on them → **[RAG](../AI%20Engineering/RAG.md)** is the standard production pattern for factual tasks.
+- **Grounding:** plain LMs **hallucinate**; retrieve relevant documents and condition on them → **[RAG](../../AI%20Engineering/RAG.md)** is the standard production pattern for factual tasks.
 
 ### Evaluation & monitoring
 No single metric: **perplexity** (LM fit), **BLEU/ROUGE** (translation/summarization, weak), task accuracy/F1, and increasingly **human or LLM-as-judge** for open-ended quality. Monitor **input drift** (new topics/languages), **latency/cost per token**, **toxicity/safety**, and refusal/hallucination rates.
@@ -245,7 +279,7 @@ No single metric: **perplexity** (LM fit), **BLEU/ROUGE** (translation/summariza
 - **Efficient attention:** Longformer/BigBird (local+global+random sparse), Performer/linear attention (approximate), **FlashAttention** (exact but IO-aware — usually the first thing to try).
 - **State Space Models / Mamba** — `P1`, the live frontier: linear-time sequence modeling with strong long-context, no quadratic attention. Worth knowing as "the post-Transformer contender."
 - **When RNNs still win:** truly streaming inference (one token at a time, bounded memory), very small datasets (their locality/sequentiality inductive bias helps), and constrained edge devices.
-- **Decoder-only LLMs** (GPT/Llama) are this note's decoder taken to scale + a training pipeline — see [LLM](../AI%20Engineering/LLM.md) for architecture (GPT-2 walk-through), decoding algorithms, and the pretrain→SFT→RLHF path to ChatGPT.
+- **Decoder-only LLMs** (GPT/Llama) are this note's decoder taken to scale + a training pipeline — see [LLM](../../AI%20Engineering/LLM.md) for architecture (GPT-2 walk-through), decoding algorithms, and the pretrain→SFT→RLHF path to ChatGPT.
 
 ---
 
@@ -268,7 +302,11 @@ No single metric: **perplexity** (LM fit), **BLEU/ROUGE** (translation/summariza
    <details><summary>answer</summary>Subword tokenization handles OOV by composing frequent pieces with a small vocab. Token count drives cost and the `O(n²)` attention budget.</details>
 8. Name one post-Transformer architecture for long sequences and its key property.
    <details><summary>answer</summary>**Mamba / SSMs** — linear-time sequence modeling with strong long-context, no quadratic attention. (Or FlashAttention/Longformer for cutting the `O(n²)` cost.)</details>
+9. What problem did the RNN encoder–decoder have, and how did attention solve it?
+   <details><summary>answer</summary>It squeezed the whole source into **one fixed context vector** → a bottleneck that loses information on long inputs. **Attention** lets the decoder build a fresh context each step as `cₜ = Σᵢ αₜᵢ·hᵢ` over *all* encoder states, weighted by an alignment score — no single-vector bottleneck. But the model stays recurrent/sequential, which is why Transformers dropped recurrence for self-attention.</details>
+10. Name three attention alignment (energy) functions; what makes attention "soft" vs "hard"?
+   <details><summary>answer</summary>Additive/Bahdanau `vᵀtanh(W₁s+W₂h)`, dot/multiplicative (Luong) `sᵀh`, general `sᵀWh`, scaled dot-product `sᵀh/√d_k`, location-based `f(s)`. **Soft** = differentiable weighted average over all positions (standard); **hard** = sample one position (non-differentiable, RL-trained).</details>
 
 ---
 
-*Covers: RNN · BPTT & vanishing/exploding gradients · LSTM gates & cell-state highway · GRU · self/multi-head/cross attention · positional encoding (sinusoidal, RoPE, ALiBi) · residual+LayerNorm (Pre/Post-LN) · FFN · masking · BERT/GPT/T5 · tokenization · decoding strategies · KV cache · LoRA/PEFT · RAG · FlashAttention · Mamba/SSMs.*
+*Covers: RNN & I/O types (one/many-to-one/many) · BPTT & vanishing/exploding gradients · LSTM gates & cell-state highway · GRU · bidirectional RNNs · seq2seq encoder-decoder & the context-vector bottleneck · attention birth: Bahdanau/Luong alignment (additive/dot/general/location) · soft vs hard attention · self/multi-head/cross attention · positional encoding (sinusoidal, RoPE, ALiBi) · residual+LayerNorm (Pre/Post-LN) · FFN · masking · BERT/GPT/T5 · tokenization · decoding strategies · KV cache · LoRA/PEFT · RAG · FlashAttention · Mamba/SSMs.*
