@@ -202,8 +202,8 @@ A serious ML company builds a **factory, not a model**. Here's the whole platfor
  ② Architecture  │                                    Ⓓ Feature store  ← one truth for features
         │        │                                          │
         ▼   ┌────── Ⓐ PIPELINE ORCHESTRATION (the conveyor belt) ──────┐
-            │  ③ Collect → ④ Train → ⑤ Evaluate&validate → ⑥ Deploy    │
-            └────────────────────────────────────────────────────────┘
+            │  ③ Collect → ④ Train → ⑤ Evaluate&validate → ⑥ Deploy  │
+             └────────────────────────────────────────────────────────┘
         Ⓒ Experiment tracking   Ⓑ Model registry (staging→prod, rollback = flip a pointer)
                                         │
                                  ⑦ Live API service Ⓔ ──► ⑧ Monitoring+logging ──► 🧑 User
