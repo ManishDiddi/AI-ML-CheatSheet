@@ -55,14 +55,14 @@ The first fork in any document-RAG design: **how do you turn a PDF page into som
 
 ```
                          ┌─ OCR path ──────────────────────────────────────┐
-   PDF page (pixels) ──► │ Tesseract / AWS Textract / Google Document AI    │
-                         │   page → OCR → plain text → chunk → text-embed   │──► text index
-                         └──────────────────────────────────────────────────┘
+   PDF page (pixels) ──► │ Tesseract / AWS Textract / Google Document AI   │
+                         │   page → OCR → plain text → chunk → text-embed  │──► text index
+                         └─────────────────────────────────────────────────┘
                          ┌─ Vision path ───────────────────────────────────┐
-   PDF page (pixels) ──► │ render page → image                              │
-                         │   ColPali: patch-embed the image directly        │──► image/patch index
-                         │   or VLM: caption the image → text-embed          │
-                         └──────────────────────────────────────────────────┘
+   PDF page (pixels) ──► │ render page → image                             │
+                         │   ColPali: patch-embed the image directly       │──► image/patch index
+                         │   or VLM: caption the image → text-embed        │
+                         └─────────────────────────────────────────────────┘
 ```
 
 **OCR (Optical Character Recognition).** Detects and transcribes characters, converting the page to a text string you then run through normal text RAG.
