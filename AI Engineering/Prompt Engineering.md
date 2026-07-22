@@ -70,6 +70,8 @@ plain ask      task + no       task + 1       task + k       + show          + t
                examples        example        examples       reasoning       observations
 ```
 
+![A rising staircase of six prompting techniques from Simple just-ask, to Zero-shot, One-shot, Few-shot, Chain-of-Thought, and ReAct, with a diagonal arrow showing that climbing the ladder increases power and capability but also increases tokens, latency, and cost, so you should climb only as high as the task needs](attachments/prompting-ladder.png)
+
 ### 3.1 Simple prompting
 Just ask. Best for **factual recall, basic calculation, simple completion/generation**.
 ```
@@ -124,6 +126,8 @@ Direct:   "A store has 50 apples, sells 12 then 18. How many left?"  → "20"   
 CoT:      "...Let's think step by step."  → "Start 50. Sold 12 → 38. Sold 18 → 20. Answer: 20."
 ```
 
+![Side by side comparison: on the left a Direct prompt jumps straight to the answer twenty with no reasoning trace and is often wrong on multi-step problems; on the right a Chain-of-Thought prompt appends lets think step by step and writes each step, start with fifty, sold twelve leaves thirty-eight, sold eighteen leaves twenty, producing a correct auditable answer](attachments/chain-of-thought-vs-direct.png)
+
 ### 4.1 When CoT earns its cost
 The instructor's list — reach for CoT on:
 - **Multi-step reasoning** / sequential logic
@@ -166,15 +170,7 @@ Sample **several** CoT chains at non-zero temperature and **majority-vote the fi
 
 **CoT reasons; ReAct reasons *and acts*.** It interleaves thinking with **tool calls**, so the model can fetch information it doesn't have (fresh data, private DBs, exact math) instead of hallucinating it. The loop:
 
-```
-        ┌─────────────────────────────────────────────────────┐
-        │   THOUGHT   → model analyzes the situation, decides what to do next
-        │      ↓
-        │   ACTION    → calls a TOOL  (e.g. web_search(...), calculator(...))   ← beats the knowledge cutoff
-        │      ↓
-        │   OBSERVATION → receives the tool's result; feeds it back into context
-        └──────────↑  repeat until ──►  FINAL ANSWER
-```
+![The ReAct loop drawn as a cycle: THOUGHT decides what to do next, then ACTION calls a tool such as web_search or calculator, then OBSERVATION feeds the tool result back into context, looping back to THOUGHT and repeating until enough information is gathered to emit the FINAL ANSWER](attachments/react-loop.png)
 
 The model emits a fixed text format the runtime parses:
 ```

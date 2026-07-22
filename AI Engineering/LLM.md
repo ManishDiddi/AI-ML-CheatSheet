@@ -103,8 +103,14 @@ INPUT TEXT  "The cat sat on the"
 ![GPT-2 decoder block architecture](attachments/gpt-2-decoder-block.png)
 *GPT-2 decoder block: token + positional embeddings → ×12 [Masked Multi-Head Attention + MLP, each with a residual + LayerNorm] → final LayerNorm → unembed → softmax over the vocab.*
 
+![Self-attention computed for the word Thinking: its embedding is projected into a query, a key, and a value vector; the query is scored against every key by dot product (q1 dot k1 equals 112, q1 dot k2 equals 96), each score is divided by the square root of the key dimension and passed through softmax to give weights 0.88 and 0.12, then every value vector is scaled by its weight and summed to produce the output vector z1 for that token](attachments/self-attention-qkv-illustrated.png)
+
+*Source: Jay Alammar, The Illustrated Transformer. Each token's output is a softmax-weighted sum of all tokens' Value vectors, where the weights come from Query·Key scores — "attention" is just learning which other tokens to average in.*
+
 - **Masked (causal) self-attention** is the one structural difference from BERT: future positions' attention scores are set to `−∞` before softmax → 0 weight → the model can't peek at the answer. Train and inference behave identically.
 - Only the **last position's** logits matter when generating the next token; during training, *all* positions are scored in parallel (teacher forcing) — that's the density from §3.
+
+![Causal attention mask shown as a five-by-five grid over tokens The, cat, sat, on, mat: each query token on the rows may attend only to itself and earlier key tokens, so the lower triangle is allowed and green while the upper triangle of future positions is set to negative infinity before softmax, which is what stops the model peeking at the answer](attachments/causal-attention-mask.png)
 
 ---
 
@@ -176,6 +182,8 @@ The set SIZE adapts to the model's confidence — why top-p is the practical def
 ## 6. Base Model → ChatGPT: the Training Evolution
 
 A base LLM and ChatGPT are the *same architecture* — the difference is three training stages.
+
+![The training evolution from base model to ChatGPT in four stages: pretrain a base next-token model on web-scale text, supervised fine-tune it on instruction and response pairs, train a reward model on human rankings of which output is better, then use RLHF with PPO to optimize the policy against that reward, turning a base text-continuer into an aligned chat assistant](attachments/rlhf-training-evolution.png)
 
 ```
 STAGE 0 ── PRETRAINING (the base model, e.g. GPT-2/GPT-3) ──────────────────────────────

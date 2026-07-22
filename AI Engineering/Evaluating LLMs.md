@@ -185,6 +185,8 @@ REFERENCE-LESS  (a.k.a. reference-free)
    ❌ subjective; judge/human bias; can be costly (a judge call per example).
 ```
 
+![The two families of LLM evaluation: reference-based on the left where you have a gold answer and score similarity of output to reference using EM, F1, Accuracy, BLEU, ROUGE, BERTScore — objective and cheap but needs labels; reference-less on the right where there is no gold answer and you score quality of the output given the input and criteria using LLM-as-Judge, perplexity, heuristics, or human rating — scales to open-ended and live traffic but is subjective and costly](attachments/eval-methods-taxonomy.png)
+
 Rule of thumb: **closed-ended or has a canonical answer → reference-based; open-ended or in production → reference-less.** Most serious eval stacks use *both* — reference-based on a labeled regression set, reference-less (judge + human) on open-ended and live traffic.
 
 ---
@@ -280,6 +282,8 @@ Generated (candidate): "the cat sat on the mat happily"   (7 unigrams — one ex
    FP = a token the model GENERATED that is NOT in the reference  → hurts PRECISION (BLEU)   e.g. "happily"
    FN = a reference token the model did NOT generate              → hurts RECALL   (ROUGE)
 ```
+![A Venn diagram of candidate tokens versus reference tokens: the overlap cat, on, the, mat is the true positives; the candidate-only tokens sat and happily are false positives that hurt precision and therefore BLEU; the reference-only token slept is a false negative that hurts recall and therefore ROUGE; BLEU equals true positives over candidate length four over six equals 0.67 while ROUGE equals true positives over reference length four over five equals 0.80](attachments/bleu-precision-vs-rouge-recall.png)
+
 🎯 **Same idea, opposite lens:** BLEU asks *"was what you said right?"* (precision — punishes extra/wrong words); ROUGE asks *"did you cover what mattered?"* (recall — punishes missing words). Summarization uses ROUGE because covering the reference is what counts.
 
 ### 7.5 BERTScore — semantic similarity + IDF weighting
@@ -340,6 +344,8 @@ Use a strong LLM to grade another LLM's output against a rubric — the only met
 ```
 Candidate LLM  →  generates output  →  Judge LLM  →  score / verdict
 ```
+
+![LLM-as-Judge flow: the input plus the candidate LLM output feed into a strong judge LLM run at temperature zero, which is steered by a rubric prompt that is itself the metric, and emits a structured score or verdict such as relevance higher-is-better, hallucination lower-is-better, and moderation safe; the judge must be de-biased for position, verbosity, and self-enhancement by running both orders and calibrating against human labels](attachments/llm-as-judge.png)
 
 ### 8.1 Three evaluation scenarios
 ```

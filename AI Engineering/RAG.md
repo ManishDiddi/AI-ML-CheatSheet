@@ -150,6 +150,8 @@ Typical sweet spot: **256–512 tokens with ~10–20% overlap** (tune per corpus
 
 **Overlap** (why it matters): with a hard cut, a fact spanning the boundary is *half in chunk A, half in chunk B* and retrievable from neither. Overlap duplicates the seam so the fact lives intact in at least one chunk.
 
+![Chunking a long document into chunks with overlap: consecutive chunks share an overlapping band at each seam, shown in amber, so a fact that spans a cut still lives intact inside at least one chunk; too big dilutes the embedding, too small splits the idea, and overlap ensures no fact is lost at the boundary](attachments/chunking-with-overlap.png)
+
 **Contextual Retrieval** (Anthropic, the pragmatic upgrade over "smart" splitters): before embedding, prepend a 1–2 sentence **LLM-generated blurb that situates the chunk in the whole doc** ("This chunk is from the Q3 earnings section discussing Product X…"). Fixes the "it grew 3% — *it* = which product?" failure and reportedly cuts failed retrievals ~35%+. One cached LLM call per chunk, layerable on any splitter. `(likely)`
 
 ### 4.3 Embed & attach metadata
@@ -229,6 +231,8 @@ Layer 1:        ●──●─●────●──────●───�
 Layer 0 (all):  ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●    ← dense: refine to the true neighbors
                           ▲ greedy hop toward the query, layer by layer
 ```
+![HNSW search as greedy descent over a layered graph: you enter at the sparse top layer whose long express-lane edges cross the space fast, greedily hop to the neighbor nearest the query, then drop into denser layers that refine toward the true nearest neighbors near the query star, giving near-logarithmic instead of linear search](attachments/hnsw-layered-graph.png)
+
 Result: **~logarithmic** search instead of linear. Key knobs: **M** (neighbors per node — bigger = better recall, more memory), **ef_construction** (build-time candidate breadth), **ef_search** (query-time breadth — *the* recall↔latency dial). ChromaDB uses HNSW under the hood. 🎯 *"HNSW turns similarity search into greedy walks over a layered small-world graph — near-logarithmic recall of neighbors without touching most of the vectors."*
 
 **Other families** (name them):
@@ -386,7 +390,8 @@ Everything so far is "naive/linear" RAG. The frontier makes retrieval **adaptive
 
 **Related & forward pointers:**
 - **[Embeddings](Embeddings.md)** — the embedding-model deep dive: similarity metrics, bi-/cross-encoders, fine-tuning (Triplet / MNR / BCE), model choice, and retrieval eval (Recall@K, MRR, NDCG). ✅ *written*.
-- **[[Multimodal & Tabular RAG]]** — retrieval over images/tables/structured data — *next lecture*.
+- **[Multimodal RAG](Multimodal%20RAG.md)** — retrieval over **images & document pages**: CLIP shared-space cross-modal search, ColPali OCR-free page retrieval (late-interaction MaxSim), and VLM generation, worked on the IKEA-manuals case. ✅ *written*.
+- **[[Tabular RAG]]** — retrieval over tables/structured data (text-to-SQL, row serialization, schema-linking) — *future note*.
 - **[[RAG Evaluation]]** — end-to-end **faithfulness/groundedness, context precision/recall (RAGAS)** (the retrieval metrics Recall@K/MRR/NDCG now live in [Embeddings §7](Embeddings.md#7-evaluating-retrieval--precision-recall-mrr-ndcg)). Deferred until taught; the faithfulness concept is previewed in [Evaluating LLMs](Evaluating%20LLMs.md).
 
 ---
