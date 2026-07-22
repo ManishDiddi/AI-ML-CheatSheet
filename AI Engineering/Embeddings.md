@@ -46,6 +46,8 @@ vec("King") − vec("Man") + vec("Woman") ≈ vec("Queen")
 
 The vector *difference* King→Man is (roughly) the "royal→commoner" direction; the *difference* Man→Woman is the "gender" direction. Embeddings **preserve the relationships between words**, not just their identities. That's the whole reason they beat one-hot/keyword representations, which treat every word as equidistant from every other.
 
+![Left panel shows pets puppy kitten cat dog clustered close together while invoice and tax return sit far away in a different region, so proximity encodes similar meaning; right panel shows Man Woman King Queen at the corners of a parallelogram where the gender direction and royalty direction are parallel, illustrating King minus Man plus Woman approximately equals Queen](attachments/embedding-space-and-analogy.png)
+
 **Two levels of embedding — know which one you're holding:**
 
 ```
@@ -101,6 +103,8 @@ Cosine:        cos(A,B₁) = 800 / (√2 · 800)   = 0.7071
                cos(A,B₂) = 401 / (√2 · 400.001)= 0.7089
    → cosine says B₂ is MORE similar than B₁                [direction wins]
 ```
+
+![Two-dimensional plot of vector A at forty-five degrees with candidate B-one long and at a wider angle and candidate B-two short and nearly aligned with A; the annotation shows dot product ranks B-one above B-two because of its length while cosine ranks B-two above B-one because of its angle, so the two rankings flip](attachments/cosine-vs-dot-rank-flip.png)
 
 🎯 **The rankings literally swap.** `B₁` looks closer to dot product *only because it's a bigger vector*; by **angle**, `B₂` is a touch nearer to `A`'s 45° heading. For **semantic** embeddings we care about meaning = direction, so **cosine is the default**. Magnitude in an embedding is mostly an artifact of length/frequency, not meaning — which is why you normalize it away.
 
@@ -199,6 +203,10 @@ This is the central mental model of the whole topic — and the single most-aske
    • weakness: q & d never "see" each other       • strength: token-level interaction → precise
                 → coarser relevance                             → far more accurate
 ```
+
+![Bi-encoder passes Sentence A and Sentence B through separate BERT encoders each followed by pooling to produce vectors u and v that are compared by cosine similarity, while the cross-encoder concatenates both sentences into a single BERT followed by a classifier that outputs one relevance score between zero and one](attachments/bi-encoder-vs-cross-encoder-sbert.png)
+
+*Source: SBERT / sentence-transformers docs (Reimers & Gurevych). Bi-encoder = two towers → two vectors → cosine (precomputable, scales); cross-encoder = one tower over the joined pair → one score (accurate, can't precompute).*
 
 **Side-by-side:**
 
