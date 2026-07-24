@@ -12,8 +12,8 @@ Goal: make notes **faster to understand** by adding real figures (architecture d
 |---|---|---|
 | Computer Vision — CNN (pilot) | Intro_to_CV_and_CNN_Fundamentals | ✅ done (3 imgs) |
 | Computer Vision — 6 other notes | see mapping below | ✅ done (14 imgs), reviewed — **user has pending un-specified change requests to CV** |
-| NLP (6 notes) | see mapping | ⬜ NEXT |
-| Unsupervised ML (4) | see mapping | ⬜ |
+| NLP (6 notes) | see mapping | ✅ done (22 imgs) 2026-07-24 — Text Preprocessing 3 (self-made), Word Embeddings 4 (Alammar), NER 2 (self-made), Sentiment 2 (notebook NRC + self-made LDA), BERT 4 (Alammar), RNN·LSTM·Transformers 7 (colah×3 + Alammar×3 + notebook attn-heatmap). Notebook-first yielded only 2 usable concept figures (attn heatmap, NRC emotion) — rest code-heavy plots; backbone = canonical (colah/Alammar) + self-made. **Uncommitted, pending user review.** |
+| Unsupervised ML (4) | see mapping | ⬜ NEXT |
 | Supervised ML (7) | see mapping | ⬜ |
 | Neural Networks (5) | see mapping | ⬜ |
 | Time Series (2) | see mapping | ⬜ |

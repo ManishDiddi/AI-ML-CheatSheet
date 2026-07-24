@@ -33,6 +33,8 @@ NER is a subtask of **Information Extraction** — *"find the limited, relevant,
 
 Two things happen at once: **detection** (where does the entity start and end?) and **classification** (what type is it?). The business payoff in the lecture is **pharmacovigilance** — a data scientist at a pharma company extracts `DRUG` and `ADVERSE-EVENT` mentions from reviews so they can associate *which drug caused which side effect*. (Strictly, tying the drug to the event is **relation extraction** built *on top of* NER — NER is step one; §8.)
 
+![Named-entity recognition output over a raw sentence: Apple is highlighted and typed as ORG, U.K. as GPE, the amount one billion dollars as MONEY, and 2024 as DATE — the model must get both the span boundaries and the type right.](attachments/ner-entity-spans.png)
+
 Because entities are usually **multi-word** (`New York City`, `Dr. A. P. J. Abdul Kalam`, `myocardial infarction`), you can't just classify each word independently — you need a scheme that marks **span boundaries** and respects that labels depend on their neighbors. That scheme is **BIO tagging**, and that dependency is why **CRFs** exist. 🎯
 
 ---
@@ -49,6 +51,8 @@ BIO:     B-PER  I-PER     O            B-DRUG    O      B-PROB   I-PROB
          begin  inside                 begin            begin    inside
 ```
 `B-TYPE` starts an entity, `I-TYPE` continues it, `O` is outside any entity. A `k`-type problem needs `2k+1` labels. Variants: **IOB1** (`B-` only to separate adjacent same-type entities), **BILOU/BIOES** (adds `L`/`E` = last, `U`/`S` = unit/single) — the extra boundary signals often **improve accuracy** by making the model commit to where entities end.
+
+![NER as BIO sequence tagging: each token gets one label — B- begins an entity, I- continues it, O is outside — so Barack Obama becomes B-PER then I-PER and New York becomes B-LOC then I-LOC, and adjacent B-/I- tags of the same type merge back into one entity span.](attachments/ner-bio-tagging.png)
 
 **Why not classify each token independently?** Tags are **not independent**: `I-PER` may only follow `B-PER`/`I-PER`; `O → I-DRUG` is illegal. A per-token softmax has no way to forbid that. You need to score the **whole label sequence jointly** — enter the CRF.
 

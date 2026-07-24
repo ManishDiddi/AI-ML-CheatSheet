@@ -59,6 +59,8 @@ tf-idf(t, d) = tf(t, d) · idf(t)
 ```
 A term in *every* document has `df = N → idf = log(1) = 0` (killed automatically — TF-IDF is a *soft, data-driven stopword remover*). sklearn uses a **smoothed** idf `log((1+N)/(1+df(t))) + 1` and **L2-normalizes** each row so document length doesn't dominate.
 
+![Bag-of-Words versus TF-IDF on three toy documents: BoW stores raw word counts while TF-IDF reweights them by log of N over document frequency and L2-normalizes each row, so the word the — appearing in every document — collapses to exactly zero and drops out automatically.](attachments/bow-vs-tfidf.png)
+
 **n-grams.** BoW loses order; adding **bigrams/trigrams** (`"not good"`, `"new york"`) recovers a little local order at the cost of an exploding `|V|`. Interviewers love: *"BoW can't see 'not good' as negative — bigrams fix the most damaging cases."*
 
 **Zipf's law** — word frequency ≈ inversely proportional to rank (`freq ∝ 1/rank`). Consequence: a *tiny* set of words (the, of, is) covers most tokens → **stopwords**; and a *huge long tail* of rare words each appears once → **OOV / sparsity** problems that subword tokenization exists to solve.
@@ -81,6 +83,8 @@ Numbered stages. You pick which to run based on the model (§1).
    - **Sentence tokenization** (`nltk.sent_tokenize`, spaCy `doc.sents`) — needed for sentence-level tasks; the hard cases are abbreviations (`U.K.`, `Dr.`) and decimals, which statistical tokenizers handle better than a naïve split on `.`.
    - **Word tokenization** (`nltk.word_tokenize`, spaCy tokens). spaCy handles contractions and attached punctuation more gracefully (`"it's" → ["it", "'s"]`) and each token carries POS/lemma/`is_stop`.
    - **Subword tokenization** (the modern default for transformers) — **BPE**, **WordPiece** (BERT), **SentencePiece/Unigram** (T5, LLaMA). Learns a fixed vocab of frequent character chunks so any word decomposes into known pieces → **no true OOV** (`"tokenization" → token ##ization`). This one step *replaces* stemming, stopword removal, and OOV handling. It's owned by the model; deeper treatment in [RNN · LSTM · Transformers](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) and [BERT](BERT.md).
+
+![Subword tokenization splits any word into pieces from a fixed vocabulary — tokenization becomes token plus a continuation piece ization, snowboarding becomes snow plus board plus ing — so there is no true out-of-vocabulary word and one learned step folds in stemming and normalization.](attachments/subword-tokenization.png)
 
 4. **Normalize (classical models only).**
    - **Stopword removal** — drop high-frequency low-signal words (`nltk.corpus.stopwords`, spaCy `token.is_stop`). *Audit the list* — it contains `not`, `no`, `against` (deadly for sentiment).
@@ -116,6 +120,8 @@ Porter :  machin   learn     studi    artifici    intellig      concern     algo
 spaCy  :  machine  learning  study    artificial  intelligence  concern     algorithm   datum
 ```
 Read it: the stemmer produces **non-words** (`machin`, `studi`, `artifici`) — fine for matching, ugly for humans. The lemmatizer keeps **valid words** and even does `data → datum` (correct Latin singular — a classic "gotcha" that surprises people). Both collapse `algorithms → algorithm`, which is the *point*: fewer vocabulary entries, denser features.
+
+![Stemming versus lemmatization on the same words: the rule-based stemmer chops affixes fast but yields non-words like studi and wa and leaves irregulars unchanged, whereas the lemmatizer returns a valid dictionary form using the part of speech, mapping better to good as an adjective and was to be as a verb.](attachments/stemming-vs-lemmatization.png)
 
 **NER on the raw text** shows the tools are imperfect: spaCy tags `ML → ORG` (wrong — it's an abbreviation), `2023 → DATE`, `1,234 → CARDINAL`, `Google → ORG`. Great illustration that enrichment steps are *probabilistic*, not oracle.
 

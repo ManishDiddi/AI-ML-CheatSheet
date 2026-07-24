@@ -63,6 +63,9 @@ BERT is a **stack of Transformer *encoder* blocks** (self-attention + feed-forwa
 
 Output: one **contextual vector per token**, plus the `[CLS]` vector as a whole-sequence summary.
 
+![BERT is a stack of Transformer encoder blocks — twelve in BERT-Base — that reads every input token at once; the sequence starts with a special CLS token followed by the WordPiece tokens, and each position emerges as one contextual vector.](attachments/bert-encoder-stack.png)
+*Source: Jay Alammar, The Illustrated BERT.*
+
 ---
 
 ## 3. Pretraining — MLM & NSP
@@ -76,12 +79,18 @@ Input  : "Today morning, I went for a [MASK] removal to my dentist"   → predic
 ```
 The detail the lecture glosses (**know this cold**): of the chosen 15%, **80% → `[MASK]`, 10% → a random token, 10% → left unchanged**. Why the 10/10 twist? `[MASK]` **never appears at fine-tuning time**, so always-masking would create a train/serve mismatch; mixing in random/unchanged tokens forces BERT to build a good representation for *every* token, not just masked ones. Loss is computed only on the selected 15%. `(certain)`
 
+![Masked language modeling: about fifteen percent of input tokens are replaced with a MASK placeholder and BERT predicts the original word from both left and right context, recovering improvisation here through a feed-forward-plus-softmax over the entire vocabulary.](attachments/bert-masked-language-model.png)
+*Source: Jay Alammar, The Illustrated BERT.*
+
 **2. Next Sentence Prediction (NSP).** Given sentences A and B, classify **IsNext?** — 50% of the time B truly follows A (positive), 50% B is a random sentence (negative). Combined length ≤ 512 tokens; the `[CLS]` vector feeds a binary classifier.
 ```
 A: "Nadal won the 2022 Australian Open."   B: "He now has 21 Grand Slam titles."   → IsNext = Yes
 A: "India won the match."                  B: "Obama served two terms."            → IsNext = No
 ```
 *Why NSP?* MLM captures within-sentence context but not **inter-sentence** relationships, which QA and NLI need.
+
+![Next sentence prediction: BERT reads two segments joined by a separator token and uses the CLS vector to classify whether sentence B genuinely follows sentence A, outputting IsNext versus NotNext.](attachments/bert-next-sentence-prediction.png)
+*Source: Jay Alammar, The Illustrated BERT.*
 
 > ⚠️ **Correction to the lecture's framing:** later work (**RoBERTa**) found **NSP is nearly useless** — removing it and training on longer contiguous text *improved* results; **ALBERT** replaced it with **Sentence-Order Prediction (SOP)**. So modern encoders often drop NSP. MLM is the objective that carries BERT. `(certain)`
 
@@ -123,7 +132,11 @@ This solves the two diseases of word-level tokenization at once: **huge vocabula
 - **Feature extraction** — freeze BERT, take its (contextual) embeddings, feed a separate classifier. Cheap, but leaves accuracy on the table.
 - **Fine-tuning** (the usual win) — add a thin task head and train **the whole thing** end-to-end with a **small learning rate** (`2e-5`–`5e-5`), **2–4 epochs**, a warmup schedule. Because pretraining did the heavy lifting, a little labeled data goes a long way.
 
+![Fine-tuning BERT for classification: a thin feed-forward-plus-softmax head reads only the final CLS vector to label the whole sequence — here scoring an email as spam versus not spam — while the pretrained encoder is trained end-to-end at a small learning rate.](attachments/bert-fine-tuning-classifier.png)
+*Source: Jay Alammar, The Illustrated BERT.*
+
 **HuggingFace task heads** (each a different class):
+
 | Task | Head | Uses |
 |---|---|---|
 | Sequence classification (sentiment, NLI) | `[CLS]` → Dense → softmax | one label per sequence |
