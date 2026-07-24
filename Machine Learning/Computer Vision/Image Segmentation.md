@@ -62,6 +62,8 @@ This is the same encoder–decoder shape as an [autoencoder](../Neural%20Network
 
 Semantic output is per-pixel softmax over `C` classes → argmax gives the label map.
 
+![Semantic versus instance segmentation — semantic labels every pixel by class so two cars both collapse into one merged car region, while instance segmentation gives each object its own mask so car one and car two stay separate; semantic is U-Net and DeepLab territory, instance is Mask R-CNN.](attachments/semantic-vs-instance-segmentation.png)
+
 **Upsampling — how the decoder grows `7×7` back to `H×W`.** Two ways:
 - **Transposed convolution** (`Conv2DTranspose`, aka "deconvolution"): *learned* upsampling. Each input value stamps the whole (scaled) kernel onto the output; overlapping stamps are **summed**. It reverses conv *dimensions*, not values. Output size:
   ```
@@ -111,6 +113,8 @@ A **symmetric** encoder–decoder ("U" shape): the decoder *mirrors* the encoder
 upsample (2×)  →  concatenate the matching encoder feature map  →  Conv3×3 → Conv3×3
    (channels ÷2)          (channels ×2 from concat)                 (channels ÷2 back)
 ```
+![A redrawn U-Net — the encoder halves resolution and doubles channels down to a bottleneck (the what), the decoder mirrors it back up to full resolution (the where), and a concatenation skip at every level copies the encoder's fine detail straight across so the mask keeps sharp boundaries instead of coming out blurry.](attachments/unet-encoder-decoder-skip-connections.png)
+
 Dense per-scale skips mean the decoder *never* has to hallucinate fine detail — it's handed the encoder's. Consequences: precise boundaries, and famously it trains on **as few as ~30 annotated images** (with **elastic-deformation** augmentation), which is why it dominates **medical imaging**.
 
 ### 3c. Mask R-CNN — instance segmentation = Faster R-CNN + a mask head
@@ -207,6 +211,8 @@ pred = np.argmax(model.predict(img[None]), -1)[0]          # per-pixel class (1=
 blur = cv2.GaussianBlur(img, (21,21), 0)
 portrait = np.where(pred[...,None] == 1, img, blur)         # keep person sharp, blur background
 ```
+![U-Net portrait-segmentation results — for each test face the model predicts a per-pixel person mask that closely matches the ground truth, and applying that mask keeps the person sharp while Gaussian-blurring the background produces the portrait-mode output the code above builds.](attachments/segmentation-predicted-masks-portrait.png)
+
 For production, don't hand-roll: **`segmentation_models`** (U-Net/FPN/DeepLab with pretrained encoders), **`torchvision.models.segmentation`** (`deeplabv3_resnet50`, `fcn_resnet50`), and **`torchvision...maskrcnn_resnet50_fpn`** ship ready to fine-tune.
 
 ---

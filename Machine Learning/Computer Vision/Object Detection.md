@@ -53,6 +53,8 @@ Image → backbone → "where might objects   Image → backbone → dense grid 
 
 🎯 *"Two-stage detectors trade speed for accuracy by first proposing regions then classifying them; single-stage detectors like YOLO regress boxes and classes directly from a grid in one pass — real-time, at some cost on small/dense objects. Both dedupe with NMS and are scored by mAP."*
 
+![A single-stage YOLO detector's output on a street scene — a single forward pass emits a set of boxes each tagged with a class and a confidence (car 0.93, car 0.66, traffic light 0.51), which is exactly the variable-length set of box-class-score triples that defines object detection.](attachments/yolo-single-stage-detection-result.png)
+
 ---
 
 ## 2. The Formal Core — boxes, anchors, IoU, losses, mAP
@@ -72,6 +74,8 @@ IoU = area(intersection) / area(union)          ∈ [0, 1]
 ```
 
 **Anchors / default boxes** — the trick that lets a *fixed*-output CNN emit variable detections. At every feature-map location you pre-place `k` reference boxes of assorted **scales × aspect ratios**; the network predicts, *per anchor*, an offset + objectness + class. Faster R-CNN: scales `[128,256,512]` × ratios `[0.5,1,2]` → **9 anchors/location**. SSD: ~6 default boxes/cell. YOLO: anchors per grid cell (from v2 on).
+
+![The two primitives every detector shares — IoU scores how well a predicted box overlaps the ground truth as the intersection area divided by the union area, and anchors pre-place k reference boxes of assorted scales and aspect ratios at each feature-map location so a fixed-output CNN can predict an offset, an objectness and a class per anchor.](attachments/detection-iou-and-anchor-boxes.png)
 
 **Box regression is predicted as offsets to an anchor, not absolute coords** (easier to learn, scale-normalized):
 ```
@@ -115,7 +119,7 @@ Take a pretrained backbone, remove the classifier, attach **two heads** off the 
 - **classification head** → `Dense(n_classes, softmax/sigmoid)`
 - **regression head** → `Dense(4, sigmoid)` for the box (normalized coords)
 
-Train with a **combined loss** (e.g. `BCE` for class + `MSE`/Smooth-L1 for box), optionally weighting the box loss higher. Simple and effective — but the fixed 4-coord output means **exactly one box**, so it can't detect multiple objects. That limitation motivates everything below.
+Train with a **combined loss** (e.g. `BCE` for class + `MSE`/Smooth-L1 for box), optionally weighting the box loss higher. Simple and effective — but the fixed 4-coord output means **exactly one box**, so it can't detect multiple objects. That limitation motivates everything below. (The prediction-vs-ground-truth box geometry is exactly the IoU picture in §2.)
 
 ### 3b. Multi-object, the naïve way: sliding window (why it's bad)
 Slide a fixed box across the image at many positions **and scales**, classifying each crop ("car / not car"). Turns detection into classification — but:

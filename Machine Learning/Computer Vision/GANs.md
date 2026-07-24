@@ -37,6 +37,8 @@
    G's goal: make fakes D calls "real"   D's goal: correctly label real=1, fake=0
 ```
 
+![The GAN forgery game drawn as a loop — the generator turns noise z into a fake image, the discriminator sees a mix of fakes and real images and outputs a probability that each is real, and the gradient flowing back through the discriminator teaches the generator to fool it while the discriminator trains to label real as one and fake as zero, converging when the two distributions match and the critic is stuck at one half.](attachments/gan-generator-discriminator-adversarial-loop.png)
+
 Two networks locked in competition, each forcing the other to improve. The counterfeiter starts terrible; the detective easily catches it; the counterfeiter learns from being caught; the detective adapts to smarter fakes; round after round both become experts — until the counterfeits are indistinguishable from real currency. At that equilibrium the generator has learned the true data distribution.
 
 🎯 *"A GAN pits a generator that turns noise into fakes against a discriminator that classifies real vs fake; training is a minimax game, and at the ideal equilibrium the generator's distribution matches the data so the discriminator can't do better than a coin flip."*
@@ -107,6 +109,8 @@ loss
  └──────────────────────── epochs      (samples get sharper each epoch — the real signal)
 ```
 Counter-intuitively, **rising discriminator loss is often good**: it means the generator is producing harder fakes, so the same-quality critic is fooled more. There's no single "loss = quality" number — the losses are *relative* to an opponent that's also moving. **Judge by the samples** (and FID), not the loss curves.
+
+![The generator learning over training on anime faces from a single fixed noise batch — at epoch 1 the samples are formless colour blobs, by epoch 30 recognisable faces emerge, and by epoch 60 they are sharp and varied, which is exactly why you judge a GAN by its samples improving rather than by its loss curves.](attachments/gan-training-progression-anime-faces.png)
 
 **The equilibrium** you're chasing: `p_g → p_data`, `D(x) → ½` for everything. In practice you rarely reach it cleanly — you stop when samples look good and diverse.
 

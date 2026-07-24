@@ -36,6 +36,8 @@ INPUT ─▶ [conv early] ─▶ [conv mid] ─▶ [conv late] ─▶ [FC head] 
                               REUSE THESE (freeze)                  THROW AWAY, replace
 ```
 
+![The freeze-versus-fine-tune strategy on a pretrained backbone — early conv blocks holding generic edge and texture detectors stay frozen and reused as-is, the late blocks that encode task-specific object parts are optionally fine-tuned at a tiny learning rate, and only the new head trains on your classes; how much you unfreeze slides with dataset size and domain gap.](attachments/transfer-learning-freeze-finetune-strategy.png)
+
 Edge and texture detectors are useful for *any* image task — landmarks, X-rays, satellite tiles. Only the last layers encode "these features → ImageNet's 1000 classes." So you **keep the conv backbone, delete the ImageNet head, and bolt on a fresh head for your classes.** The backbone stays frozen (the majority of the weights, already good); only the small new head trains → fast, data-efficient, high accuracy.
 
 🎯 *"Transfer learning works because the convolutional backbone learns a generic edge→texture→part hierarchy that's reusable across vision tasks — I freeze that and only retrain the task-specific head, so 700 images is enough to hit 85% where from-scratch gives 11%."*
@@ -111,6 +113,8 @@ Stage 2 (fine-tuning):          [frozen early | UNFROZEN late] → [head]   tiny
 | **VGG16 transfer** | ImageNet weights, `include_top=False`, freeze conv base, `GAP/Flatten → Dense(10)`, train head 5 epochs | **~84.5% val** |
 
 Same architecture, same data, same epochs — the *only* difference is initialization from ImageNet features. That 11% → 85% jump is the entire argument for transfer learning.
+
+![Transfer-learning training curves on the 10-class landmark set — validation accuracy climbs past 0.84 in just five epochs while train and validation loss fall together and stay close, the healthy well-fit signature of a frozen ImageNet backbone, versus the roughly 11 percent a from-scratch VGG reaches on the same data.](attachments/transfer-learning-training-curves.png)
 
 **The backbones you transfer from (know the one-line innovation + the numbers — common interview drill):**
 

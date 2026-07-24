@@ -34,6 +34,8 @@ Accuracy                              Diagnosis
   │_______/__/___________ epoch
 ```
 
+![The overfitting signature on the baseline clothing CNN — training accuracy climbs to 99.87 percent while validation accuracy stalls near 60 percent, and it is the widening train-minus-val gap, not either curve alone, that diagnoses a model memorizing rather than generalizing.](attachments/overfitting-train-val-divergence.png)
+
 **The root cause (say this cold):** overfitting = *too many trainable parameters relative to the number of training samples*. A 2-conv-block CNN on a 128×128 clothing dataset has **~17M parameters but only ~3000 training images** — the model has enough capacity to *memorize* the training set (and its noise) rather than learn generalizable patterns.
 
 **The two levers** — every technique in this note is one or the other:
@@ -186,6 +188,8 @@ clean = Sequential([layers.Resizing(128, 128), layers.Rescaling(1/255.)])  # VAL
 train_ds = train_data.map(lambda x, y: (augment(x), y), num_parallel_calls=AUTOTUNE).prefetch(AUTOTUNE)
 val_ds   = val_data.map(  lambda x, y: (clean(x),   y))   # NEVER augment val/test (except TTA)
 ```
+![Each Keras augmentation layer applied to the same training image — RandomCrop, RandomTranslation, RandomRotation, RandomFlip, RandomBrightness and RandomContrast each produce a distinct label-preserving variant, the synthetic diversity that grows effective dataset size; note the flip has turned the cub upside-down, a live reminder that a transform is only valid if a human still gives it the same label.](attachments/data-augmentation-transforms-grid.png)
+
 Keras augmentation layers are inert at inference automatically, but keeping augment/clean as separate pipelines makes the train-only intent explicit and leak-proof. (PyTorch: the equivalents are `torchvision.transforms` in the *train* `Dataset` only, with `nn.Dropout`, `nn.BatchNorm2d`, `weight_decay=` in the optimizer, and a `ReduceLROnPlateau`/`CosineAnnealing` scheduler.)
 
 ---
