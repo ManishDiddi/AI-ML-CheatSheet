@@ -49,6 +49,9 @@ These are the CNN's built-in **inductive bias**; they map one-to-one onto local 
 
 **Convolution at one position:** element-wise multiply the filter by the input patch, sum to one number = "how strongly this pattern is present here." One filter → one **feature map**; `K` filters → `K` feature maps stacked as output depth.
 
+![A 3×3 kernel (shaded) slides across a zero-padded input feature map (blue) and at each stop multiplies-and-sums the covered patch into a single output pixel (green); one filter sweeping every position produces one feature map.](attachments/convolution-sliding-kernel.gif)
+*Convolution animation — [vdumoulin/conv_arithmetic](https://github.com/vdumoulin/conv_arithmetic), MIT.*
+
 ```
 Input:  (H × W × C_in)        Filter bank: (f × f × C_in × K)        Output: (H' × W' × K)
 ```
@@ -75,6 +78,8 @@ FC layer:    params = (n_in + 1) × n_out               ← where param counts e
 
 ### Filters & weight sharing
 Example 3×3 vertical-edge detector `[-1,0,1] / [-1,0,1] / [-1,0,1]` → strong response where left is bright and right is dark, zero where no edge. Many filters = many patterns: 32 filters on layer 1 → 32 feature maps, each answering *"where is pattern k present?"* The **same** weights are applied at every position (weight sharing) → translation invariance + parameter efficiency.
+
+![The vertical-edge filter above applied to a real photo — it fires bright wherever brightness changes left-to-right (railings, limbs, the bicycle) and stays dark across flat regions, exactly what a vertical-edge kernel measures at every position.](attachments/sobel-vertical-edge-filter.png)
 
 ### Why kernels are odd-sized (3×3, 5×5 — never 2×2 or 4×4)
 An odd kernel has a **single central pixel**, so its output maps back to a well-defined integer centre with the previous-layer pixels sitting symmetrically around it. An even kernel's centre falls *between* pixels (at x=0.5) → asymmetric padding and a half-pixel shift that accumulates distortion across stacked layers. 🎯 *"Odd sizes give a symmetric receptive field with a real centre pixel — that's why 3×3 is the workhorse and you never see 2×2 conv kernels."*
@@ -128,6 +133,8 @@ FC 64→10  → (10,)        params = (64 + 1)·10       = 650
                          TOTAL learnable params ≈ 20,042
 ```
 **Why GAP matters:** flattening `56×56×64 = 200,704` into an FC→10 head instead would cost `(200,704+1)·10 ≈ 2.0M` params — **100× more** than the entire GAP network above. That single design choice is most of why modern CNNs are small.
+
+![A real Keras CNN's shape flow — Conv then MaxPool halve the spatial size (128→64) while adding channels, then Flatten explodes the 64×64×16 map into a 65,536-vector feeding a Dense head: the parameter blow-up that Global Average Pooling replaces.](attachments/cnn-layer-shapes-flow.png)
 
 ---
 

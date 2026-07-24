@@ -69,6 +69,9 @@ The margin caps how hard easy negatives are penalized — once two different ima
 L(A,P,N) = max( 0,  d(A,P) − d(A,N) + α )
    want:  d(A,P) + α  ≤  d(A,N)     "anchor closer to positive than to negative, by margin α"
 ```
+
+![The Siamese triplet setup — one shared-weight network embeds the anchor, positive and negative into the same space, then the triplet loss pulls the positive inside a margin of the anchor while pushing the negative outside it, so the anchor-to-positive distance plus the margin stays below the anchor-to-negative distance.](attachments/siamese-triplet-shared-weights-concept.png)
+
 The margin also prevents the trivial collapse `f(x)=0` (which would make all distances 0). Triplets fall into three regimes — **this classification drives training**:
 ```
 easy      : d(A,N) > d(A,P) + α   → loss = 0  → NO gradient (already correct) → skip
@@ -90,6 +93,8 @@ Training only on random triplets wastes most batches on zero-loss easy triplets 
 4. **Scale down the vectors**: [PCA](../Unsupervised%20ML/PCA%20&%20t-SNE.md) 2048 → ~150 dims keeps almost all accuracy (diminishing returns past the elbow) and gives ~**20× less data + ~20× faster** search — and lets the whole index sit in RAM.
 5. **Scale up the search**: swap brute force for **Approximate Nearest Neighbours (ANN)** — Annoy (trees), Faiss, ScaNN, HNSW — trading a little recall for orders-of-magnitude speed. Above millions of vectors, use a **vector database** (Pinecone, Milvus, Weaviate, pgvector).
 6. **Visualize/sanity-check** with **PCA → t-SNE** to 2-D (t-SNE alone doesn't scale, so PCA-reduce first) — clean class clusters mean the embedding space is good.
+
+![A t-SNE map of the CNN embeddings after PCA reduction — images of the same category collapse into tight islands (faces, airplanes, motorbikes, foliage) purely because similar images land at nearby vectors, the visual sanity check that the embedding space is good enough for retrieval.](attachments/image-embedding-tsne-clusters.png)
 
 ### Regime B — learned embeddings (Siamese metric learning): verification / one-shot
 1. **Embedding tower**: a shared backbone (pretrained ResNet-50, frozen or fine-tuned) → GAP → `Dense` → the embedding. *One* tower, reused for every input.
@@ -136,6 +141,8 @@ Contrastive:  train 92.6%   test 63.8%   ← big gap = overfit (absolute pushing
 Triplet:      train 82.7%   test 82.5%   ← train ≈ test = generalizes (relative structure)
 ```
 Lower *train* accuracy but matching *test* accuracy is exactly why triplet is preferred for retrieval/verification.
+
+![The distance separation a trained triplet model achieves on held-out signatures — anchor-to-positive Euclidean distances cluster low around 2.0 to 2.3 while anchor-to-negative distances sit well above around 3.0 to 3.9, and it is exactly this gap between the two boxes that a single verification threshold exploits.](attachments/siamese-anchor-positive-negative-distances.png)
 
 ---
 
