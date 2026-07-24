@@ -63,6 +63,9 @@ Attention(Q,K,V) = softmax(Q·Kᵀ / √d_k) · V
   Q=X·Wq "what I'm looking for"   K=X·Wk "what I contain"   V=X·Wv "what I contribute"
   /√d_k  scales dot products so softmax doesn't saturate (vanishing grads) as d_k grows
 ```
+![Scaled dot-product self-attention for the tokens Thinking and Machines: each token embedding is projected into a query, a key, and a value, and the attention score for a pair is the dot product of one token's query with another's key — q1 dotted with k1 equals 112.](attachments/self-attention-qkv-score.png)
+*Source: Jay Alammar, The Illustrated Transformer.*
+
 **Multi-head:** `Concat(head₁..headₕ)·Wₒ`, each `headᵢ = Attention(QWqᵢ, KWkᵢ, VWvᵢ)` with `d_k = d_model/h`.
 
 **Positional encoding** (attention is order-blind, so inject position): original is sinusoidal `PE(pos,2i)=sin(pos/10000^{2i/d})`, `PE(pos,2i+1)=cos(...)`. Modern LLMs use **RoPE** (rotary, encodes *relative* position, extrapolates to longer contexts) or **ALiBi** (linear attention bias) instead. `(certain)`
@@ -76,7 +79,14 @@ Attention(Q,K,V) = softmax(Q·Kᵀ / √d_k) · V
 ### RNN & the vanishing gradient (the problem that started it all)
 Backprop through time multiplies a Jacobian per step: `∂L/∂h₁ = ∂L/∂hₙ · ∏ ∂hₜ/∂hₜ₋₁`, and each `∂hₜ/∂hₜ₋₁ = tanh'(·)·Wₕ`. Since `tanh' ∈ (0,1)`, over a length-500 sequence you multiply ~499 sub-1 terms → `∂L/∂h₁ ≈ 0` → early tokens get no gradient → long-range context is forgotten. The mirror case `Wₕ>1` gives **exploding gradients** (NaNs) → fixed by **gradient clipping** (`g ← g·thresh/‖g‖`).
 
+![A recurrent network unrolled across time: the same cell A consumes input x_t together with the previous hidden state and emits output h_t while passing its state forward, so information flows step by step along a single chain.](attachments/rnn-unrolled.png)
+*Source: Christopher Olah, Understanding LSTM Networks.*
+
 ### LSTM — the gated fix
+
+![Inside an LSTM cell: the forget, input, and output gates — each a sigmoid layer — regulate a horizontal cell-state conveyor belt running across the top, letting the cell add or erase information at each step while emitting the hidden state below.](attachments/lstm-cell.png)
+*Source: Christopher Olah, Understanding LSTM Networks.*
+
 Two memories: **cell state `cₜ`** (long-term "conveyor belt") and **hidden `hₜ`** (short-term output). Why it fixes vanishing gradients:
 ```
 RNN path:   ∂cₜ/∂cₜ₋₁ = tanh'(·)·W   → always <1 → vanishes
@@ -84,6 +94,9 @@ LSTM path:  ∂cₜ/∂cₜ₋₁ = fₜ            → JUST the forget gate
             fₜ ≈ 1 → gradient flows unchanged → cell state is a gradient HIGHWAY
 ```
 It's a *learned, adaptive* gate (set `fₜ≈1` to remember) vs RNN's fixed multiplication. **GRU** merges cell+hidden into 2 gates (reset, update) → fewer params, faster, similar accuracy; prefer it when compute is tight / sequences shorter.
+
+![The LSTM cell state is a near-uninterrupted horizontal line running along the top of the cell with only minor gated linear interactions — this is the gradient highway that lets information and gradients flow across many time steps almost unchanged.](attachments/lstm-cell-state-highway.png)
+*Source: Christopher Olah, Understanding LSTM Networks.*
 
 ### Bidirectional RNN/LSTM
 Run **two** RNNs — one left→right, one right→left — and concatenate their hidden states, so each token's representation sees **both past and future** context. Big accuracy win for **labeling/understanding** tasks where the full sequence is available (NER, POS, sentiment); **impossible for real-time generation** (you don't have the future yet). BiLSTM is the backbone of pre-transformer tagging — see [NER](NER.md). BERT is the attention-era heir to "see both sides."
@@ -98,6 +111,8 @@ encoder LSTM reads source → ONE fixed context vector c → decoder LSTM genera
 ```
 cₜ = Σᵢ αₜᵢ·hᵢ        αₜᵢ = softmax(eₜᵢ)        eₜᵢ = score(sₜ₋₁, hᵢ)   ← alignment/energy
 ```
+![Attention weights for the query word cost over the sentence food is delicious but price is high: almost all of the weight, 0.99, lands on price, so the context vector for cost becomes essentially the value of price — attention selecting the one relevant token.](attachments/attention-weights-heatmap.png)
+
 **Alignment / energy functions** (the "types of attention" from the attention lecture — the `score` above):
 ```
 additive / Bahdanau   eₜᵢ = vᵀ·tanh(W₁·sₜ₋₁ + W₂·hᵢ)   (a small MLP)
@@ -113,7 +128,13 @@ location-based        eₜᵢ = f(sₜ₋₁)                       (ignores h�
 ### Transformer — read everything at once
 High-level: `Embeddings + Positional Encoding → N×[Multi-Head Self-Attn → Add&Norm → FFN → Add&Norm]` (encoder); decoder adds **masked** self-attention + **cross-attention**, then `Linear+Softmax`.
 
+![The Transformer stacks a column of six encoders and six decoders: the source sentence Je suis étudiant flows up through the encoders whose output feeds every decoder, and the decoders then emit the translation I am a student.](attachments/transformer-encoder-decoder-stack.png)
+*Source: Jay Alammar, The Illustrated Transformer.*
+
 - **Multi-head attention:** each head learns a different relation (head A: subject→verb, head B: coreference, head C: local context) → richer than one attention.
+
+![Multi-head attention runs several attention heads in parallel, each with its own learned query, key, and value projection matrices, so different heads can capture different relations between the same tokens Thinking and Machines.](attachments/multi-head-attention.png)
+*Source: Jay Alammar, The Illustrated Transformer.*
 - **Add & LayerNorm:** `LayerNorm(x + SubLayer(x))`. The **residual** is a gradient highway (like ResNet) enabling deep stacks (BERT 12, GPT-3 96 layers). **LayerNorm not BatchNorm** because batch stats are unstable for variable-length, padded sequences — LayerNorm normalizes each token across features, stable at any batch size. *(Modern nets use **Pre-LN**: `x + SubLayer(LayerNorm(x))` — trains more stably than the original Post-LN.)*
 - **FFN:** `max(0, xW₁+b₁)W₂+b₂`, expand 4× then compress (512→2048→512). Attention is a *linear* weighted average; the FFN adds the non-linearity. *"Attention decides WHERE to look; FFN decides WHAT to do with what it saw."* (Modern LLMs swap ReLU for **GELU/SwiGLU**.)
 - **Masked self-attention (decoder):** set future-position scores to `−∞` before softmax → 0 attention to future → can't "cheat" by seeing the answer during generation.

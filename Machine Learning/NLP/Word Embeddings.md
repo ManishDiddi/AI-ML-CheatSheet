@@ -43,6 +43,9 @@ vec("Paris") − vec("France") + vec("Italy") ≈ vec("Rome")
 ```
 The offset "man→woman" is roughly the same direction as "king→queen" — gender is a *direction* in the space. That linear structure is why embeddings became the foundation of modern NLP. 🎯
 
+![The analogy king minus man plus woman lands almost exactly on queen, shown as embedding vectors: the man-to-woman offset is the same direction as king-to-queen, so gender is a consistent direction in the learned space.](attachments/word2vec-king-queen-analogy.png)
+*Source: Jay Alammar, The Illustrated Word2Vec.*
+
 ---
 
 ## 2. The Formal Core
@@ -65,6 +68,9 @@ A **shallow, log-bilinear model** with two weight matrices: input/embedding `W �
 - **Negative sampling (SGNS)** — replace the `|V|`-way softmax with `k` small **binary** problems: push the true (center, context) pair together, push `k` random "noise" words apart.
   `log σ(u_o · v_c) + Σ_{i=1..k} E_{w_i∼P_n}[ log σ(−u_{w_i} · v_c) ]`
   `k ≈ 5–20` for small data, `2–5` for large; noise drawn from the **unigram distribution raised to 3/4** (`P_n(w) ∝ freq(w)^{0.75}`, which up-samples rare words). `(certain)`
+
+![Skip-gram with negative sampling reframes training as binary classification: the real center-context pair make and shalt gets target 1 while random noise words like aaron and taco get target 0, replacing the expensive full-vocabulary softmax.](attachments/word2vec-negative-sampling.png)
+*Source: Jay Alammar, The Illustrated Word2Vec.*
 - **Hierarchical softmax** — arrange the vocabulary as a **Huffman binary tree** with words at the leaves; a word's probability is the product of left/right decisions along the root→leaf path → cost drops from `O(|V|)` to `O(log|V|)`.
 
 **Cosine similarity** is the metric of the space: `cos(a,b) = (a·b)/(‖a‖‖b‖)`. Use **cosine, not Euclidean/dot**, because a vector's *magnitude* tracks word frequency while its *direction* carries meaning — deep dive in [Embeddings §2](../../AI%20Engineering/Embeddings.md). `(certain)`
@@ -94,6 +100,9 @@ Skip-gram-with-negative-sampling, end to end:
 
 🎯 *"CBoW smooths over context and is fast; Skip-gram makes a separate prediction for every context word, so it learns rare words better — at higher compute. Skip-gram + negative sampling is the usual default."*
 
+![Continuous Bag-of-Words predicts the masked center word red from its surrounding context words by a bus in — it averages the context to fill in the blank, the opposite direction from Skip-gram.](attachments/word2vec-cbow-fill-blank.png)
+*Source: Jay Alammar, The Illustrated Word2Vec.*
+
 ---
 
 ## 4. Worked Example
@@ -109,6 +118,9 @@ Counting how often each word sits adjacent to each other word gives a symmetric 
 (deep, "cat"), (deep, "the")           ← k negative samples (random noise words)
 ```
 The model nudges `deep`'s vector toward `like`/`learning` and away from the noise words. Repeat across the corpus and `deep`/`learning`/`machine` drift together.
+
+![Skip-gram slides a context window over the sentence and, from the center word red, generates one training pair per neighbor — red to by, red to a, red to bus, red to in — the inverse of CBoW's fill-the-blank setup.](attachments/word2vec-skipgram-training-pairs.png)
+*Source: Jay Alammar, The Illustrated Word2Vec.*
 
 **Analogy check** (what you'd run after training): `king − man + woman` returns a vector whose nearest neighbor (by cosine) is `queen` — the payoff of the linear structure in §1.
 

@@ -61,6 +61,8 @@ A **sentiment lexicon** is a dictionary mapping words → sentiment values. You 
   `"The movie was a masterpiece, but too long and slightly boring"` → polarity ≈ **0.1** (mildly positive — "masterpiece" pulled down by "boring/too long"), subjectivity ≈ **0.75** (opinionated). `"The sun is 93 million miles from Earth"` → polarity **0.0**, subjectivity **0.0** (pure fact).
 - **AFINN** — each word has an integer **valence from −5 to +5** (`fantastic +4`, `terrible −3`); the document score is the **sum** of matched words. Fast and simple; great for short, informal text (tweets), no emotion breakdown.
 - **NRC Emotion Lexicon (EmoLex)** — ~**14,000 words**, each tagged (binary) with **8 emotions** (anger, anticipation, disgust, fear, joy, sadness, surprise, trust) + **2 sentiments** (positive, negative). **Multi-label** — a word can carry several emotions. Gives `raw_emotion_scores` (counts) and `affect_frequencies` (each emotion's share of all emotional tags). Use it when you need *which emotion*, not just good/bad. `"I love the design but I'm scared about durability"` → joy/trust **and** fear.
+
+![The NRC Emotion Lexicon maps each word to several emotions at once as a binary word-by-emotion matrix: anxious lights up anticipation, fear, and negative, while happy lights up anticipation, joy, positive, and trust — showing that a single word can carry multiple emotions.](attachments/nrc-emotion-lexicon-mapping.png)
 - **VADER** *(the tool the lecture skips — know it)* — a rule-based analyzer **tuned for social media**. It's the robust lexicon because it explicitly handles **negation** ("not good"), **intensifiers/boosters** ("very", "extremely"), **ALL-CAPS**, **punctuation** ("good!!!" > "good"), and **emoji/slang**. Returns `pos/neu/neg` proportions plus a normalized **`compound ∈ [−1,+1]`** (the headline score; `≥0.05` positive, `≤−0.05` negative). `(certain)`
 
 **The formal weakness of naive lexicons.** A pure sum/average, `score(doc) = Σ valence(wᵢ)`, is **bag-of-words** — it can't see word order, so `"not good"` scores like `"good"`. TextBlob and VADER patch this with negation/booster *rules*; AFINN/NRC don't. This is exactly why supervised and transformer models win on hard text.
@@ -143,6 +145,8 @@ For each document d:
 ```
 
 - `K` = number of topics (you choose). `θ_d` = **document–topic** distribution (row sums to 1). `β_k` = **topic–word** distribution. A "topic" is literally a **probability distribution over words** — no human label; you name it by eyeballing its top words.
+
+![LDA models each document as a mixture of topics — one document is 70 percent sports, another 70 percent politics, a third mostly tech — and each topic as a ranked distribution over words, both inferred from the corpus without any labels.](attachments/lda-topic-model.png)
 - **α** (document–topic Dirichlet) controls how *many topics per document* — low α → each doc is about few topics. **η/β** (topic–word Dirichlet) controls how *many words per topic* — low η → each topic concentrates on few words. Both are sparsity priors.
 - **Learning** *inverts* this story: given the observed words, infer the θ and β that most likely generated them (via **variational inference** or **collapsed Gibbs sampling**; think KL-divergence minimization between the generated and observed word distributions).
 
