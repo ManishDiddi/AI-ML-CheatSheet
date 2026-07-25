@@ -59,6 +59,8 @@ Dimensionality reduction keeps as much signal as possible in far fewer dimension
 
 **Why maximize projected variance = "best-fit line":** for a point, its distance from the origin `A` is fixed. Project it onto a candidate axis; by Pythagoras `A² = (projection)² + (residual)²`. Maximizing the **squared projection distance** (spread along the line) is the same as minimizing the residual — so PCA's max-variance axis is exactly the line the points project onto most spread-out. `(certain)`
 
+![PCA on a tilted 2-D cloud: the red PC1 arrow points along the direction of maximum variance and the green PC2 arrow is orthogonal to it, and rotating the data into these axes concentrates the spread on PC1 so PC2 can be dropped to reduce two dimensions to one.](attachments/pca-max-variance-projection.png)
+
 **The math Scaler flagged as "out of scope" — but is the standard interview answer:** PCA is the **eigendecomposition of the covariance matrix** `Σ` (on standardized data). `(likely)`
 ```
 principal components  = eigenvectors of Σ   (the new orthogonal axes)
@@ -97,6 +99,8 @@ pca.explained_variance_ratio_            # variance per PC
 np.cumsum(pca.explained_variance_ratio_) # cumulative → pick k at your threshold
 ```
 
+![A scree plot with a bar of explained variance for each principal component and a cumulative line; the first six components together pass the 90 percent target, so you keep k equal to six.](attachments/pca-scree-plot.png)
+
 ---
 
 ## 5. PCA — Limitations
@@ -124,6 +128,8 @@ gradient pulls/pushes:  Δyᵢ ∝ Σⱼ (pᵢⱼ − qᵢⱼ)(yᵢ − yⱼ)
 
 **Why Gaussian in high-D but Student-t in low-D — the crowding problem:** you can't fit all the high-D neighborhood distances into 2-D (map a square's corners to a line and one pair must break). Low-D space is cramped, so moderately-distant points would collapse into a crowd. The **heavy tails of the Student-t** give far points more "room" (their `q` stays non-zero → real repulsion), which counteracts crowding. 🎯 *"Mismatched tails for mismatched dimensions: Gaussian picks neighbors in high-D, heavy-tailed t pushes everyone else away in low-D."* `(certain)`
 
+![The two t-SNE kernels compared: a Gaussian used in high-dimensional space decays quickly and selects close neighbors, while the heavy-tailed Student-t used in the low-dimensional map keeps distant points' similarity non-zero, giving them room to spread and counteracting the crowding problem.](attachments/tsne-gaussian-vs-student-t.png)
+
 **Perplexity** — the one key hyperparameter, ≈ **the number of neighbors** each point considers (it sets each Gaussian's width `σᵢ`). Low perplexity → local detail; high → big-picture. Typical **5–50**; never set it near `n`. `(certain)`
 
 ---
@@ -135,6 +141,9 @@ gradient pulls/pushes:  Δyᵢ ∝ Σⱼ (pᵢⱼ − qᵢⱼ)(yᵢ − yⱼ)
 - **Non-deterministic** — different runs (and different perplexities) give different pictures.
 - 🎯 **Reading traps (a classic interview point):** t-SNE preserves *local* neighborhoods only — so **cluster *sizes* are meaningless, gaps/distances *between* clusters are meaningless**, and apparent clusters can be artifacts of perplexity. Use it to *see* that structure exists, **never** to measure it or to cluster on its output.
 - **Visualization only** — it's not a general-purpose feature reducer for models (that's PCA/UMAP).
+
+![t-SNE run at perplexity 5, 30, 50, and 100 on three datasets, showing that low perplexity fragments the data and that even a uniform grid can appear to form clusters — so the perplexity setting strongly shapes the picture.](attachments/tsne-perplexity-effect.png)
+*Source: scikit-learn documentation.*
 
 ---
 
@@ -171,6 +180,8 @@ X_2d = TSNE(n_components=2, perplexity=30, random_state=0).fit_transform(X)   # 
 | Main use | compress, denoise, decorrelate, **preprocess**, speed up models | **visualize** cluster structure |
 | Interpretable output? | PCs (weakly) | not at all (viz only) |
 | Key hyperparameter | # components (variance %) | perplexity |
+
+![The same breast-cancer data reduced two ways: linear PCA separates the malignant and benign classes along a diagonal with an overlapping boundary, while non-linear t-SNE pulls them into two more clearly separated regions — but only PCA gives a reusable transform.](attachments/pca-vs-tsne-same-data.png)
 
 **Decision rule:** need to *compress features / speed up a model / preprocess* → **PCA**. Need to *see* whether high-D data has clusters → **t-SNE** (or **UMAP** for large/faster/more-global). Common combo: **PCA → ~50 dims, then t-SNE → 2-D** (PCA denoises and accelerates t-SNE). If you have labels and want discriminative axes, use **LDA**, not PCA.
 

@@ -76,6 +76,8 @@ K-Means finds `K` centroids and assigns each point to the nearest one. It's solv
 4. REPEAT       2–3 until centroids stop moving (or move negligibly)
 ```
 
+![K-Means by Lloyd's algorithm shown in three snapshots: starting centroids, one assign-then-update step, and the converged state where each centroid sits at its cluster's mean and stops moving.](attachments/kmeans-lloyd-iterations.png)
+
 It's **coordinate descent on WCSS**: the assign step and the update step each can only lower (never raise) WCSS, so it converges — but only to a **local** minimum, which is why initialization matters (§5). `(certain)`
 
 **Worked example** (1-D, `K=2`, points `[1, 2, 10, 11]`, start centroids `c₁=1, c₂=2`):
@@ -104,6 +106,8 @@ WCSS │●
 ```
 - **Silhouette score** — sharper than the elbow. For each point: `s = (b − a) / max(a, b)`, where `a` = mean intra-cluster distance (to its own cluster) and `b` = mean distance to the nearest *other* cluster. Range `[−1, 1]`: near **+1** = well-clustered, **0** = on a boundary, **−1** = probably in the wrong cluster. Pick the `K` with the highest average silhouette. `(certain)`
 
+![Two ways to choose K on the same three-blob data: the WCSS elbow flattens after K = 3 and the average silhouette score peaks at K = 3, so both criteria point to three clusters.](attachments/elbow-silhouette-choosing-k.png)
+
 ---
 
 ## 5. K-Means++ and K-Means' Limitations
@@ -124,6 +128,9 @@ This gives far more consistent, better clusters (it's sklearn's **default** `ini
 - **Non-globular shapes** — concentric rings, crescents, elongated blobs → K-Means draws straight (Voronoi) boundaries and fails.
 - **Outliers** — every point *must* join a cluster, so outliers drag centroids. (DBSCAN §7 fixes this by allowing "noise.")
 - You must **specify K** in advance.
+
+![Four cases where plain K-Means mislabels the data — a non-optimal number of clusters, anisotropically stretched blobs, clusters of unequal variance, and unevenly sized blobs — because it assumes round, equal-sized, equal-density groups.](attachments/kmeans-assumptions.png)
+*Source: scikit-learn documentation.*
 
 ---
 
@@ -152,6 +159,8 @@ Builds a **tree of merges** instead of committing to `K` upfront. Two directions
 
 **The dendrogram** shows merge distances on the y-axis; **cut it horizontally** to get your clusters — a low cut = many tight clusters, a high cut = few loose ones. Choosing the cut is more intuitive than guessing `K` blind. `(certain)`
 
+![A hierarchical-clustering dendrogram whose height axis is the merge distance; cutting it with the dashed horizontal line severs the tallest links and yields three clusters, so the cut height chooses K after the fact.](attachments/hierarchical-dendrogram-cut.png)
+
 - **Pros:** no `K` upfront; the dendrogram is genuinely interpretable; deterministic (no random init).
 - **Cons:** the proximity matrix makes it **`O(n²)` memory and ~`O(n²–n³)` time** → doesn't scale to large data; merges are greedy and irreversible. **Standardize before computing distances.**
 
@@ -169,6 +178,8 @@ CORE point   : has ≥ minPts within eps (sits in a dense region)
 BORDER point : within eps of a core point, but not itself core
 NOISE point  : neither core nor border  → an outlier (label −1)
 ```
+
+![Left, DBSCAN labels each point core, border, or noise using an epsilon-radius neighborhood and a minPts threshold; right, DBSCAN run on two interleaving moons recovers both arbitrary-shaped clusters and marks the scattered sparse points as noise.](attachments/dbscan-core-border-noise.png)
 
 **Algorithm:** `(likely)`
 ```
@@ -223,6 +234,9 @@ db = DBSCAN(eps=0.5, min_samples=2*X.shape[1]).fit(X)
 | Scales to big data? | **yes** `O(nKd·i)` | no `O(n²)` | medium (`O(n log n)` w/ index) |
 | Deterministic? | no (init) | yes | yes (given params) |
 | Key hyperparameters | K, init | linkage, cut | eps, minPts |
+
+![A grid running many clustering algorithms — including K-Means, Ward agglomerative, DBSCAN, Gaussian mixtures, and spectral clustering — across several toy datasets, showing that centroid and variance based methods fail on rings and moons while density and spectral methods recover them.](attachments/clustering-algorithms-comparison.png)
+*Source: scikit-learn documentation.*
 
 **Decision rule:** big, roughly-spherical data with a known/guessable `K` → **K-Means++**. Small data where you want to *see* the structure and choose `K` after → **Hierarchical**. Arbitrary shapes and/or you need outliers flagged → **DBSCAN** (→ HDBSCAN for varying density). Overlapping, probabilistic ("soft") clusters where a point can partly belong to several → **[GMM](GMM.md)**.
 

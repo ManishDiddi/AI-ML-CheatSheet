@@ -71,6 +71,8 @@ inlier  (dense region) → many cuts needed to isolate it → DEEP average depth
 anomaly score ∝ 1 / average isolation depth across trees
 ```
 
+![Two panels contrasting isolation depth: an outlier sits alone in a sparse region so a few random axis-parallel cuts carve out a cell containing only it (shallow depth), while an inlier deep in the dense cluster needs many more cuts to isolate (deep depth).](attachments/iso-forest-isolation-depth.png)
+
 - **No distance/density computed** — just tree depth, so it's **fast and scales to large/high-dim data** (`max_samples` sub-samples rows per tree, `n_estimators` trees). 🎯 That speed is why it's an industry default. `(certain)`
 - **Splits use random thresholds** — *not* Gini/entropy/information gain (it's unsupervised; there's no label to optimize). `(certain)`
 - **Weakness — axis-parallel bias:** every split is parallel to an axis, so the decision boundary is blocky ("banding"). Two equidistant points — one on-axis, one off-axis — can be scored differently purely due to orientation. `(certain)`
@@ -87,6 +89,9 @@ minimize   r² + λ · Σ ζᵢ      subject to   ‖xᵢ − C‖² ≤ r² + �
 ```
 
 Shrinking `r` and minimizing slack pull against each other — `λ` (in sklearn, `nu`) tunes the trade-off and roughly bounds the outlier fraction. Points forced outside (`ζᵢ > 0`) are anomalies. `(certain)`
+
+![One-Class SVM novelty detection: a learned RBF frontier wraps the two dense regions of normal training data, so new regular points fall inside the boundary and new abnormal points fall outside it.](attachments/one-class-svm-frontier.png)
+*Source: scikit-learn documentation.*
 
 - **Kernel trick:** the data appears only through distances, so use an **RBF kernel** to wrap non-spherical, complex normal regions (a sphere in high-D = a curvy boundary in the original space). `(certain)`
 - **Weaknesses:** kernel/`gamma`/`nu` selection is fiddly, it **scales poorly with `n`** (all SVM costs), and it's sensitive to outliers in the "normal" training set.
@@ -109,6 +114,9 @@ LOF(A) = average lrd of A's neighbors  /  lrd(A)             # ratio of neighbor
 - `LOF ≈ 1` → A is as dense as its neighbors (normal).
 - `LOF < 1` → A is *denser* than its neighbors (deep inside a cluster).
 - `LOF ≫ 1` → A is much *sparser* than its neighbors → **outlier** (e.g. 2.7 is clearly anomalous; ~1.05 is a benign border point).
+
+![Local Outlier Factor scores drawn as red circles whose radius grows with the LOF value; points inside the dense clusters get small circles while isolated points in sparse regions get large circles, flagging them as local outliers.](attachments/lof-outlier-scores.png)
+*Source: scikit-learn documentation.*
 
 - **Strength:** catches **local** outliers that global methods miss — a point that's "normal" globally but sparse *relative to its own dense neighborhood*.
 - **Weaknesses:** picking `k` and the LOF threshold is unclear (domain-dependent), it **struggles in high dimensions**, and it's `O(n²)`-ish (KNN over all points). Like KNN, LOF gives no reusable model by default (`novelty=True` mode enables scoring new points).
@@ -147,6 +155,9 @@ Deep-learning alternative worth knowing: an **[autoencoder](../Neural%20Networks
 | **LOF** | low density vs neighbors | **local** outliers, varying density | high dims; choosing k & threshold |
 | **[DBSCAN](Clustering.md)** | noise points (label −1) | clustering + outliers together | varying density, eps tuning |
 | **[GMM](GMM.md)** | low mixture likelihood | multimodal Gaussian data | non-Gaussian shapes |
+
+![A grid comparing five outlier detectors — Robust covariance (Elliptic Envelope), One-Class SVM and its SGD variant, Isolation Forest, and Local Outlier Factor — across five toy datasets, showing how each draws a different normal-region boundary and where each succeeds or fails.](attachments/anomaly-methods-comparison.png)
+*Source: scikit-learn documentation.*
 
 **Decision rule:** big/high-dimensional and you want a fast default → **Isolation Forest**; outliers that are only anomalous *locally* → **LOF**; clean unimodal Gaussian data → **Elliptic Envelope**; a complex but single normal region → **One-Class SVM**; already clustering → **DBSCAN** noise for free. Scaler's takeaway from the sklearn comparison: **Isolation Forest and LOF generalize best across cases**, which is why industry leans on them. `(likely)`
 
