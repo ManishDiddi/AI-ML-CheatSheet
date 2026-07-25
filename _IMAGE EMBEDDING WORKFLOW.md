@@ -12,9 +12,9 @@ Goal: make notes **faster to understand** by adding real figures (architecture d
 |---|---|---|
 | Computer Vision — CNN (pilot) | Intro_to_CV_and_CNN_Fundamentals | ✅ done (3 imgs) |
 | Computer Vision — 6 other notes | see mapping below | ✅ done (14 imgs), reviewed — **user has pending un-specified change requests to CV** |
-| NLP (6 notes) | see mapping | ✅ done (22 imgs) 2026-07-24 — Text Preprocessing 3 (self-made), Word Embeddings 4 (Alammar), NER 2 (self-made), Sentiment 2 (notebook NRC + self-made LDA), BERT 4 (Alammar), RNN·LSTM·Transformers 7 (colah×3 + Alammar×3 + notebook attn-heatmap). Notebook-first yielded only 2 usable concept figures (attn heatmap, NRC emotion) — rest code-heavy plots; backbone = canonical (colah/Alammar) + self-made. **Uncommitted, pending user review.** |
-| Unsupervised ML (4) | see mapping | ⬜ NEXT |
-| Supervised ML (7) | see mapping | ⬜ |
+| NLP (6 notes) | see mapping | ✅ done (22 imgs) 2026-07-24 — Text Preprocessing 3 (self-made), Word Embeddings 4 (Alammar), NER 2 (self-made), Sentiment 2 (notebook NRC + self-made LDA), BERT 4 (Alammar), RNN·LSTM·Transformers 7 (colah×3 + Alammar×3 + notebook attn-heatmap). Notebook-first yielded only 2 usable concept figures (attn heatmap, NRC emotion) — rest code-heavy plots; backbone = canonical (colah/Alammar) + self-made. **Committed `5a6ccad`, pushed 2026-07-24** (commit also fixed a blank-line-less table in BERT §6). |
+| Unsupervised ML (4) | see mapping | ✅ done (19 imgs) 2026-07-25 — GMM 4 (self-made: 1-D mixture, covariance-types, EM iterations, GMM-vs-KMeans), Anomaly Detection 4 (self-made iForest isolation-depth + canonical sklearn OneClassSVM-frontier/LOF/methods-comparison), Clustering 6 (self-made Lloyd-iterations/elbow+silhouette/DBSCAN-core-border-noise + canonical kmeans-assumptions/cluster-comparison + notebook Ward dendrogram-with-cut), PCA & t-SNE 5 (self-made projection/scree/Gaussian-vs-Student-t + canonical perplexity + notebook PCA-vs-tSNE composite). Notebook-first again mostly code-heavy results plots → backbone = self-made matplotlib (real EM/K-Means/DBSCAN/silhouette in numpy) + canonical sklearn (all attributed) + 2 notebook figs. **Uncommitted, pending user review.** |
+| Supervised ML (7) | see mapping | ⬜ NEXT |
 | Neural Networks (5) | see mapping | ⬜ |
 | Time Series (2) | see mapping | ⬜ |
 | Recommendation Systems (2) | see mapping | ⬜ |

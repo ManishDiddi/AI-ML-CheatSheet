@@ -34,6 +34,8 @@ K-Means forces every customer into exactly one bucket. But a real customer can b
                      overlap = ambiguous point
 ```
 
+![GMM models data as a weighted sum of K Gaussians; a point where two components overlap gets a soft, roughly 50-50 probabilistic membership instead of a single hard label.](attachments/gmm-1d-mixture.png)
+
 - **Soft vs hard.** K-Means: "you're in cluster 2." GMM: "you're 82% cluster 1, 18% cluster 2." The soft membership is the whole point — it quantifies *uncertainty*. `(certain)`
 - **Generative story.** GMM assumes the data was *produced* by picking a Gaussian (with some prior weight) and sampling from it. Clustering then inverts that: given a point, which Gaussian likely produced it?
 - **Shape flexibility.** Because each Gaussian carries a full covariance matrix, clusters can be **stretched and tilted ellipses**, not just K-Means' round blobs.
@@ -80,6 +82,8 @@ EM is **coordinate ascent** on the log-likelihood: alternately fix one set of pa
                 πⱼ  = (Σᵢ γᵢⱼ) / n                            (effective share of points)
 3. REPEAT    1–2 until the log-likelihood stops improving
 ```
+
+![EM fitting a GMM in three snapshots: from a poor wide initialization, the E-step soft-assigns points and the M-step re-estimates each Gaussian's mean and covariance, so the tilted ellipses converge onto the two clusters as the likelihood rises to a local optimum.](attachments/gmm-em-iterations.png)
 
 - The parallel to K-Means is exact: **E-step = assign, M-step = update** — but with *soft* weights (responsibilities) instead of *hard* 0/1 memberships, and updating a full `Σ` (not just a centroid). `(certain)`
 - **EM never decreases the likelihood** each iteration, so it converges — but only to a **local** optimum, so it's **initialization-sensitive** (run several inits, keep the best; K-Means init helps). `(likely)`
@@ -130,11 +134,15 @@ best_k = ks[int(np.argmin(bic))]
 
 **`covariance_type`** controls the shape/parameter trade-off: `spherical` (round, ≈ K-Means) → `diag` (axis-aligned ellipse) → `tied` (all clusters share one Σ) → `full` (each its own tilted ellipse; most flexible, most parameters). `(likely)`
 
+![The covariance_type option sets how much shape each Gaussian may take: spherical fits circles, diag fits axis-aligned ellipses, tied forces all clusters to share one covariance, and full lets each cluster take its own tilted, correlated ellipse.](attachments/gmm-covariance-types.png)
+
 ---
 
 ## 6. GMM vs K-Means
 
 They're the same skeleton (assign ↔ update), and 🎯 **K-Means is literally a special case of GMM** — a "hard" GMM with spherical, equal covariances and 0/1 memberships. `(certain)`
+
+![The same tilted, overlapping data under both models: K-Means makes a hard assignment with a straight boundary that cuts across the elongated clusters, while GMM makes a soft assignment, coloring points by probability and fitting ellipses that follow each cluster's tilt.](attachments/gmm-vs-kmeans.png)
 
 | | K-Means | GMM |
 |---|---|---|
