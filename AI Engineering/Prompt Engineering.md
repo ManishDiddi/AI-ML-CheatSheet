@@ -70,7 +70,7 @@ plain ask      task + no       task + 1       task + k       + show          + t
                examples        example        examples       reasoning       observations
 ```
 
-![A rising staircase of six prompting techniques from Simple just-ask, to Zero-shot, One-shot, Few-shot, Chain-of-Thought, and ReAct, with a diagonal arrow showing that climbing the ladder increases power and capability but also increases tokens, latency, and cost, so you should climb only as high as the task needs](attachments/prompting-ladder.png)
+![A rising six-rung staircase of prompting techniques — Simple just-ask, Zero-shot, One-shot, Few-shot, Chain-of-Thought, and ReAct — colored cool to warm and framed by a horizontal power-and-capability axis and a vertical cost-tokens-and-latency axis, showing that each rung up buys capability while spending more tokens, latency, and cost, so you climb only as high as the task needs](attachments/prompting-ladder.png)
 
 ### 3.1 Simple prompting
 Just ask. Best for **factual recall, basic calculation, simple completion/generation**.
@@ -318,7 +318,7 @@ The part study notes skip — prompts in a real system:
 - **Token budget = cost & latency.** Few-shot examples and CoT traces are *input/output tokens you pay for on every call*. Trim examples to the minimum; cap `max_tokens`; consider CoT only where it moves the metric.
 - **Prompt caching.** Providers cache stable prefixes (long system prompts, fixed few-shot blocks) → put the invariant part first to cut cost/latency.
 - **Structured output & validation.** Ask for JSON/schema, then *validate* it; retry or repair on parse failure. Function/tool-calling APIs make this robust for ReAct.
-- **Security.** Sanitize and delimit untrusted input; keep secrets/tools behind an allowlist; assume users will attempt **prompt injection / jailbreaks** and add guardrails.
+- **Security.** Sanitize and delimit untrusted input; keep secrets/tools behind an allowlist; assume users will attempt **prompt injection / jailbreaks** and add guardrails → see [Prompt Security](Prompt%20Security.md) for the full threat model and the input/output-gate firewall.
 - **Observability.** Log prompt, response, tokens, latency, and tool traces (the notebook uses **Opik**) so you can debug and monitor drift in production.
 
 ---

@@ -251,7 +251,7 @@ This is the concrete fix for the base model's *"no roles / no behavioural contro
 ❌ Context window limit — can only attend to N tokens (GPT-2: 1024; modern: 8k–1M). Beyond it, info is dropped.
 ❌ Knowledge cutoff — frozen at training time; no new events without retrieval/tools.
 ❌ Decoding sensitivity — too-high temperature → incoherent; greedy → repetition loops.
-❌ Prompt injection / jailbreaks — untrusted text in the context can override the system prompt (security risk).
+❌ Prompt injection / jailbreaks — untrusted text in the context can override the system prompt (security risk); defenses in [Prompt Security](Prompt%20Security.md).
 ❌ Cost & latency — autoregressive = one forward pass PER token; long outputs are slow/expensive.
 ❌ Tokenization artifacts — poor arithmetic/spelling, since it sees subword tokens, not characters.
 ```

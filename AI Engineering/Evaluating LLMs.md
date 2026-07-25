@@ -418,7 +418,7 @@ Quality ≠ correctness alone. Ship-blocking dimensions the overlap metrics neve
 - **Hallucination / factuality** — fluent, confident, wrong. Detect via faithfulness checks (grounded in source?), fact-verification, or judge prompts. The #1 open-ended failure mode.
 - **Toxicity & safety** — offensive/unsafe content (classifiers like Perspective API; moderation endpoints).
 - **Bias & fairness** — systematic differences across gender/race/etc. (e.g. BBQ, stereotype sets).
-- **Robustness / red-teaming** — jailbreaks, **prompt injection**, adversarial inputs that override the system prompt. Evaluate by *attacking* the system, not just testing happy paths.
+- **Robustness / red-teaming** — jailbreaks, **prompt injection**, adversarial inputs that override the system prompt. Evaluate by *attacking* the system, not just testing happy paths. Full attack taxonomy, the guardrail firewall, and the red-team scoreboard live in [Prompt Security](Prompt%20Security.md).
 - **PII / data leakage** — does it emit secrets or training data?
 - **Format validity** — for structured output: JSON parses? schema valid? function-call args correct? (Cheap deterministic checks — always include them.)
 
