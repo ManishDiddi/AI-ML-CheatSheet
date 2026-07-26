@@ -5,7 +5,7 @@
 **Where it fits:** The multimodal rung of [RAG](RAG.md). When your knowledge base is *visual* (product manuals, invoices, slide decks, medical scans, financial reports full of charts), text-only RAG throws away most of the signal. Builds directly on [RAG](RAG.md) (chunk → embed → index → retrieve → ground), [Embeddings](Embeddings.md) (bi-encoders, cosine, contrastive fine-tuning), and [LLM](LLM.md) (hallucination, context window).
 **Prereqs:** [RAG](RAG.md) and [Embeddings](Embeddings.md) (dense vectors, cosine, bi- vs cross-encoder), plus the **contrastive / dual-encoder** idea from [Siamese Networks & Image Similarity](../Machine%20Learning/Computer%20Vision/Siamese%20Networks%20&%20Image%20Similarity.md) and the ViT/transformer backbone in [RNN · LSTM · Transformers](../Machine%20Learning/NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
 
-> ⚙️ *Format note: this adapts the vault's standard skeleton for a **pipeline with two competing retrievers** — "How It Works" fans out into §5 (CLIP), §6 (ColPali), and §7 (VLM generation), with the end-to-end run in §8. The **tabular** half of the old `[[Multimodal & Tabular RAG]]` placeholder wasn't taught here — it gets its own future note, `[[Tabular RAG]]`.*
+> ⚙️ *Format note: this adapts the vault's standard skeleton for a **pipeline with two competing retrievers** — "How It Works" fans out into §5 (CLIP), a **building-blocks primer** (§6), §7 (ColPali), and §8 (VLM generation), with the end-to-end run in §9. The **tabular** half of the old `[[Multimodal & Tabular RAG]]` placeholder wasn't taught here — it gets its own future note, `[[Tabular RAG]]`.*
 
 ---
 
@@ -23,14 +23,15 @@
 3. [Intuition — One Shared Embedding Space](#3-intuition--one-shared-embedding-space)
 4. [The Four Retrieval Directions (Cross-Modal Search)](#4-the-four-retrieval-directions-cross-modal-search)
 5. [CLIP — The Dual-Encoder Contrastive Model](#5-clip--the-dual-encoder-contrastive-model)
-6. [ColPali — Page-as-Image Retrieval with Late Interaction](#6-colpali--page-as-image-retrieval-with-late-interaction)
-7. [Generation — VLMs That Show the Real Manual](#7-generation--vlms-that-show-the-real-manual)
-8. [Worked Example — "How Do I Attach the Legs?" (IKEA)](#8-worked-example--how-do-i-attach-the-legs-ikea)
-9. [Code / Implementation](#9-code--implementation)
-10. [When It Breaks](#10-when-it-breaks)
-11. [Production & MLOps Notes](#11-production--mlops-notes)
-12. [Interview Lens](#12-interview-lens)
-13. [Alternatives & How to Choose](#13-alternatives--how-to-choose)
+6. [Building Blocks — The Five Pieces ColPali Is Made Of](#6-building-blocks--the-five-pieces-colpali-is-made-of)
+7. [ColPali — Page-as-Image Retrieval with Late Interaction](#7-colpali--page-as-image-retrieval-with-late-interaction)
+8. [Generation — VLMs That Show the Real Manual](#8-generation--vlms-that-show-the-real-manual)
+9. [Worked Example — "How Do I Attach the Legs?" (IKEA)](#9-worked-example--how-do-i-attach-the-legs-ikea)
+10. [Code / Implementation](#10-code--implementation)
+11. [When It Breaks](#11-when-it-breaks)
+12. [Production & MLOps Notes](#12-production--mlops-notes)
+13. [Interview Lens](#13-interview-lens)
+14. [Alternatives & How to Choose](#14-alternatives--how-to-choose)
 
 ---
 
@@ -142,11 +143,94 @@ Trained on **~400M image–text pairs** scraped from the web, this yields astoni
 
 **The key limitation (and why ColPali exists).** CLIP squashes an entire image (or page) into **one global vector**. That's perfect for "what is this a picture *of*?" but **lossy for documents**: a page with 12 diagram steps and a table becomes a single 512-d point, so fine-grained "which step shows the cam lock?" detail is averaged away. CLIP is also weak at **reading dense text inside an image** and capped at **77 text tokens**. `(certain)`
 
-**Why it's still the POC choice:** ViT-B/32 is ~150 MB, runs on a **free-tier CPU/GPU**, embeds in milliseconds, and needs no exotic index — just cosine in any vector DB. For a demo or a natural-image corpus, CLIP is the fast, cheap win.
+**Why it's still the POC choice:** ViT-B/32 is ~150 MB, runs on a **free-tier CPU/GPU**, embeds in milliseconds, and needs no exotic index — just cosine in any vector DB. For a demo or a natural-image corpus, CLIP is the fast, cheap win. **For document retrieval systems, ColPali is often the stronger production choice, whereas CLIP is an excellent proof-of-concept or lightweight baseline.** (To see *why* — and to decode "ColPali" itself — read the **building-blocks primer** in §6 before §7.)
 
 ---
 
-## 6. ColPali — Page-as-Image Retrieval with Late Interaction
+## 6. Building Blocks — The Five Pieces ColPali Is Made Of
+
+> **Read this before §7.** ColPali isn't one idea — it's a stack of five, and its **name literally spells two of them**: **Col**BERT + Pali**Gemma**. If ViT / SigLIP / VLM / PaliGemma / ColBERT are fuzzy, the ColPali section reads like alphabet soup. Here's each, ending with the one-line **dependency chain** that ties them together. Nothing here is exotic — it's the same "tokens + attention + shared space" machinery from earlier notes, pointed at pixels.
+
+### 6.1 ViT — the Vision Transformer (the image encoder underneath all of this)
+
+A **ViT** treats an image the way a language model treats a sentence (Dosovitskiy et al., 2020, *"An Image is Worth 16×16 Words"*):
+
+![Vision Transformer architecture: the input image is split into fixed-size patches, each flattened and linearly projected into a patch embedding, combined with position embeddings and a prepended learnable class token, then processed by a Transformer encoder whose class-token output feeds an MLP head that predicts the label](attachments/vit-architecture.png)
+
+*Source: Dosovitskiy et al., "An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale" (ICLR 2021), Figure 1.*
+
+1. **Cut the image into fixed-size patches** (e.g. 16×16 px), non-overlapping — a 224×224 image → **196 patches**.
+2. **Flatten + linearly project** each patch into a `d`-dim vector — a **patch embedding**, the visual equivalent of a word token.
+3. Add a **position embedding** (so the model knows *where* each patch sat) and prepend one learnable **`[class]` token** (a slot whose job is to summarize the whole image).
+4. Run the sequence through a standard **Transformer encoder** (multi-head self-attention) — **every patch attends to every other patch**.
+5. For classification, the `[class]` token's output vector → **MLP head** → label.
+
+The payoff is **global receptive field from layer one**: a patch in the corner (the cam lock) can directly influence a patch on the other side (the leg it clips into), whereas a [CNN](../Machine%20Learning/Computer%20Vision/Convolutional%20Neural%20Networks%20for%20Vision.md) only sees local neighborhoods until deep layers. The self-attention machinery itself is the same one from [RNN · LSTM · Transformers](../Machine%20Learning/NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md), just fed patches instead of words. **This ViT is the image encoder inside CLIP, SigLIP, and ColPali** — when §5 said CLIP's image side is "a ViT," *this* is that. `(certain)`
+
+### 6.2 SigLIP — CLIP with a better loss (this is ColPali's actual vision encoder)
+
+**SigLIP** = **Sig**moid **L**oss for Language–**I**mage **P**re-training (Zhai et al., Google DeepMind, ICCV 2023). Same dual-encoder skeleton as [§5 CLIP](#5-clip--the-dual-encoder-contrastive-model) — image encoder + text encoder → one shared space — but it swaps the **loss**:
+
+- **CLIP** uses a **softmax / InfoNCE** loss: each pair's score is normalized against *every other pair in the batch* (the full `N×N` matrix). That global coupling makes it memory-hungry and sensitive to batch size.
+- **SigLIP** uses a **pairwise sigmoid** loss: for each `(image, text)` pair *independently* it asks "do these two match — yes/no?" No global normalization, so one pair's loss doesn't depend on the rest of the batch.
+
+Result: it trains well at **smaller batch sizes** and scales cleanly to huge ones — simpler and cheaper (SigLIP peaks around a 32k batch where softmax needed ~98k). For this note only one fact matters: **SigLIP's ViT is the vision encoder that PaliGemma — and therefore ColPali — is built on.** `(certain)`
+
+### 6.3 VLM — a Vision-Language Model (sees images, writes text)
+
+A **VLM** takes **image(s) + text in, and produces text out.** Almost every modern VLM is three parts bolted together:
+
+![PaliGemma architecture: an image input is turned into patch tokens by the SigLIP image encoder, passed through a linear projection, concatenated with the text-input tokens, and fed to the Gemma language model which generates the text output](attachments/paligemma-architecture.png)
+
+*Source: Hugging Face — "PaliGemma – Google's Cutting-Edge Open Vision Language Model" (huggingface.co/blog/paligemma).*
+
+1. **Vision encoder** (a ViT — CLIP or SigLIP) → turns the image into **patch embeddings**.
+2. **Projector / adapter** (a small **linear** layer, sometimes cross-attention) → maps those visual vectors into the **LLM's token space**, producing "**image tokens**" the language model can read alongside words.
+3. **LLM** → consumes image tokens **+** text tokens together and generates the text answer.
+
+You've already met VLMs twice in this note without the label: the **reader** in §8 (LLaMA-4-Scout / GPT-4o / Gemini / Claude) is a VLM, and — the part that matters here — **PaliGemma**, the model ColPali is built from, is a VLM. Same architecture, **two jobs**: one *reads* retrieved pages to answer; one *encodes* pages for retrieval. `(certain)`
+
+### 6.4 PaliGemma-3B — the specific VLM ColPali fine-tunes
+
+**PaliGemma** (Google, 2024, *"PaliGemma: A versatile 3B VLM for transfer"*) is a concrete, open **~3B**-parameter VLM — the diagram above *is* PaliGemma:
+
+- **Vision encoder:** **SigLIP-So400m** (a ViT, patch size 14) → each patch → a **1152-dim** "soft token."
+- **Projector:** a **linear projection** to **2048-dim**, matching Gemma's token width.
+- **LLM:** **Gemma-2B** — the projected image tokens are **prepended** to the text tokens, then Gemma generates.
+
+So the phrase from §7 — "**PaliGemma-3B (a SigLIP ViT vision encoder + a Gemma language model)**" — unpacks exactly as: *a ViT (SigLIP) turns the page into patch tokens → a linear layer maps them into Gemma's space → Gemma is the language model.* ColPali takes this pretrained model and **repurposes its per-patch representations for retrieval** instead of generation. `(certain)`
+
+### 6.5 ColBERT — late interaction / MaxSim (the "Col" in ColPali)
+
+**ColBERT** = **Contextualized Late Interaction over BERT** (Khattab & Zaharia, SIGIR 2020) is a *text* retrieval model, and it's the direct ancestor of ColPali's **scoring**. It sits between two extremes:
+
+```
+single-vector bi-encoder   →  ONE vector per doc     →  fast, but averages everything away   (this is CLIP)
+cross-encoder              →  query+doc through BERT  →  accurate, but can't precompute → too slow to scan a corpus
+ColBERT (late interaction) →  MANY vectors per doc    →  precompute docs offline + cheap match  ← the sweet spot
+```
+
+ColBERT encodes the query and the document **independently** into **one vector per token** (so document vectors are computed once, **offline**), then scores them with **late interaction / MaxSim**: for **each query token**, take the **max** similarity over all document tokens, then **sum** those maxima. Each query word finds its single best-matching document token — fine-grained, yet cheap because the interaction is just dot-products, no re-encoding.
+
+![ColBERT late-interaction MaxSim scoring: a query encoder turns the query into one vector per token while a document encoder does the same offline for the document, then each query-token vector takes its maximum similarity (MaxSim) over all document-token vectors and those per-token maxima are summed into a single relevance score](attachments/colbert-late-interaction.png)
+
+*Source: Khattab & Zaharia, "ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT" (SIGIR 2020). Read it as the picture of §7: swap the blue document tokens for a page's ~1,000 image patches and you have ColPali.*
+
+🎯 **ColPali = ColBERT's MaxSim, but the "document tokens" are PaliGemma's ~1,000 image-*patch* vectors and the query tokens are text.** That's the whole trick — and it's exactly the ASCII MaxSim diagram you'll see in §7. `(certain)`
+
+### The dependency chain (say this in an interview)
+
+```
+ViT  ──(wrap in a dual encoder, train with a sigmoid loss)──►  SigLIP
+SigLIP  +  linear projector  +  Gemma LM                    ──►  PaliGemma  ( = a VLM )
+ColBERT's late-interaction MaxSim   ⊕   PaliGemma's patch tokens ──►  ColPali
+```
+
+🎯 *"ColPali is ColBERT's late interaction (MaxSim) run over the patch embeddings of a VLM (PaliGemma) whose vision encoder is a SigLIP ViT — so it inherits ViT's whole-page attention, SigLIP's efficient training, and ColBERT's token-level precision all at once."* That single sentence is the whole §7 in compressed form.
+
+---
+
+## 7. ColPali — Page-as-Image Retrieval with Late Interaction
 
 **ColPali** = **Col**BERT-style late interaction + **Pali**Gemma (Faysse et al., 2024). It's built for **documents**, and it makes two moves CLIP doesn't.
 
@@ -176,7 +260,7 @@ Because each query token can latch onto the **specific region of the page** that
 
 ---
 
-## 7. Generation — VLMs That Show the Real Manual
+## 8. Generation — VLMs That Show the Real Manual
 
 Retrieval hands you the **top-k real page images** (plus any text). The reader is a **Vision-Language Model** (VLM) — LLaMA-4-Scout via Groq in the notebook, or GPT-4o / Gemini / Claude — that ingests a **multimodal prompt**: the question, the retrieved text context, and the retrieved **images** (as base64 `image_url` parts). It *sees* the diagram and explains it.
 
@@ -196,7 +280,7 @@ So the VLM's role is **explain + point at**, not **draw**. Prompt discipline mir
 
 ---
 
-## 8. Worked Example — "How Do I Attach the Legs?" (IKEA)
+## 9. Worked Example — "How Do I Attach the Legs?" (IKEA)
 
 Straight from the ColPali notebook — five IKEA manuals, no OCR anywhere:
 
@@ -218,7 +302,7 @@ Note the retrieval landed on **ADILS (a leg product)** and **BILLY** pages purel
 
 ---
 
-## 9. Code / Implementation
+## 10. Code / Implementation
 
 **Path A — CLIP (POC): shared-space cross-modal search + VLM answer.**
 
@@ -294,7 +378,7 @@ resp = Groq().chat.completions.create(
 
 ---
 
-## 10. When It Breaks
+## 11. When It Breaks
 
 **CLIP.**
 - **Single global vector = lost detail.** Fine on natural photos, weak on **dense documents** — multi-step diagrams and tables blur into one point. Don't use raw CLIP as a document retriever in production.
@@ -314,7 +398,7 @@ resp = Groq().chat.completions.create(
 
 ---
 
-## 11. Production & MLOps Notes
+## 12. Production & MLOps Notes
 
 - **The core decision — ColPali vs CLIP (the instructor's rule):** **ColPali for production product/document RAG** (manuals, invoices, decks — anywhere layout and diagrams carry the meaning); **CLIP for POCs and natural-image corpora** where compute is the constraint. CLIP is cheap and CPU-friendly; ColPali needs a GPU and a fat index but *retrieves what actually matters* on documents. `(certain — stated by instructor from experience)`
 - **Storage & index.** Budget for multi-vector blow-up: quantize (PQ/scalar), pool patch vectors, or two-stage retrieve (single-vector shortlist → MaxSim rerank). A single-vector CLIP store fits in memory trivially; a ColPali store may not.
@@ -326,7 +410,7 @@ resp = Groq().chat.completions.create(
 
 ---
 
-## 12. Interview Lens
+## 13. Interview Lens
 
 The question behind the questions: *do you know when meaning lives in pixels, and which retriever pays for itself?*
 
@@ -339,7 +423,7 @@ The question behind the questions: *do you know when meaning lives in pixels, an
 
 ---
 
-## 13. Alternatives & How to Choose
+## 14. Alternatives & How to Choose
 
 | Approach | Retrieval unit | Best when | Cost |
 |---|---|---|---|
