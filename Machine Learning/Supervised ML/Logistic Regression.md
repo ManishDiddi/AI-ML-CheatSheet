@@ -41,6 +41,8 @@ You want to separate two classes (churn vs no-churn). Draw a **line/hyperplane**
 - The sigmoid turns "distance from the boundary" into "probability of class 1." `σ(0)=0.5`, `σ(+∞)→1`, `σ(−∞)→0`. It's steepest at the boundary and **saturates** (flattens) far away — that flattening matters later for outliers (§8).
 - 🎯 Why is it called *regression* if it classifies? Under the hood it **regresses a real number** (the log-odds), then a sigmoid + threshold turns that number into a class. The model is linear in the log-odds. `(certain)`
 
+![Left: two classes separated by a straight logistic decision boundary with the background shaded by predicted probability, so a point's signed distance from the boundary is its score z. Right: the sigmoid mapping that score to a probability — 0.5 exactly on the boundary and saturating toward 0 and 1 far away on either side.](attachments/logreg-sigmoid-and-boundary.png)
+
 ---
 
 ## 2. The Formal Core
@@ -72,6 +74,8 @@ J(w) = (1/n) Σᵢ −[ yᵢ log(p̂ᵢ) + (1−yᵢ) log(1−p̂ᵢ) ]   +   λ
 **Where log-loss comes from:** it's the **negative log-likelihood** of the labels under a Bernoulli model, so minimising log-loss is exactly **maximum-likelihood estimation**. `(certain)`
 
 **Why not MSE?** With the sigmoid inside, `MSE = (y − σ(z))²` is **non-convex** in `w` — gradient descent can stall in local minima. Log-loss with sigmoid is **convex**, guaranteeing the global optimum. (In linear regression MSE was convex because there was no sigmoid.) `(certain)`
+
+![Per-sample loss versus the score z for a positive example: log-loss minus log sigmoid of z is convex (any chord stays above the curve, so there is one global minimum), whereas MSE one-minus-sigmoid squared is a non-convex S-shape (a chord cuts through the curve, and its flat left tail gives a near-zero gradient even when the model is confidently wrong). Because z is linear in the weights, these convexity properties carry over to the weights.](attachments/logreg-why-not-mse-convexity.png)
 
 **The gradient is the punchline — it's identical in form to linear regression:** `(certain)`
 
@@ -128,6 +132,8 @@ L = −[0 + 1·log(1 − 0.818)] = −log(0.182) = 1.70   # ~8× bigger — conf
 ```
 
 **Odds-ratio reading of `w₁ = 2`:** `exp(2) ≈ 7.4` → each +1 SD in customer-service calls multiplies the **odds** of churning by ~7.4×, holding the other feature fixed (see §7).
+
+![The two half-losses of log-loss as functions of the predicted probability: for a true positive the loss is minus log p-hat and for a true negative it is minus log of one minus p-hat, both climbing toward infinity as the prediction approaches certainty on the wrong side. The worked example is marked — a prediction of 0.818 costs only 0.20 when the customer truly churned but 1.70, about eight times more, when they did not.](attachments/logreg-logloss-penalty.png)
 
 ---
 
