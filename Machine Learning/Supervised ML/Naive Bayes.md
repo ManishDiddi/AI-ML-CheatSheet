@@ -38,6 +38,8 @@ You know "*Nigerian prince*", "*lottery*", "*free money*" scream **spam**. Naive
 - **Bayes' theorem flips the hard question into easy ones.** `P(spam | words)` is impossible to count directly (that exact email never appeared), but `P(word | spam)` is a trivial word-frequency count. `(certain)`
 - **The naive leap:** treat each word's presence as **independent given the class**, so the joint likelihood factorises into a product of single-word likelihoods. That turns an intractable joint probability into `d` cheap counts. `(certain)`
 
+![Naive Bayes flips the impossible question P of class given this exact email into a product of cheap per-word frequency counts, then compares the spam and ham scores and predicts the larger.](attachments/nb-bayes-flip-mechanism.png)
+
 ---
 
 ## 2. The Formal Core — Bayes + the naive assumption
@@ -121,6 +123,8 @@ ham  score ∝ 0.6·0.25 ·0.625 = 0.0938   →  HAM wins
 
 Smoothing rescued the maths, and the strong ham signal ("meeting") correctly wins.
 
+![The zero-frequency problem visualized for the query free meeting trained on 4 spam and 6 ham: without smoothing the missing meeting count zeroes the spam score entirely, while Laplace smoothing floors every term so the strong meeting signal correctly makes ham win.](attachments/nb-zero-frequency-laplace.png)
+
 ---
 
 ## 5. Laplace Smoothing — the zero-frequency fix
@@ -164,6 +168,8 @@ Same Bayes machinery, different likelihood model per feature type: `(certain)`
 | **Gaussian NB** | continuous features, per-class **Gaussian** `P(x|y)=N(μ_yₖ, σ²_yₖ)` | numeric features (not text) |
 
 Multinomial keeps *how many times* a word appears (richer signal than Bernoulli's yes/no), at slightly more cost — it's the default for text. Gaussian handles continuous inputs by assuming each feature is normally distributed within a class (estimate per-class mean & variance). `(certain)`
+
+![Gaussian Naive Bayes decision boundary: each class is modelled as one axis-aligned Gaussian per feature — drawn as axis-aligned ellipses because features are assumed independent given the class — and every point is labelled by whichever class posterior is higher.](attachments/nb-gaussian-decision-boundary.png)
 
 ---
 

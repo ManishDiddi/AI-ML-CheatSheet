@@ -111,6 +111,8 @@ neighbour   distance   label
 
 → **predict −ve** — the two *very close* negatives outweigh the three *distant* positives. This is exactly why `weights='distance'` matters when the vote is close.
 
+![Distance-weighting can flip a KNN vote: for a query with two very close negatives and three distant positives, plain counting predicts positive but weighting each vote by 1 over distance lets the two near negatives dominate and predict negative.](attachments/knn-vote-plain-vs-weighted.png)
+
 ---
 
 ## 5. Code / Implementation
@@ -153,14 +155,21 @@ K → n        → every query returns the overall majority class
 K = K_best   → tune on validation: plot error vs K, pick the minimum
 ```
 
+![KNN decision boundary as K grows from 1 to 101 on two interleaving classes: K equals 1 traces a jagged boundary that memorises noise (low bias, high variance), K equals 15 is smooth and captures the true shape, and K equals 101 is nearly flat and underfits (high bias, low variance).](attachments/knn-decision-boundary-vs-k.png)
+
 - Rule of thumb: start near `K ≈ √n`, keep `K` **odd** for binary classification, tune with cross-validation. `(likely)`
 - 🎯 *"Increasing K increases bias and decreases variance"* — the reverse of most 'more-complex-model' intuitions, because here **small K = more complex (wigglier) boundary**.
+
+![Training and test error versus K: training error is zero at K equals 1 and rises with K, while test error is U-shaped with a minimum at the best K — a reminder that small K sits on the high-complexity (overfitting) side and large K on the underfitting side.](attachments/knn-error-vs-k-bias-variance.png)
 
 ---
 
 ## 7. When It Breaks
 
 - **Curse of dimensionality — the fatal one.** As `d` grows, points spread out until *all* pairwise distances become nearly equal; "nearest" stops meaning "similar," and KNN degrades to random. Fix by **reducing dimensions first** (PCA/feature selection) or using a metric suited to high-d (cosine). 🎯 This is the #1 reason KNN fails on raw high-dimensional data (text, images). `(certain)`
+
+![The curse of dimensionality: as the number of dimensions grows, pairwise distances pile up around their mean so near and far become indistinguishable, and the relative contrast between the nearest and farthest neighbour collapses toward zero — nearest-neighbour stops meaning most-similar.](attachments/knn-curse-of-dimensionality.png)
+
 - **Feature scaling is mandatory.** Distance is dominated by large-range features — an unscaled "income" (10⁵) drowns out "age" (10¹). Always standardize/normalize first; forgetting this silently ruins KNN. `(certain)`
 - **Slow, heavy inference.** `O(n·d)` per query and it stores the whole training set in memory — the reason you *can't productionise vanilla KNN* on large data. Mitigate with **KD-trees / Ball-trees** (fast exact search in low-to-moderate `d`) or approximate nearest-neighbour indexes (see §9). `(certain)`
 - **Outliers & small K.** With `K=1` an outlier neighbour flips the prediction; larger `K` averages it out.

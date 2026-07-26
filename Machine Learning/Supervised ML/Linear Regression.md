@@ -41,6 +41,8 @@ price │              ×
 - Why *vertical* distance and not perpendicular? Because we're predicting `y` from `x`; the error we care about is "how wrong is my predicted price," which is measured along the `y` axis.
 - Every ML model here has the **same three parts**: a **model** (the line `w·x+b`), a **cost function** (MSE — how wrong we are), and an **optimizer** (normal equation or gradient descent — how we improve). Linear regression is the cleanest place to see all three. `(certain)`
 
+![Scatter of points with the fitted OLS line drawn through them and a dashed vertical segment from each point to the line marking its residual; Ordinary Least Squares chooses the line that minimises the sum of these squared vertical gaps.](attachments/lr-best-fit-residuals.png)
+
 ---
 
 ## 2. The Formal Core
@@ -95,6 +97,8 @@ wⱼ  :=  wⱼ − α · ∂J/∂wⱼ ,   where   ∂J/∂wⱼ = −(2/n) Σᵢ 
 - `α` = **learning rate**. Too large → overshoot/diverge; too small → crawls. 
 - **Variants:** *Batch* GD (all rows per step — stable, slow), *Stochastic* GD (one row — noisy, fast, escapes shallow spots), *Mini-batch* (a few hundred rows — the practical default).
 - **Normal equation vs GD:** exact & no tuning vs scales to huge `d` and streams data. Rule of thumb: `d ≲ 10⁴` → normal equation is fine; bigger → GD. `(likely)`
+
+![The three parts of the model in one picture: left, the MSE cost drawn as concentric contours forms a convex bowl over the weight and intercept, and gradient descent walks downhill from a random start to the single global minimum; right, the loss falls monotonically to that minimum over iterations.](attachments/lr-gradient-descent-mse-bowl.png)
 
 **Why scaling matters here.** Feature scaling does **not** change the OLS *fit* or `R²` for the plain closed-form (it's scale-equivariant), but it is essential for three things: `(certain)`
 1. **GD convergence** — unscaled features make the loss surface a stretched valley; GD zig-zags. Scaling → round bowl → fast, direct descent.
@@ -234,6 +238,8 @@ Remember them as **L.I.N.E. + no collinearity**. Each has a *diagnostic* and a *
 | **E** | **Equal variance (homoscedasticity)**                               | residual-vs-fitted "funnel" = bad                    | transform `y`, use **Weighted Least Squares**, or robust (heteroscedasticity-consistent) standard errors |                                                                |
 | **—** | **No multicollinearity** — features not linear combos of each other | **VIF**                                              | drop/combine features, PCA, or use **Ridge**                                                             |                                                                |
 
+![Three residual-versus-fitted plots reading like diagnoses: a healthy formless band around zero means the assumptions hold, a U-shaped curve signals a violated linearity assumption to be fixed with polynomial terms, and a widening funnel signals heteroscedasticity to be fixed by transforming y or using weighted least squares.](attachments/lr-residual-diagnostics.png)
+
 **Multicollinearity & VIF (the one that gets probed most).** Regress feature `xⱼ` on all *other* features; if that `R²ⱼ` is high, `xⱼ` is redundant. `(certain)`
 
 ```
@@ -256,6 +262,8 @@ minimize   MSE  +  λ · (weight penalty)
                       λ→∞ → all weights → 0 (underfit). Tune λ by cross-validation.
 ```
 
+![Polynomial fits to noisy data from a smooth curve at three complexities: degree 1 underfits with high bias and misses the curve, degree 4 captures the true trend well, and degree 15 overfits with high variance and wild oscillations that chase the noise — the right end being exactly what regularization tames.](attachments/lr-poly-underfit-overfit.png)
+
 | | Penalty | Effect | Use when |
 |---|---|---|---|
 | **Ridge (L2)** | `λ Σ wⱼ²` | shrinks weights smoothly toward 0, **never exactly 0** | many correlated features; you want to keep them all but tame them |
@@ -263,6 +271,8 @@ minimize   MSE  +  λ · (weight penalty)
 | **ElasticNet** | `λ(α Σ\|wⱼ\| + (1−α) Σwⱼ²)` | blend of both | many features, some correlated *and* some useless |
 
 🎯 **Why does Lasso zero out weights but Ridge doesn't?** L2's gradient shrinkage is `2λwⱼ` — *proportional to the weight*, so as `wⱼ→0` the push vanishes and it stalls just short of zero. L1's is `λ·sign(wⱼ)` — a **constant push regardless of size**, so it drives weights clean through to exactly 0. Geometrically, the L1 constraint region is a **diamond** whose corners lie on the axes, and the loss contours tend to touch it *at a corner* (a zero coordinate); L2's circle has no corners. `(certain)`
+
+![Elliptical loss contours around the OLS solution meeting two constraint regions: the Ridge L2 circle is touched off the axes so both weights merely shrink, while the Lasso L1 diamond is touched at a corner on the axis where one weight is exactly zero — the geometric reason Lasso produces sparse, feature-selecting solutions and Ridge does not.](attachments/lr-ridge-lasso-geometry.png)
 
 **Always standardize before regularizing** — otherwise the penalty punishes features for their units, not their importance (§3).
 

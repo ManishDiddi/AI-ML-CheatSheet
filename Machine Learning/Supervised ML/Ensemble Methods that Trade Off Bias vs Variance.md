@@ -40,6 +40,8 @@ Boosting →  solves HIGH BIAS      (model underfits) → train SEQUENTIALLY, ea
 - **Stacking** — train several *diverse* base models, then a **meta-model** learns how best to combine their (out-of-fold) predictions.
 - **Cascading** — chain models by **confidence**: pass only the low-confidence cases on to the next, costlier stage (often a human) — common in fraud/medical screening.
 
+![Bagging versus boosting side by side: bagging draws many bootstrap samples from the data, trains a tree on each in parallel, and averages or votes them to cut variance; boosting starts from the mean and adds trees sequentially, each fitting the residuals the ensemble still gets wrong, to cut bias.](attachments/ensemble-bagging-vs-boosting.png)
+
 ---
 
 ## 2. The Formal Core
@@ -56,6 +58,8 @@ Var(average) = ρσ²  +  (1 − ρ)·(σ²/N)
 - `ρ = 1` (identical) → `Var = σ²` → **no reduction at all**.
 - **Key insight:** once N is large the second term vanishes, so the *floor* `ρσ²` dominates. **The whole game is lowering ρ** — which is exactly what Random Forest's feature subsampling does. `(certain)`
 
+![Variance of an averaged ensemble as trees are added and as tree correlation changes: adding more trees drives variance down only to the floor ρσ², and at a fixed 100 trees the variance rises linearly with correlation ρ — so lowering ρ, which is exactly what Random Forest's column subsampling does, moves plain bagging at 0.208 down to 0.060.](attachments/ensemble-variance-vs-correlation.png)
+
 **Boosting — additive model fit by gradient descent in function space.**
 
 ```
@@ -66,6 +70,8 @@ h_m  is fit to the NEGATIVE GRADIENT of the loss at F_{m-1}:
 ```
 
 Each new tree `h_m` points in the direction of steepest loss decrease. Swap in *any* differentiable loss and the same framework works — fit the negative gradient of **log-loss** for classification, of **pinball loss** for quantile regression, and so on. That generality is the power of GBDT. `(certain)`
+
+![The same two-class data fit by three models: a single unpruned tree carves hard, jagged high-variance blocks; a Random Forest averages many trees into a smooth probability field with the variance averaged away; and gradient boosting produces a sharp, low-bias boundary.](attachments/ensemble-decision-boundary-comparison.png)
 
 ---
 
@@ -115,6 +121,8 @@ A single stump (depth-1 tree):   simple, underfits (high bias, low variance), bu
 100 stumps boosted:              collectively learn complex patterns
                                  → bias drops dramatically → low bias + moderate variance ✅
 ```
+
+![Gradient boosting fitting a one-dimensional curve in stages: F0 is a flat constant at the mean with large residuals, after 5 trees the fit follows the trend and the mean squared residual drops sharply, and after 120 trees the fit hugs the data and residuals are nearly zero — each tree fits the leftover residuals of the previous ensemble.](attachments/ensemble-boosting-fits-residuals.png)
 
 ---
 

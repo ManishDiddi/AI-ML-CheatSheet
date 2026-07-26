@@ -44,6 +44,8 @@ Every classification metric is a ratio of four counts. Fix a **positive class** 
 - 🎯 The whole game: **which error hurts more?** A false alarm (FP) or a miss (FN)? That single business judgment picks your metric. `(certain)`
 - Memory hook: **precision reads a column** (of what I *predicted* positive…), **recall reads a row** (of what's *actually* positive…). Neither uses TN — that's why both survive when negatives swamp the data.
 
+![The confusion matrix as four cells with actual on the rows and predicted on the columns: TP and TN are the correct diagonal, FP is a false alarm or Type I error and FN is a miss or Type II error; precision reads down the predicted-positive column TP over TP plus FP, recall reads across the actual-positive row TP over TP plus FN, and neither uses TN.](attachments/confusion-matrix-precision-recall.png)
+
 ---
 
 ## 2. The Formal Core — every metric from four cells
@@ -83,6 +85,8 @@ So **there's no single precision/recall — there's a curve** as `t` sweeps 0→
 - **Cancer screening** (positive = cancer): a **miss (FN) can be fatal**, a false alarm just means more tests → **maximise recall** → lower the threshold.
 - **Important-mail-to-spam** (positive = spam): a **false positive (FP)** buries a real email → **maximise precision** → raise the threshold.
 - **Loan repayment / fraud**: both errors cost money → balance with **F1** (and handle FPs downstream with human review).
+
+![Two overlapping score distributions — actual negatives peaking low, actual positives peaking high — with a movable decision threshold: at a low threshold most positives are caught (high recall) but many negatives are falsely flagged (low precision), while at a high threshold false alarms shrink (high precision) but more positives are missed (low recall).](attachments/precision-recall-threshold-tradeoff.png)
 
 ---
 
@@ -138,6 +142,8 @@ TPR │        ┌──────  ● perfect model (0,1): TPR=1, FPR=0
 - **Weak under severe imbalance** — FPR has the huge TN count in its denominator, so lots of false positives barely move FPR, and AUC stays flatteringly high on a mediocre model.
 
 **PR curve & PR-AUC** = **precision vs recall** across thresholds. Because neither precision nor recall uses TN, **PR-AUC is the honest summary under severe imbalance** (fraud, rare disease). Its baseline isn't 0.5 — it's the positive base rate. Prefer PR-AUC (a.k.a. Average Precision) when positives are rare and you care about them. `(certain)`
+
+![Same model on 5 percent-positive data: the ROC curve of true-positive-rate versus false-positive-rate reports a flattering AUC of 0.85 because the huge true-negative count dilutes FPR, while the precision-recall curve reports a far more honest average precision of 0.36 against a base-rate baseline of 0.05 — which is why PR-AUC is preferred when positives are rare.](attachments/roc-vs-pr-curves-imbalance.png)
 
 ```python
 from sklearn.metrics import roc_auc_score, average_precision_score

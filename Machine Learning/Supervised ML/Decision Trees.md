@@ -43,6 +43,8 @@ Age < 35 ?
 - 🎯 The killer feature is **interpretability**: "employees under 35 who work >2.5h overtime tend to churn" is a sentence a business acts on — no other model gives you that for free. `(certain)`
 - **Training = finding the questions.** Given the features, learning a tree means discovering *which feature and threshold to split on, in what order*. The objective: each split should make child nodes **purer** than the parent.
 
+![A decision tree and a partition of feature space are the same object: on the left, two axis-parallel cuts — Age at 35 and OverTime at 2.5 hours — carve the plane into pure CHURN and STAY boxes; on the right, the identical logic drawn as a flowchart where each cut is one yes/no node.](attachments/dt-recursive-partition-and-tree.png)
+
 ---
 
 ## 2. The Formal Core — impurity & information gain
@@ -72,6 +74,8 @@ IG = I(parent) − Σₖ (nₖ / n) · I(childₖ)      I = entropy or Gini
 ```
 
 At each node the tree tries every feature (and threshold) and **picks the split with maximum information gain** = biggest impurity drop. `(certain)`
+
+![Gini and entropy as functions of a node's class-1 fraction p: both are zero at a pure node, both peak at the 50/50 mix (entropy at 1.0, Gini at 0.5), and entropy divided by two nearly overlays Gini — so the two criteria pick almost the same splits and Gini is preferred only because it skips the logarithm.](attachments/dt-gini-vs-entropy.png)
 
 ---
 
@@ -139,6 +143,8 @@ plt.figure(figsize=(14, 8)); plot_tree(clf, filled=True, feature_names=cols)  # 
 clf.feature_importances_    # normalized information gain per feature (see caveat in §9)
 ```
 
+![A real trained decision tree for employee attrition rendered by plot_tree: every node shows its split condition, Gini impurity, sample count and class value split, with True and False branches and nodes shaded by their majority class from orange (stay) to blue (leave) — a model you can literally read as a flowchart.](attachments/dt-trained-tree-example.png)
+
 **No scaling, no encoding headaches:** trees are invariant to monotonic transforms of a feature (they only compare thresholds), so **standardization is unnecessary** — a rare and convenient property. `(certain)`
 
 **Tune depth with cross-validation** (the honest way to pick the bias-variance sweet spot):
@@ -156,12 +162,16 @@ for d in [3, 4, 5, 7, 9, 11]:
 
 **A tree left unchecked overfits — hard.** Grow until every leaf is pure and you get **train accuracy = 1.0, test ≈ 0.76** — the textbook symptom. `(certain)`
 
+![Training and test accuracy versus max_depth: training accuracy climbs to 1.0 as the leaves memorise the data, while test accuracy peaks at a moderate depth and then sags, the widening gap between the two curves being the classic overfitting signature.](attachments/dt-overfitting-train-test-depth.png)
+
 ```
 Why deep = overfit:  as depth ↑, each leaf holds fewer points → eventually a leaf
                      memorises noise/outliers → LOW bias, HIGH variance.
 Why shallow = underfit: too few splits → too few boundaries → HIGH bias, LOW variance.
 depth = 0 → a single node ("decision stump"); depth huge → memorised training set.
 ```
+
+![Decision boundary of a tree at increasing depth on two interleaving classes: a depth-1 stump makes a single cut and underfits, depth 4 approximates the curved boundary as a clean staircase, and an unlimited tree carves jagged islands around individual noise points and overfits — illustrating both the depth dial and the axis-parallel staircase.](attachments/dt-depth-boundary-overfit.png)
 
 So **depth is a hyperparameter** you tune. Two ways to control growth:
 
