@@ -288,7 +288,27 @@ ColBERT's late-interaction MaxSim   ⊕   PaliGemma's patch tokens ──►  Co
 
 **Move 1 — the page IS the document (no OCR, no chunking).** You render each PDF page to an image and index the **image**. No text extraction, no chunk-size tuning, no layout parser. The diagram, the table, the caption, the handwriting — all retained as pixels.
 
-**Move 2 — multi-vector late interaction (MaxSim), not one global vector.** ColPali is built on **PaliGemma-3B** (a SigLIP ViT vision encoder + a Gemma language model). A page image is split into ~**1,000 patches**; ColPali emits **one contextualized vector per patch** (projected to ~128-d, ColBERT-style) — so a page is **~1,000 vectors**, not one. The query text becomes a handful of **token** vectors. Scoring is **late interaction / MaxSim** (borrowed from **ColBERT** — "Contextualized Late Interaction over BERT"):
+**Move 2 — multi-vector late interaction (MaxSim), not one global vector.** ColPali is built on **PaliGemma-3B** (a SigLIP ViT vision encoder + a Gemma language model). A page image is split into ~**1,000 patches**; ColPali emits **one contextualized vector per patch** (projected to ~128-d, ColBERT-style) — so a page is **~1,000 vectors**, not one. The query text becomes a handful of **token** vectors.
+
+**One model encodes both sides — not two towers.** This is a sharp contrast with **CLIP**, which has **two independent towers** — a dedicated text Transformer and a ViT — that only meet in a shared space. ColPali instead has **one model, PaliGemma**, encode *both* the page and the query, through the **same ~128-d projection head** — which is exactly what makes the query-token and patch vectors comparable in the first place:
+
+```
+   CLIP — two independent towers          ColPali — one shared model (PaliGemma)
+   ──────────────────────────────         ───────────────────────────────────────
+   query text → text Transformer          page image → SigLIP ViT → Gemma
+   image      → ViT                                   → per-patch vecs → 128-d
+   (two separate encoders,                query text → Gemma-2B  (vision encoder
+    meet only in a shared space)                       bypassed — no image)
+                                                      → per-token vecs → 128-d
+                                          ONE model, SAME 128-d projection head
+```
+
+- **Page (document):** image → **SigLIP ViT** → soft image tokens → **Gemma** → per-patch hidden states → **linear projection to ~128-d**.
+- **Query (text):** text tokens → **Gemma-2B** (no image input, so the vision encoder is **bypassed**) → per-token hidden states → **the same ~128-d projection**.
+
+Because both sides come out of the *same* model into the *same* space, their dot products are meaningful — exactly what MaxSim needs. There's **no separate CLIP-style text tower**. (Same trick as ColBERT's single BERT for query and doc; ColPali just swaps BERT for a VLM and runs the query through its **language-model path**.) `(certain)`
+
+Scoring is **late interaction / MaxSim** (borrowed from **ColBERT** — "Contextualized Late Interaction over BERT"):
 
 ```
 score(query, page) = Σ over query tokens q  [  max over page patches p  (q · p)  ]
@@ -305,6 +325,37 @@ score(query, page) = Σ over query tokens q  [  max over page patches p  (q · p
 ```
 
 Because each query token can latch onto the **specific region of the page** that matches it, ColPali captures the fine-grained, spatially-local detail that CLIP's single vector blurs away. This is why it dominates the **ViDoRe** (Visual Document Retrieval) benchmark and beats OCR→text-RAG pipelines on real documents. `(likely)`
+
+**A crucial clarification — MaxSim *scores*, it doesn't *retrieve*.** The single most common misread of late interaction is *"a 4-token query retrieves 4 patches."* It doesn't. Patches are an **internal scoring detail**; the thing you retrieve is a **page**:
+
+- For each query token you compute its best (max) similarity to the page's patches and **keep only that number** — you never pull the patch out. Those per-token maxima are **summed into one relevance score for the whole page**.
+- The unit that gets **retrieved is the page**, ranked by that summed score → **top-k pages, not top-k patches**. A 4-token query still returns *pages*, no matter how many patches were touched while scoring them.
+- There is **no 1-to-1 token↔patch mapping**: the *same* patch can be the best match for several query tokens at once. If one patch covers the page region depicting "insert the table legs," then `attach`, `table`, **and** `legs` may all take their max on that single patch.
+
+```
+   query tokens:   How   attach   table   legs
+                     │      │        │       │
+        (each token's MAX similarity over ALL of THIS page's ~1,000 patches)
+                     │      │        │       │
+                   0.10   0.89     0.91    0.95
+                     └───────────── Σ ───────────┘  = 2.85  ← ONE score for THIS page
+                                                          (the winning patches are never returned)
+   → repeat for every page → rank pages by score → retrieve the top-k PAGES
+```
+
+**Where ANN comes in (and why it must).** Brute-force scoring is `O(query_tokens × patches × pages)`. A 10M-page corpus at ~1,000 patches/page is **~10 billion patch vectors** — far too many to MaxSim against on every query. So production late-interaction systems (ColBERT's **PLAID**, and the vector DBs that copy it) run retrieval in **two stages**:
+
+```
+   query token ─► ANN index over ALL patch vectors ─► candidate patches
+                     └── their parent PAGES become the shortlist ──┘
+                                   │
+                                   ▼
+        exact MaxSim ONLY on the shortlisted pages ─► final page ranking
+```
+
+Each query token does an approximate-nearest-neighbour lookup to gather a handful of candidate patches; the pages those patches belong to form a small candidate set; **exact MaxSim then re-scores only that set**. You get late-interaction precision without ever touching every patch — the same "cheap shortlist → MaxSim rerank" pattern flagged in §11 and §12. (The catch: candidate generation is *approximate*, so a page whose patches never surface as candidates can be missed — the usual recall/latency knob.)
+
+🎯 *"Late interaction retrieves pages, not patches: MaxSim keeps each query token's best-patch **score** and sums them into one **page** score — so n query tokens never mean n retrieved patches, and one patch can win several tokens at once."* `(certain)`
 
 **The costs are real.** ~1,000 vectors/page means the index is **~1,000× larger** than a single-vector store (96 IKEA pages ≈ **~100k vectors**), MaxSim is **more compute** than one dot product, and the 3B model needs a **GPU** (the notebook 4-bit-quantizes it just to fit a free T4's ~15 GB). That storage/latency bill is the price of the accuracy — and exactly why the instructor's rule is **ColPali for production, CLIP for POC**.
 
@@ -469,6 +520,7 @@ The question behind the questions: *do you know when meaning lives in pixels, an
 - **"Why not just OCR the PDF and use normal RAG?"** 🎯 *Because OCR only transcribes characters — it discards diagrams, tables, icons, and layout, which is exactly where a manual's or a report's information lives; you retrieve nothing useful and the LLM bluffs.*
 - **"CLIP vs ColPali — when each?"** 🎯 *CLIP = one global vector per image, cheap, CPU-friendly → POCs and natural images. ColPali = ~1,000 patch vectors per page + late-interaction MaxSim, OCR-free, GPU-heavy → production document retrieval where layout/diagrams matter.*
 - **"What is late interaction / MaxSim?"** For each query token, take its **max** similarity over all document patches, then **sum** across query tokens — ColBERT's idea, applied to image patches. It preserves token-level, region-level detail a single pooled vector destroys. `(certain)`
+- **Follow-up (the trap): "So a 5-token query retrieves 5 patches?"** 🎯 *No — MaxSim is a **scoring** mechanism, not a retrieval one. Each query token keeps only its best-patch **similarity score**; those are summed into one page score, and the system retrieves the top-k **pages**. One patch can be the best match for several tokens, so there's no token↔patch correspondence.* At scale, an **ANN index shortlists candidate patches/pages first**, then exact MaxSim re-scores only the shortlist. `(certain)`
 - **"How do you stop the system inventing assembly diagrams?"** 🎯 *You never put an image-generation model in the answer path. Retrieval returns the real page image; the VLM only explains it; the UI shows the retrieved original. A drawn diagram is a hallucination, and for a manual that's a safety bug.*
 - **"What makes the shared embedding space possible?"** Contrastive pretraining (CLIP's InfoNCE) that pulls matched text–image pairs together and pushes mismatched apart — after which a single cosine works across modalities. `(certain)`
 - **Follow-up: "ColPali's downside?"** Multi-vector storage and MaxSim latency — mitigate with pooling/quantization, PLAID, or a single-vector first stage. `(likely)`
