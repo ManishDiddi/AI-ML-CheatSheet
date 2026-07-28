@@ -46,6 +46,10 @@ During training, multiply each activation by an independent **Bernoulli(1−p)**
 train:   mask ~ Bernoulli(1−p);   a_drop = (a * mask) / (1 − p)     # "inverted dropout": rescale by 1/(1−p)
 test:    a_drop = a                                                 # dropout OFF, no rescale needed
 ```
+
+![A standard fully-connected network versus the same network after dropout, where a random subset of units and all their connections are removed so each step trains a different thinned sub-network.](attachments/dropout-standard-vs-thinned-srivastava.png)
+*Source: Srivastava et al., "Dropout: A Simple Way to Prevent Neural Networks from Overfitting", JMLR 2014.*
+
 - **Why divide by `(1−p)`?** So the **expected activation stays the same** with dropout on vs off. Doing the rescale during *training* (inverted dropout) means inference is just a plain forward pass — the framework handles it, but know why. `(certain)`
 - 🎯 **Why it regularizes: units can't co-adapt (rely on a specific partner being present), because any partner might be dropped — so each learns a feature useful on its own. It's equivalent to training an exponential ensemble of sub-networks that share weights and averaging them at test time.** `(certain)`
 - **Rate `p`:** `0.2` = light, `0.5` = standard (the classic value for dense layers), `0.8` = heavy (often too aggressive → underfits). Use **higher `p` on wide dense layers** near the output where overfitting risk is largest; lower or none on small layers. `(likely)`
@@ -63,6 +67,9 @@ For a mini-batch `B`, BN normalizes **each feature `j` independently across the 
 x̂_ij = (x_ij − μ_B) / √(σ²_B + ε)         # normalize → mean 0, var 1   (ε ≈ 1e-3 guards /0)
 y_ij = γ_j · x̂_ij + β_j                    # LEARNED scale γ and shift β  (two params per feature)
 ```
+
+![Batch Normalization standardizes a layer's activations from mean 4 and variance 6 to mean 0 and variance 1, then a learned affine y=γx̂+β rescales them, here to variance 2.25 with γ=1.5.](attachments/bn-normalize-activation-distribution.png)
+
 - **Why `γ, β`?** Forcing every layer to mean-0/var-1 is too rigid — it could remove useful signal (e.g. saturate a sigmoid's usable range). The learnable `γ` (scale) and `β` (shift) let the network **undo the normalization if that's what's best**, so BN never *costs* representational power. `(certain)`
 - 🎯 **The classic story is "internal covariate shift": as earlier layers' weights change during training, the distribution of inputs to later layers keeps shifting, so each layer chases a moving target. BN pins that distribution in place → the layer trains against a stable input → you can use much higher learning rates and converge far faster.** *(Note: later research argues the real benefit is a smoother loss landscape rather than ICS per se — but "reduces internal covariate shift" is the expected interview answer.)* `(likely)`
 - **Train vs inference — the crucial asymmetry:** at **training** BN uses the *current batch's* `μ_B, σ²_B` and updates a **running (EMA) mean & variance**; at **inference** it uses those **fixed running population stats** (a single test example has no meaningful "batch" statistics). Frameworks toggle this via `training=True/False` / `model.eval()`. `(certain)`
@@ -78,6 +85,9 @@ The lecture's canonical block: `(likely)`
 Dense/Conv  →  BatchNorm  →  Activation (ReLU)  →  Dropout  →  (next layer)
    linear       stabilize        non-linearity      regularize
 ```
+
+![The canonical block ordering Dense or Conv with no bias, then BatchNorm to stabilize, then a ReLU activation, then Dropout to regularize, before the next layer.](attachments/bn-dropout-layer-ordering.png)
+
 - **BN before or after the activation?** The original paper put BN **before** the non-linearity (normalize the pre-activation `z`); many modern nets put it **after**. Both work; *before* is the textbook default. Don't lose sleep over it, but be able to name the debate. `(likely)`
 - **BN handles the bias:** when a Dense/Conv layer is immediately followed by BN, its **bias term is redundant** (BN's `β` absorbs it) — set `use_bias=False` to save parameters. `(certain)`
 - ⚠️ **BN + Dropout can disagree.** Dropout changes a layer's variance at train time but not at test time; if Dropout sits **before** BN, the running variance BN learned no longer matches inference → a "variance shift" that hurts accuracy. Safer: put **Dropout after BN**, or (common in modern CNNs/ResNets) **use BN and skip Dropout entirely**, since BN already regularizes. `(likely)`
@@ -92,6 +102,8 @@ mask = [1, 0, 1, 0]                       # keep #1,#3; drop #2,#4
 kept * 1/(1−0.5) = kept * 2 → [3.2, 0, 2.0, 0]   # survivors doubled so the expected sum is unchanged
 # at inference: no mask, no scaling → [1.6, 0.9, 1.0, 1.4]
 ```
+
+![Dropout at training zeroes a random fraction p of units and scales the survivors by 1/(1−p), while at inference every unit is active with no scaling — a plain forward pass.](attachments/dropout-train-vs-inference.png)
 
 **BatchNorm on one feature** across a batch of 4 values `x = [2, 4, 6, 8]`:
 ```
