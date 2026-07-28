@@ -72,8 +72,12 @@ Rule: d is almost always 0 or 1. Choose the smallest d that passes ADF (+KPSS).
 ```
 A **log or Box-Cox transform** stabilizes *variance* (when spread grows with level) — differencing only stabilizes the *mean*.
 
+![Differencing turns a non-stationary series into a stationary one — the top panel shows raw monthly sales trending upward with a seasonal wiggle, the bottom shows the same series after regular differencing d equals 1 and seasonal differencing D equals 1 at s equals 12, now fluctuating around a constant zero mean.](attachments/differencing-nonstationary-to-stationary.png)
+
 ### Seasonal part `(P,D,Q,s)`
 After `d=1` a spike remaining at lag `s` (e.g. 12) = seasonality plain ARIMA can't catch. Seasonal terms operate at lags `s,2s,3s…`: **seasonal-difference** `yₜ − yₜ₋ₛ` (D, removes the repeating cycle), seasonal-AR `P` (this Jan depends on prior Jans), seasonal-MA `Q`. Pick `s` from **domain knowledge** (monthly→12, daily→7, weekly→52), confirm with ACF spikes at `s,2s`. Keep `d+D ≤ 2`.
+
+![Autocorrelation function of the raw sales series with tall spikes at lags 12 and 24 — the ACF signature of a yearly cycle that confirms the seasonal period s equals 12 even when the raw line plot looks noisy.](attachments/acf-seasonality-spikes.png)
 
 > **Why SARIMA beats just using a huge `p`:** capturing yearly cycle with `p=12` burns 12 AR coefficients and overfits; seasonal `(P,Q)` does it with 1–2 parameters → parsimonious, generalizes far better.
 
@@ -98,6 +102,8 @@ ACF : significant at lags 1,2,3 then cuts off → q = 3
 (Read SEASONAL P,Q the same way at lags 12, 24.)
 "Cuts off" = drops sharply inside the confidence band; "tails off" = decays slowly.
 ```
+
+![Reading ARIMA orders from correlation plots on the stationary series — the PACF's early significant lags give the AR order p, the ACF's early significant lags give the MA order q, and the leftover spikes at lag 12 and 24 flag the seasonal P and Q terms.](attachments/acf-pacf-order-reading.png)
 **Seasonal differencing** `(D=1, s=12)`: `Jan-Y2 − Jan-Y1 = 132 − 120 = 12`, `Feb-Y2 − Feb-Y1 = 13`, … → the repeating yearly pattern is removed, leaving fluctuations around zero.
 
 ---
@@ -173,6 +179,8 @@ After fitting, residuals **must** be white noise — otherwise the model is mis-
 White noise: ✅ no significant ACF spikes at any lag  ✅ mean ≈ 0  ✅ constant variance  ✅ ~normal
 Formal test: Ljung–Box (want p > 0.05 → cannot reject "no autocorrelation").
 ```
+
+![The four SARIMAX residual diagnostic plots from plot_diagnostics — a standardized residual trace with no pattern, a histogram matching the N(0,1) density curve, a normal Q-Q plot hugging the straight line, and a correlogram with no significant autocorrelation spikes, together confirming the residuals are white noise.](attachments/sarimax-residual-diagnostics.png)
 | Residual symptom | Fix |
 |---|---|
 | ACF spike at lag 1–3 | increase **q** (or p) |
@@ -192,6 +200,8 @@ Formal test: Ljung–Box (want p > 0.05 → cannot reject "no autocorrelation").
 
 ### Uncertainty & metrics
 - **Ship prediction intervals, not just point forecasts** — `get_forecast().conf_int()` gives calibrated bands from the state-space model; decisions (inventory, staffing) need the range. `P0`.
+
+![A SARIMAX forecast over the test period — the point prediction tracks the actual seasonal ups and downs while a shaded 95 percent prediction-interval band widens around it, the calibrated uncertainty range that inventory and staffing decisions actually need.](attachments/sarimax-forecast-prediction-interval.png)
 - **Pick the right error metric:** RMSE (penalizes big misses), MAE (robust), **MAPE breaks near zero and is asymmetric** → prefer **sMAPE** or **MASE** (scaled vs a naïve seasonal baseline — also tells you if you even beat "repeat last season").
 
 ### Exogenous variables at inference
