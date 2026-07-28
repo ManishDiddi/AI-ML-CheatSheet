@@ -30,6 +30,8 @@ Items D = {1..n}   Transactions (baskets):  T1={1,3,6,8}  T2={1,3,7,12}  T3={1,3
 famous find: {beer} → {diapers}  (young dads, 5–7pm) — a pattern no human would have guessed.
 ```
 
+![Five checkout baskets drawn as transactions, with Bread and Milk highlighted wherever they co-occur and Beer and Diapers highlighted wherever they co-occur, arrows pointing to the two frequent itemsets that emerge — Bread with Milk and Beer with Diapers.](attachments/market-basket-transactions.png)
+
 - A **transaction** `T ⊆ D` (which items were bought; quantity ignored). An **itemset** is a set of items; a **frequent itemset** appears in many transactions. `(certain)`
 - The goal: find frequent itemsets, then turn them into **rules** ("if X in the basket, then Y is likely too") ranked by how *strong* and *surprising* they are.
 
@@ -50,6 +52,8 @@ Apriori (level-wise):
 3. build size-3 candidates ONLY from frequent size-2 itemsets → … repeat
    (any candidate containing an infrequent subset is skipped — that's the pruning)
 ```
+
+![The itemset lattice for four items A B C D across four size levels, with the singleton D marked infrequent so every superset containing D is greyed out and struck through as pruned, while the D-free itemsets stay green as surviving frequent candidates — illustrating downward-closure pruning.](attachments/apriori-downward-closure-lattice.png)
 
 Example (`c=100`): if `{4}` occurs 50 times (<c), drop `{4}` and every itemset containing it. This slashes the candidate space — but the **worst case is still `O(2ⁿ·m)`**, so Apriori only works when `n` is small (offline stores). `(certain)`
 
@@ -78,6 +82,8 @@ Leverage(X→Y)     = support(X ∪ Y) − support(X)·support(Y)
 Conviction(X→Y)   = (1 − support(Y)) / (1 − Confidence(X→Y))
 ```
 
+![Two overlapping circles X and Y inside a rectangle of all N transactions: the overlap is the baskets containing both, support divides that overlap by N, confidence divides it by the X circle giving P of Y given X, and lift further divides confidence by Y's own frequency to compare against chance.](attachments/support-confidence-lift-venn.png)
+
 - **Support** = probability an itemset appears; sets the Apriori threshold. High support ≠ useful rule (could be two unrelated popular items).
 - **Confidence** = `P(Y | X)`. **Its flaw:** it's inflated whenever `Y` is *popular* — `{toothbrush} → {milk}` gets high confidence just because almost everyone buys milk, not because of any real link. `(certain)`
 - **Lift** fixes that by comparing observed co-occurrence to what you'd expect *if X and Y were independent* (`P(X)·P(Y)`): `(certain)`
@@ -105,6 +111,8 @@ Lift       = 0.71 / 0.80 ≈ 0.89       → < 1 → actually a NEGATIVE associat
 ```
 
 Same-looking high confidence (0.80 vs 0.71), opposite truth: bread↔milk is real (lift 8), toothbrush↔milk is a mirage created by milk's popularity (lift 0.89). **That's exactly why you rank rules by lift, not confidence.** `(certain)`
+
+![Two bar panels comparing the same two rules: on the left the confidence bars look similar at 0.80 and 0.71, but on the right the lift bars diverge sharply — Bread to Milk at 8.0 far above the lift-equals-1 independence line means a real association, while Toothbrush to Milk at 0.89 below the line means a negative association driven only by milk's popularity.](attachments/confidence-vs-lift-trap.png)
 
 ---
 
