@@ -47,6 +47,8 @@ Represent everything as a matrix `A` (`n` users × `m` items); `A_ij` = user `i`
 - 🎯 **Missing ≠ dislike.** An empty cell means "no data," not "rated zero." Treating blanks as zero teaches the model that users hate everything they haven't seen — the single most important modeling rule here. `(certain)`
 - A **user vector** = a row of `A`; an **item vector** = a column. Recommenders operate on these rows/columns.
 
+![The user-by-item matrix A shown as a grid where rows are users and columns are movies, only about a quarter of cells hold a 1-to-5 rating and the rest are empty question marks, illustrating that an empty cell means no data rather than a zero rating.](attachments/user-item-matrix-sparse.png)
+
 ---
 
 ## 3. Collaborative Filtering — Item-Item & User-User
@@ -60,6 +62,8 @@ sim(Iᵢ, Iⱼ) = cosine(Iᵢ, Iⱼ) = (Iᵢ·Iⱼ)/(‖Iᵢ‖‖Iⱼ‖)     #
 ```
 
 **User-user CF:** find *similar users* (cosine over their rows), then recommend what those neighbors liked that this user hasn't seen (frequency vote among neighbors).
+
+![Two rating-matrix panels contrasting the two flavors of collaborative filtering: user-user CF takes cosine similarity over rows to find a look-alike user and recommend an item they liked, while item-item CF takes cosine similarity over columns to find items rated alike.](attachments/collaborative-filtering-item-vs-user.png)
 
 🎯 **Prefer item-item when `n > m`** (more users than items): it's cheaper (smaller similarity matrix) and **more stable** — *item* characteristics barely change, whereas **user preferences drift over time**, which destabilizes user-user CF. Similarity matrices are expensive (`m×m` or `n×n`), so they're precomputed **offline** (nightly) and served instantly. `(certain)`
 
@@ -90,6 +94,8 @@ Because it needs no interaction history, **content-based filtering solves cold s
 - **New item** — empty column → no similar items, no `Vⱼ`.
 - **New community** — a fresh platform with almost no data at all.
 
+![A rating matrix with a brand-new user drawn as an all-empty highlighted row and a brand-new item as an all-empty highlighted column, showing that with no interaction history there are no similar users or items and no latent vector can be learned.](attachments/cold-start-problem.png)
+
 **Fixes:** fall back to **content-based** filtering (use metadata), recommend **popular items** as a stopgap, or **ask** the user for a few preferences on signup. Cold start is *the* reason pure CF is rarely deployed alone.
 
 ---
@@ -103,11 +109,15 @@ A (n×m)  ≈  U (n×b)  ·  Vᵀ (b×m)          b = # latent factors (hidden t
 A_ij ≈ Uᵢ · Vⱼ         Uᵢ = user i's taste vector,  Vⱼ = item j's theme vector
 ```
 
+![Box diagram of matrix factorization: the big sparse rating matrix A of size n by m is approximated by a tall thin user matrix U of size n by b times a wide short item matrix V-transpose of size b by m, so any single rating A-sub-ij equals the dot product of user i's row with item j's column.](attachments/matrix-factorization-decomposition.png)
+
 **Latent factors are discovered, not given** — e.g. an "action vs cerebral" axis emerges from the data:
 ```
 Manish=[0.2, 0.9]  RRR=[0.9, 0.1]  → 0.2·0.9+0.9·0.1 = 0.27   (won't like it)
 Manish=[0.2, 0.9]  Interstellar=[0.2, 0.9] → 0.04+0.81 = 0.85  (will love it ✅)
 ```
+
+![A learned two-dimensional latent space with an action-versus-spectacle x-axis and a cerebral-versus-slow-burn y-axis: Manish's taste vector points up toward the cerebral movies like Interstellar and Inception it aligns with (high dot product, high predicted rating) and is nearly orthogonal to the action movies like RRR and KGF it barely overlaps (low predicted rating).](attachments/latent-factor-space.png)
 
 **The objective — fit only observed entries** (Ω = known ratings), with L2 regularization: `(certain)`
 ```
@@ -135,6 +145,8 @@ U = user↔theme,  Σ = theme importance (singular values),  Vᵀ = item↔theme
 ```
 
 **Truncated SVD** keeps only the **top-k** singular values (the strong themes) and drops the rest (noise): `A ≈ Uₖ Σₖ Vₖᵀ`. This **denoises + compresses**, and reconstructing fills missing cells → recommendations. Choose `k` by cumulative **explained variance** (`σₖ²/Σσ²`, e.g. 95%) or the scree-plot elbow. `(certain)`
+
+![Two panels explaining truncated SVD: on the left the matrix A is drawn as a sum of rank-one theme layers whose block heights shrink with the singular values sigma-1 greater than sigma-2 and so on, and on the right a singular-value bar spectrum with a dashed cut keeping the top-k strong themes in green and discarding the small tail as noise.](attachments/svd-truncated-themes.png)
 
 **How the three relate** — this is a classic interview thread: `(certain)`
 ```
