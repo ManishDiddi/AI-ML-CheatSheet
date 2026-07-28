@@ -50,6 +50,8 @@ Multiplicative:  y_t = Trend_t × Seasonality_t × Residual_t     (seasonal swin
 ```
 Use **multiplicative** when the seasonal amplitude grows as the series grows (common in revenue); **additive** when the swing is roughly constant. (A `log` transform turns a multiplicative series into an additive one.) `(certain)`
 
+![Additive versus multiplicative seasonality — on the left the seasonal swing stays a constant size around a rising trend, on the right the swing grows in proportion to the level, which is why a log transform converts multiplicative back to additive.](attachments/additive-vs-multiplicative-seasonality.png)
+
 **How the pieces are estimated:**
 - **Trend** ← a **centered moving average** (rolling mean over one full season) smooths away the season & noise, leaving the trend.
 - **Seasonality** ← after de-trending (`y − trend`), average the leftovers *by season position* (all Januaries together) → the seasonal index.
@@ -59,6 +61,8 @@ Use **multiplicative** when the seasonal amplitude grows as the series grows (co
 from statsmodels.tsa.seasonal import seasonal_decompose
 seasonal_decompose(series, model="additive", period=12).plot()   # trend / seasonal / resid panels
 ```
+
+![Additive seasonal_decompose of monthly sales into four stacked panels — the raw Sales series on top, a smooth upward Trend, a repeating yearly Seasonal cycle, and Residual noise scattered around zero.](attachments/time-series-decomposition.png)
 
 ---
 
@@ -81,6 +85,8 @@ Dumb forecasts you must **beat** before anything fancy earns its keep: `(certain
 | **Seasonal naive** | the value from the **same season last cycle** (last year's same month) | **seasonality** (but not trend) |
 
 🎯 *"A new model that can't beat seasonal-naive isn't worth deploying."* Baselines are the honesty check — every real method is measured against them.
+
+![The three forecasting baselines projected over a held-out test block — a flat historical mean and a flat last-value naive both ignore the cycle, while the seasonal-naive repeats last year's same-month values and is the only one that tracks the seasonal shape.](attachments/forecasting-baselines-mean-naive-seasonal.png)
 
 ---
 
@@ -107,11 +113,15 @@ DES  → Level + Trend            (Holt's linear method)
 TES  → Level + Trend + Season   (Holt-Winters)
 ```
 
+![Forecasts from the three exponential smoothers on the same trending seasonal series — Simple Exponential Smoothing projects a flat level, Holt/DES adds a straight sloped trend but misses the season, and Holt-Winters/TES adds the repeating seasonal cycle on top of the trend.](attachments/ses-holt-holt-winters-comparison.png)
+
 ### Simple Exponential Smoothing (SES) — level only
 ```
 ŷ_{t+1} = α·y_t + (1−α)·ŷ_t          # new forecast = α·(what happened) + (1−α)·(what we predicted)
 ```
 Expanding it shows the exponential decay: weights are `α, α(1−α), α(1−α)², …` — recent data dominates, old data fades (all weights sum to 1). **α ∈ (0,1)** trades reactivity vs stability: `α→1` ≈ naive (chases noise), `α→0` ≈ very smooth/slow. A good start is `α = 1/(2·season_length)`. **Weakness:** no trend, no season → it always *lags behind* a rising series and forecasts a flat line. `(certain)`
+
+![Exponential smoothing weights w_k equal to alpha times one-minus-alpha raised to the power k, plotted for two alpha values — the most recent observation gets the largest weight and older observations decay geometrically, with a higher alpha concentrating weight on recent data and a lower alpha spreading it over more history.](attachments/exponential-decay-weights.png)
 
 **Worked example** (α=0.3, init = first value):
 ```
