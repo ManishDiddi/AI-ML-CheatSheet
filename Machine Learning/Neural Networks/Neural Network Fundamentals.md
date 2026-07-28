@@ -39,6 +39,8 @@ many layers = many bent boundaries combined → ANY shape (spiral, circle, XOR)
 - 🎯 **Why it works:** a linear map then a non-linear activation, repeated, tiles the space into regions — the **universal approximation theorem** says a big enough network can approximate any function. Remove the activations and the whole stack **collapses into one linear layer** (matrix products of matrices are still a matrix). The non-linearity is the entire point. `(certain)`
 - Each hidden neuron becomes a **feature detector**; deeper layers compose simpler features into complex ones.
 
+![A single linear neuron (logistic regression) draws one straight boundary and fails on a spiral at 66% accuracy, while a two-hidden-layer network carves the curved spiral and reaches 94%.](attachments/nnf-spiral-linear-vs-mlp.png)
+
 ---
 
 ## 2. The Single Neuron = Logistic Regression
@@ -52,6 +54,8 @@ a = f(z)                                             # activation (e.g. sigmoid 
 
 - **Weights** = how much each input matters (a big negative weight on "temperature" ⇒ hotter → less likely to touch). **Bias** = the neuron's default lean/threshold. **Activation** = turns the score into a usable output.
 - 🎯 **A single neuron with a sigmoid is exactly [logistic regression](../Supervised%20ML/Logistic%20Regression.md)** (`σ(w·x+b)`). A neural network is just *many* of these, layered — which is why everything you know about log-loss and the sigmoid carries straight over. `(certain)`
+
+![The single touch-decision neuron in action: a linear combination z=w·x+b squashed by a sigmoid produces a probability whose 0.5 threshold is a straight decision line over temperature and familiarity.](attachments/nnf-single-neuron-touch-decision.png)
 
 ---
 
@@ -68,6 +72,8 @@ For a layer with n inputs and h neurons:
 - The matrix form is a *speed* trick: `Z = XW + b` replaces looping over every neuron × sample. `(certain)`
 - **Output layer** shape depends on the task: 1 sigmoid neuron (binary), `k` **softmax** neurons (multi-class), 1 linear neuron (regression).
 - **Multi-class = multiple neurons + softmax** (vs logistic regression's one-vs-rest) — the softmax gives a joint probability distribution over classes.
+
+![Left, one neuron wires inputs through weights into a weighted sum plus bias then an activation; right, stacking such neurons into fully-connected input, hidden, and output layers forms a network computed a layer at a time by Z=XW+b.](attachments/nnf-neuron-and-mlp-architecture.png)
 
 ---
 
@@ -121,6 +127,8 @@ dZ⁽¹⁾ = dA⁽¹⁾ ⊙ f'(Z⁽¹⁾)                  # multiply by the act
 dW₁   = Xᵀ · dZ⁽¹⁾
 ```
 
+![Backpropagation as a computational graph: the forward pass computes Z, A and the loss left to right, then the chain rule flows gradients right to left, with the softmax output error collapsing to dZ=A−Y and dW=XᵀdZ at each layer.](attachments/nnf-backprop-computational-graph.png)
+
 **Worked weight update:** input `x=[1,2]`, weight `W[0,0]=0.1` (input-1 → Cat), predicted 24% Cat, truth = Cat.
 ```
 dZ_Cat = 0.24 − 1 = −0.76
@@ -142,6 +150,8 @@ Without a non-linear activation, layers collapse to one linear layer (§1). But 
 | **tanh** | (−1,1), zero-centered | derivative ≤ 1 but still saturates in the tails |
 | **ReLU** | `max(0, z)` | fast, non-saturating for `z>0` (derivative 1) → **enabled deep nets**; but **dying ReLU** |
 | **Leaky ReLU** | `z` if `z>0` else `α·z` | small slope `α` for `z<0` keeps the gradient alive → fixes dying ReLU |
+
+![Sigmoid, tanh, ReLU and leaky-ReLU plotted alongside their derivatives, showing the sigmoid derivative capped at 0.25 which causes vanishing gradients while ReLU's derivative stays 1 for positive inputs.](attachments/nnf-activation-functions-and-derivatives.png)
 
 🎯 **The vanishing gradient problem:** a sigmoid's derivative is `σ(z)(1−σ(z)) ≤ 0.25`. Backprop *multiplies* these across layers, so through `n` sigmoid layers the gradient shrinks like `≤ 0.25ⁿ` → early layers barely update → deep sigmoid nets don't train. `(certain)`
 

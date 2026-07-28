@@ -65,6 +65,8 @@ Var(z) = n_in · Var(w) · Var(x)
 - If `n_in·Var(w) < 1`, variance **shrinks** every layer → activations & gradients **vanish** (§7 of [Fundamentals](Neural%20Network%20Fundamentals.md)).
 - 🎯 **The goal: pick `Var(w)` so signal variance stays ≈1 layer-to-layer, in both the forward pass and the backward (gradient) pass.** That single requirement is what Xavier and He solve. `(certain)`
 
+![Per-layer activation variance through a 30-layer ReLU network: too-small initialization makes it vanish toward zero, too-large makes it explode, and only He initialization with variance 2/n keeps it near 1.](attachments/wio-activation-variance-across-depth.png)
+
 ### 2c. The two initializers you must know
 | Init | Use with | `Var(w)` | Draw (normal form) | Why |
 |---|---|---|---|---|
@@ -106,6 +108,8 @@ V₃ = (1−β)g₃ + β(1−β)g₂ + β²(1−β)g₁ + β³V₀
 ```
 - **`β` = memory length.** It averages roughly the last **`1/(1−β)`** values: `β=0.9`→~10 steps, `β=0.99`→~100. Higher `β` = smoother but laggier. `(certain)`
 - **Bias problem (matters for §5's Adam).** Starting at `V₀=0` makes early estimates too small — `V₁=(1−β)g₁` is only 10% of `g₁` at `β=0.9`. **Bias correction** rescales: `V̂ₜ = Vₜ/(1−βᵗ)`. As `t` grows `βᵗ→0` so the correction fades; it only matters for the first ~`1/(1−β)` steps. `(certain)`
+
+![An exponential moving average of a noisy gradient stream, with β=0.9 tracking the true direction closely and β=0.99 far smoother but laggier, showing how averaging cancels batch-to-batch noise.](attachments/wio-ema-smoothing.png)
 
 ---
 
@@ -156,6 +160,9 @@ RMSprop      –                    ✓ (EMA of dw²)    –
 Adam         ✓                    ✓                 ✓
 ```
 
+![Animated trajectories of SGD, Momentum, RMSProp, Adam and other adaptive methods descending a two-basin loss surface, where Momentum overshoots and loops while the adaptive optimizers curve smoothly toward a minimum.](attachments/optimizer-trajectories-loss-surface.gif)
+*Source: optimizer-visualization by Jaewan Yun (GitHub), in the tradition of Alec Radford's optimizer animations.*
+
 ---
 
 ## 6. Learning Rate Schedules
@@ -172,6 +179,8 @@ Even Adam plateaus if `α` is fixed: too high and it **bounces around** the mini
   - **Cosine annealing** — smoothly anneal to ~0 along a cosine; the modern default for vision + transformers.
   - **Warmup** — ramp LR *up* linearly for the first few hundred/thousand steps **before** decaying. 🎯 **Essential for Adam on transformers: early second-moment estimates `Ŝ` are unreliable, so a full-size step can destabilize training — warmup lets the statistics settle first.** `(likely)`
 - **ReduceLROnPlateau** — a reactive alternative: drop LR when validation loss stops improving. Good when you don't know the schedule up front.
+
+![On the left, the learning rate's effect on the loss curve — too high diverges, too low crawls, and a good rate descends fast; on the right, common schedule shapes including step, exponential, cosine and warmup then cosine decay.](attachments/wio-learning-rate-and-schedules.png)
 
 ---
 

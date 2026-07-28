@@ -32,6 +32,9 @@ Three problems stand between raw text and a network, each solved by one pipeline
                                         └─ (seq_len × 128) matrix ─┐
                         collapse to one vector (flatten / pool) ───┴─▶ Dense → Dropout → sigmoid → P(AI)
 ```
+
+![Text-classification pipeline from left to right: tokenize and pad turn a variable-length string into a fixed-shape integer tensor, the Embedding layer supplies meaning as learned dense vectors, global pooling reduces the sequence to one vector, and a Dense head plus sigmoid outputs the probability of AI.](attachments/textnn-pipeline.png)
+
 - 🎯 **The whole trick of "NN for text" is turning a variable-length string into a fixed-size tensor of *meaningful* numbers.** Tokenization+padding fixes the shape; the Embedding layer supplies the meaning; pooling reduces it to something a Dense head can classify. `(certain)`
 - Word **id 315 is not "bigger" than id 8** — ids are arbitrary labels. Feeding ids straight to a Dense layer would (wrongly) treat them as ordered magnitudes; the Embedding layer is what replaces that nonsense with a learned vector. `(certain)`
 
@@ -66,6 +69,8 @@ layers.Embedding(input_dim=10000,   # vocab size → number of ROWS
 # Input:  (batch, L) integer ids   →   Output: (batch, L, 128) float vectors
 ```
 
+![The Embedding layer as a trainable lookup table: a token id such as 315 simply selects its row of the 10000-by-128 embedding matrix, returning a 128-D dense vector, and the whole matrix is learned by backprop so similar words end up as nearby vectors.](attachments/textnn-embedding-lookup.png)
+
 - 🎯 **It's not a fixed encoding — the embedding matrix is *weights*, trained end-to-end with the rest of the network, so words that help the task drift into useful positions** (e.g. "verbose", "furthermore", "moreover" cluster if they signal AI text). `(certain)`
 - **Why not one-hot?** One-hot gives each of 10k words a 10,000-D sparse vector: enormous, and *equidistant* — it encodes zero similarity ("love" and "like" are as far apart as "love" and "banana"). Embeddings are dense (128-D), and similar words end up close (cosine-similar). `(certain)`
 - **Pretrained embeddings** (GloVe/word2vec/fastText) can initialize `E` and be frozen or fine-tuned — a big win on **small datasets** where you can't learn good vectors from scratch. This is transfer learning for words. Deeper treatment: [Word Embeddings](../NLP/Word%20Embeddings.md). `(likely)`
@@ -87,6 +92,9 @@ The Embedding output is `(L × embed_dim)` per doc, but a `Dense` head needs a *
 GlobalAveragePooling1D:  out[j] = mean over the L words of embedding[:, j]   # "average meaning of the doc"
 GlobalMaxPooling1D:       out[j] = max  over the L words of embedding[:, j]   # "most salient feature"
 ```
+
+![Collapsing the sequence axis: Flatten unrolls the 200-by-128 embedding into 25,600 values and feeds a roughly 1.64M-parameter Dense layer that keeps word order but overfits, whereas GlobalAveragePooling averages over the words to a 128-vector feeding a roughly 8.2K-parameter Dense layer that regularizes but loses order.](attachments/textnn-flatten-vs-pooling.png)
+
 - 🎯 **Flatten preserves everything but multiplies parameters by `L`; global pooling throws away word order to get a tiny, regularized, position-invariant vector — for a bag-of-words-ish task like AI-vs-human detection, pooling usually generalizes better.** `(likely)`
 - Pooling layers have **zero parameters** — they're pure reductions. `Flatten` also has zero params itself; the cost is in the *next* Dense layer it feeds. `(certain)`
 - **If word order matters** (negation, syntax), don't pool a plain embedding — use a **sequence model** (LSTM/GRU/Transformer, see [RNN · LSTM · Transformers](../NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)) or **`Conv1D`** to capture local n-gram patterns before pooling. `(certain)`
@@ -103,6 +111,8 @@ Embedding(10000, 128) → Flatten → Dense(64, relu) → Dense(1, sigmoid)
 ```
 Works, but the `Flatten` produces 25,600 features → a 1.6M-param Dense layer that overfits fast.
 
+![Total parameter count of the three variants from the notebook: the Basic Flatten model has about 2.92M parameters while the pooling-based models with Dropout or Batch Norm have about 1.30M each, so the Flatten head alone adds roughly 1.6M parameters on top of the shared 1.28M embedding.](attachments/textnn-param-comparison.png)
+
 **Model B — the better default (pooling + dropout):**
 ```
 Embedding(10000,128) → GlobalAveragePooling1D
@@ -110,6 +120,9 @@ Embedding(10000,128) → GlobalAveragePooling1D
    → Dense(64,  relu) → Dropout(0.3)
    → Dense(1, sigmoid)
 ```
+
+![The Model B architecture as a stack with tensor shapes: integer ids of shape batch-by-200 enter the Embedding to become batch-by-200-by-128, GlobalAveragePooling1D collapses the words to batch-by-128, then Dense and Dropout layers reduce it to a single sigmoid output giving the probability of AI.](attachments/textnn-model-architecture.png)
+
 - **[Dropout](Batch%20Normalization%20&%20Dropout.md)** randomly zeros a fraction of activations *each training step* (0.5 = half), forcing redundancy so no single unit dominates → less overfitting. It's **on during training, off at inference** (Keras handles this automatically). Higher rate nearer the input where overfitting risk is largest. `(certain)`
 - **[Batch Normalization](Batch%20Normalization%20&%20Dropout.md)** is the complementary knob some text models add (`Dense → BatchNorm → Activation → Dropout`): it normalizes activations to stabilize and speed up training, rather than regularize. Both come from the same tutorial — see the dedicated note for the mechanics, ordering, and train/inference switch. `(certain)`
 - Compile with **`adam`** ([why](Weight%20Initialization%20&%20Optimizers.md)) + `binary_crossentropy`, monitor **validation loss** for early stopping. Everything here — the Dense math, ReLU, the Adam updates — is the ordinary machinery from the fundamentals notes; text only changed the *front end*.

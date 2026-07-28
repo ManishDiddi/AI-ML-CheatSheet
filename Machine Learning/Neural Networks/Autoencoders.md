@@ -36,6 +36,8 @@ Force a network to copy its input to its output — but make it pass through a l
              the SQUEEZE is the point ──────▶  loss = how different x̂ is from x
 ```
 
+![Autoencoder as an hourglass: the encoder compresses input x through a hidden layer into a narrow latent code z, then the decoder rebuilds x̂ from z, trained to minimize the reconstruction loss between x and x̂.](attachments/ae-hourglass-architecture.png)
+
 - 🎯 **The reconstruction is a *pretext* — you don't care about `x̂`. You care that a good reconstruction proves the tiny bottleneck `z` captured all the information, so `z` is a learned compressed feature vector (embedding).** `(certain)`
 - If you allowed **linear** activations and equal-width layers, the net could trivially learn the **identity** (copy in = out) and learn nothing. The **bottleneck** (fewer neurons than inputs) is what makes copying *impossible without compression*. `(certain)`
 - It's **self-supervised**: no labels — the target *is* the input, so autoencoders learn from unlabeled data.
@@ -56,6 +58,8 @@ minimize  L(x, x̂)   over encoder+decoder weights     # reconstruction loss
   - values in [0,1] (e.g. normalized pixels) → **binary cross-entropy** (sigmoid output)
   - one-hot categorical → **categorical cross-entropy** (softmax output)
 - **Undercomplete** (`d' < d`) forces compression — the standard case. **Overcomplete** (`d' ≥ d`) has room to cheat by learning the identity, so it *needs regularization* (denoising §5, or a sparsity penalty). `(certain)`
+
+![Undercomplete versus overcomplete bottleneck: a bottleneck narrower than the input forces compression as in the standard case, while a bottleneck wider than the input can copy the input straight through and needs regularization such as denoising or sparsity.](attachments/ae-undercomplete-vs-overcomplete.png)
 - **Encoder/decoder need not be symmetric.** Historically they mirrored each other and **tied weights** (`W_dec = W_encᵀ`) to halve parameters; modern practice uses independent weights and whatever shapes work. `(certain)`
 
 ---
@@ -66,6 +70,8 @@ The cleanest way to understand an autoencoder is as a **generalization of [PCA](
 
 - 🎯 **A single-hidden-layer autoencoder with linear activations and MSE loss learns the same subspace as PCA** (it spans the top-`d'` principal components). The non-linearity is what makes it more powerful. `(likely)`
 - Add **non-linear activations and depth**, and the encoder learns a **curved (non-linear) manifold** that PCA — restricted to a linear projection — cannot represent. On data lying on a non-linear manifold (e.g. MNIST digits), a deep AE gives a much better low-D encoding than PCA. `(certain)`
+
+![A linear autoencoder recovers the same subspace as PCA and can only fit a straight projection, so it misses curved data, whereas adding non-linear activations lets the autoencoder bend to follow the curved manifold PCA cannot capture.](attachments/ae-vs-pca.png)
 
 | | PCA | Autoencoder |
 |---|---|---|
@@ -95,6 +101,8 @@ train:   x̃ = x + noise   ──▶ encoder ─▶ z ─▶ decoder ──▶ x
                 (corrupt the INPUT)                     (compare to CLEAN x)
 ```
 - 🎯 **Feed a *corrupted* input but ask it to reconstruct the *clean* original.** The network can't win by copying (its input now contains random noise with no pattern), so it's forced to learn the underlying signal and, as a side effect, **removes noise** — the model learns to clean data. `(certain)`
+
+![Denoising autoencoder on MNIST: the top row is the heavily noise-corrupted input fed to the network and the bottom row is its clean reconstruction, showing the model learned to remove the noise rather than copy it.](attachments/ae-denoising-mnist.png)
 - Acts as a **regularizer**: because noise is unpredictable, the AE learns robust features rather than a brittle identity map. Common noise: additive Gaussian (`x + 0.5·N(0,1)`, then clip to valid range), or masking (randomly zero inputs — "dropout on the input"). `(certain)`
 - **Uses:** image/audio denoising, robust feature learning, and pre-training. (Related regularized variants: **sparse AEs** add an activation-sparsity penalty on `z`; **contractive AEs** penalize the encoder's sensitivity to input. Same goal — stop the identity shortcut.) `(likely)`
 
@@ -115,6 +123,10 @@ train:   x̃ = x + noise   ──▶ encoder ─▶ z ─▶ decoder ──▶ x
 ## 7. Worked Example
 
 **MNIST compression (784-D images).** Encoder `784 → 128 → 64 → 32`, decoder `32 → 64 → 128 → 784`, sigmoid output + `binary_crossentropy` (pixels normalized to [0,1]). Train `fit(x_train, x_train)`. The **32-D bottleneck** reconstructs recognizable digits — a 24× compression that kept the essence. Push the bottleneck to **2-D** and you can plot every digit on a plane; the classes separate into clusters, comparably to t-SNE but via a *learned, reusable* encoder (t-SNE can't embed new points; the AE encoder can). `(certain)`
+
+![MNIST reconstruction from a 32-D bottleneck: the top row is the original test digits and the bottom row is the autoencoder's reconstruction, still recognizable after a 24-times compression that kept the essential structure.](attachments/ae-mnist-reconstruction.png)
+
+![A t-SNE projection of MNIST to two dimensions colored by digit class, showing that a low-dimensional embedding separates the ten classes into clusters — the kind of separation the autoencoder's own learned 2-D encoding is compared against.](attachments/ae-mnist-tsne-latent.png)
 
 **Movie recommender (MovieLens).** Ratings matrix pivoted to **movies × users**, ~**1.5% filled** (very sparse), 668 user-columns. AE `668 → 512 → 256 → 128 → 256 → 512 → 668`, **linear output + MSE** (ratings are continuous). After training, slice out the **128-D bottleneck** as each movie's embedding, build the `cosine_similarity` matrix, and for *Liar Liar* the top-cosine neighbors are its recommendations. `(certain)`
 
