@@ -65,6 +65,12 @@ What you'd use instead, and the decision criteria that pick between them.
 
 ---
 
+## Accuracy, currency & weighting (learned from the Prompt Security review, 2026-07-29)
+- **Verify version-specific claims against a current source *before* stating them as fact.** Model names, model IDs, version numbers, taxonomy/category codes, and default hyper-parameters go stale — do **not** write them from memory. (The Prompt Security note shipped `Prompt-Guard-86M` after Meta released **Llama Prompt Guard 2**, and Llama Guard `O1–O7` after it became Llama Guard **4** with `S1–S14`.) When a note names a tool/model, web-search its **current model card** and cite it.
+- **Weight coverage by real-world leverage, not by how much lecture time a subtopic got.** A subtopic that filled 60% of the lecture may be 30% of the answer. For **security / agentic / LLM-app** topics especially: lead with the *current* threat model (e.g. the **lethal trifecta**, indirect injection via retrieval/tools, egress/exfiltration), and rank defenses by how much damage they **bound** (least privilege + egress control > probabilistic classifiers), not by how easy they are to add or demo.
+- **No self-contradicting absolutes.** Never write a "zero X" / "100%" claim a later section walks back; prefer "no *detected* X", "reduces", "raises the cost". Recall-bound or probabilistic controls are never total — say so.
+- **Treat every guard/classifier as itself attackable** in a security-flavoured note (the moderation LLM is an injection target too; a fixed red-team set measures yesterday's attacks — report FPR, an adaptive budget, and per-session compromise).
+
 ## Rules that keep the vault coherent
 - **Not every note needs all 9 sections.** Drop one only when it's genuinely N/A (e.g. no meaningful "code" for a pure-theory topic) — and say so in one line rather than leaving a blank heading.
 - **Keep numbering + any ToC in sync** when you add/remove sections.
