@@ -369,7 +369,7 @@ Run it and you *watch* fixed-size cut mid-sentence while recursive respects para
 - **Embedding/data drift.** Query distribution or corpus vocabulary shifts over time → recall decays; monitor and periodically re-index / re-tune.
 - **Freshness.** TTLs and re-index schedules for time-sensitive corpora; a stale index is a correctness bug, not just a perf one.
 - **Security — this is where RAG is uniquely exposed:**
-  - **Indirect prompt injection.** Retrieved documents are *untrusted input*; a poisoned chunk ("ignore instructions and…") can hijack generation. Sanitize, sandbox tool use, keep the system prompt authoritative. This is the hardest hole to close — see [Prompt Security](Prompt%20Security.md) (§3 direct vs indirect, §4 the guardrail gates).
+  - **Indirect prompt injection.** Retrieved documents are *untrusted input*; a poisoned chunk ("ignore instructions and…") can hijack generation. Sanitize, sandbox tool use, keep the system prompt authoritative. This is the hardest hole to close — see [Prompt Security](Prompt%20Security.md) (§3.1 direct vs indirect injection, §4 the defense layers, esp. §4.4 least privilege + egress control).
   - **Access control.** Enforce per-user permissions via **metadata filters** at retrieval time (row-level security) — never retrieve a chunk the user isn't allowed to see. Leaks happen in retrieval, not the model.
   - **PII / compliance** in what you index and log.
 - **Cost.** Per query = embedding + (optional HyDE LLM call) + rerank + generation tokens. HyDE and LLM-based chunking add LLM calls — justify them with an eval, not vibes.
