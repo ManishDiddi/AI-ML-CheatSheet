@@ -19,7 +19,7 @@
 7. [Evaluating Retrieval — Precision, Recall, MRR, NDCG](#7-evaluating-retrieval--precision-recall-mrr-ndcg)
 8. [Code / Implementation](#8-code--implementation)
 9. [When It Breaks](#9-when-it-breaks)
-10. [Production & MLOps Notes](#10-production--mlops-notes)
+10. [Production & LLMOps Notes](#10-production--llmops-notes)
 11. [Interview Lens](#11-interview-lens)
 12. [Alternatives & How to Choose](#12-alternatives--how-to-choose)
 - [🧠 Self-Test](#-self-test)
@@ -482,7 +482,7 @@ def rr(retrieved_idx, gold_idx):
 
 ---
 
-## 10. Production & MLOps Notes
+## 10. Production & LLMOps Notes
 
 - **Two cost regimes.** Document embedding is a **batch, offline** job (embed once at index time, amortized); query embedding is **online** (one forward pass on the hot path — cache repeated queries). The cross-encoder reranker is the expensive online piece: cost = `candidates × forward-pass`, so cap the shortlist (~50–100) and rerank only that.
 - **Dimension vs cost — Matryoshka (MRL).** Matryoshka-trained embeddings (OpenAI `text-embedding-3`, `nomic`, some `bge`) pack the most information in the **early dimensions**, so you can **truncate** `1536 → 256` and keep most of the quality — huge storage/latency win. Store full, search truncated, or store truncated outright.

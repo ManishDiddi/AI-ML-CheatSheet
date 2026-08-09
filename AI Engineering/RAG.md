@@ -27,7 +27,7 @@
 7. [Worked Example — End-to-End on Three Chunks](#7-worked-example--end-to-end-on-three-chunks)
 8. [Code / Implementation](#8-code--implementation)
 9. [When It Breaks](#9-when-it-breaks)
-10. [Production & MLOps Notes](#10-production--mlops-notes)
+10. [Production & LLMOps Notes](#10-production--llmops-notes)
 11. [Beyond Naive RAG — Where the Field Is Going](#11-beyond-naive-rag--where-the-field-is-going)
 12. [Interview Lens](#12-interview-lens)
 13. [Alternatives & How to Choose](#13-alternatives--how-to-choose)
@@ -360,7 +360,7 @@ Run it and you *watch* fixed-size cut mid-sentence while recursive respects para
 
 ---
 
-## 10. Production & MLOps Notes
+## 10. Production & LLMOps Notes
 
 - **Latency budget.** Query-embed (~ms) + ANN (~ms) + rerank (~10–100 ms, scales with candidate count) + **LLM generation (dominant)**. Rerank fewer, cache aggressively, stream tokens.
 - **Caching.** Cache embeddings (per unique text), retrieval results (per query), and even final answers for hot/repeat queries.

@@ -29,7 +29,7 @@
 9. [Worked Example — "How Do I Attach the Legs?" (IKEA)](#9-worked-example--how-do-i-attach-the-legs-ikea)
 10. [Code / Implementation](#10-code--implementation)
 11. [When It Breaks](#11-when-it-breaks)
-12. [Production & MLOps Notes](#12-production--mlops-notes)
+12. [Production & LLMOps Notes](#12-production--llmops-notes)
 13. [Interview Lens](#13-interview-lens)
 14. [Alternatives & How to Choose](#14-alternatives--how-to-choose)
 
@@ -501,7 +501,7 @@ resp = Groq().chat.completions.create(
 
 ---
 
-## 12. Production & MLOps Notes
+## 12. Production & LLMOps Notes
 
 - **The core decision — ColPali vs CLIP (the instructor's rule):** **ColPali for production product/document RAG** (manuals, invoices, decks — anywhere layout and diagrams carry the meaning); **CLIP for POCs and natural-image corpora** where compute is the constraint. CLIP is cheap and CPU-friendly; ColPali needs a GPU and a fat index but *retrieves what actually matters* on documents. `(certain — stated by instructor from experience)`
 - **Storage & index.** Budget for multi-vector blow-up: quantize (PQ/scalar), pool patch vectors, or two-stage retrieve (single-vector shortlist → MaxSim rerank). A single-vector CLIP store fits in memory trivially; a ColPali store may not.

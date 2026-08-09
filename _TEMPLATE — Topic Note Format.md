@@ -74,6 +74,7 @@ What you'd use instead, and the decision criteria that pick between them.
 ## Rules that keep the vault coherent
 - **Not every note needs all 9 sections.** Drop one only when it's genuinely N/A (e.g. no meaningful "code" for a pure-theory topic) — and say so in one line rather than leaving a blank heading.
 - **Keep numbering + any ToC in sync** when you add/remove sections.
+- **Section 7 is named for its domain.** `Machine Learning/` notes use **"Production & MLOps Notes"** (training pipelines, feature/label drift, retraining triggers). `AI Engineering/` notes use **"Production & LLMOps Notes"** — the concerns there are genuinely different: prompt/model versioning, eval sets and LLM-as-judge, token cost and context budgets, tracing spans per call, guardrails and injection defence, caching. Renamed across all AI Engineering notes 2026-08-09; keep new ones consistent.
 - **Link liberally** with `[[wiki-links]]` so the Obsidian graph stays connected; a link to a note that doesn't exist yet is a fine TODO marker.
 - **Formulas inline** as backticked pseudo-math (`s = (b − a) / max(a, b)`), never LaTeX/MathJax.
 - **Long notes (≳150 lines)** get a compact anchored Table of Contents right under the TL;DR.
