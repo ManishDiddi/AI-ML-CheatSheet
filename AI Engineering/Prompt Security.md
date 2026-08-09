@@ -16,7 +16,7 @@
 6. [Code / Implementation](#6-code--implementation)
 7. [Red Teaming & Evaluating a Guardrail Honestly](#7-red-teaming--evaluating-a-guardrail-honestly)
 8. [When It Breaks](#8-when-it-breaks)
-9. [Production & MLOps Notes](#9-production--mlops-notes)
+9. [Production & LLMOps Notes](#9-production--llmops-notes)
 10. [Interview Lens](#10-interview-lens)
 11. [Alternatives & How to Choose](#11-alternatives--how-to-choose)
 - [🧠 Self-Test](#-self-test)
@@ -382,7 +382,7 @@ Guardrails are **risk reduction, not a proof**. Know the failure modes cold — 
 
 ---
 
-## 9. Production & MLOps Notes
+## 9. Production & LLMOps Notes
 
 The part most notes skip — how this actually ships.
 

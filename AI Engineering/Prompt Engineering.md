@@ -17,7 +17,7 @@
 7. [Code / Implementation](#7-code--implementation)
 8. [When It Breaks](#8-when-it-breaks)
 9. [Prompting vs RAG vs Fine-Tuning — Where Prompt Engineering Ends](#9-prompting-vs-rag-vs-fine-tuning--where-prompt-engineering-ends)
-10. [Production & MLOps Notes](#10-production--mlops-notes)
+10. [Production & LLMOps Notes](#10-production--llmops-notes)
 11. [Interview Lens](#11-interview-lens)
 12. [Alternatives & How to Choose a Technique](#12-alternatives--how-to-choose-a-technique)
 - [🧠 Self-Test](#-self-test)
@@ -309,7 +309,7 @@ Need a permanent new STYLE/skill the base model can't do even with good prompts?
 
 ---
 
-## 10. Production & MLOps Notes
+## 10. Production & LLMOps Notes
 
 The part study notes skip — prompts in a real system:
 
