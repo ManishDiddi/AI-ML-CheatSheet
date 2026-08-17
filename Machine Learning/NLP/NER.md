@@ -5,6 +5,8 @@
 **Where it fits:** the workhorse of **information extraction** — the first step that turns unstructured text into structured records. It powers PII masking, résumé/invoice parsing, search, question answering, and (the lecture's case) **pharmacovigilance**: pull `DRUG` and `ADVERSE-EVENT` spans from patient reviews, then link them. Uses the same tokenization/POS machinery as [Text Preprocessing](Text%20Preprocessing.md) and the sequence models in [RNN · LSTM · Transformers](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
 **Prereqs:** [Text Preprocessing](Text%20Preprocessing.md) (tokenization, POS), [Word Embeddings](Word%20Embeddings.md) (token features), sequence models & [BERT](BERT.md) (for the DL tiers), [Classification Metrics](../Supervised%20ML/Classification%20Metrics.md) (precision/recall/F1).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

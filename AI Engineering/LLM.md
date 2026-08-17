@@ -5,6 +5,8 @@
 **Where it fits:** The generative branch of NLP — builds directly on the Transformer. Read [RNN · LSTM · Transformers](../Machine%20Learning/NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) first for attention, tokenization, positional encodings, and the KV cache; this note is the decoder-only + training-pipeline + decoding + deployment story on top of it.
 **Prereqs:** [RNN · LSTM · Transformers](../Machine%20Learning/NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (self-attention, masking, tokenization), [[softmax]], [[reinforcement-learning-basics]].
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

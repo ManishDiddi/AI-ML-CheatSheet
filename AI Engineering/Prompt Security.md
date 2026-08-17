@@ -5,6 +5,8 @@
 **Where it fits:** The safety-and-abuse layer of any production LLM app — it wraps *around* everything you've built: it inspects the prompt (and retrieved context) before [Prompt Engineering](Prompt%20Engineering.md) and [RAG](RAG.md) reach the model, inspects the [LLM](LLM.md) output before it reaches the user *or a tool*, and constrains what the model's tools can even do. It's the enforcement half of what [Evaluating LLMs](Evaluating%20LLMs.md) measures offline. `(certain)`
 **Prereqs:** [LLM](LLM.md) (system/user roles, context window, next-token prediction), [Prompt Engineering](Prompt%20Engineering.md) (system prompts, delimiters), [RAG](RAG.md) (retrieved content is *untrusted input*), and a working idea of [Embeddings](Embeddings.md) / vector DBs for the retrieval-side risks.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

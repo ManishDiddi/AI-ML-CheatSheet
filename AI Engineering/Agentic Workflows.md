@@ -5,6 +5,8 @@
 **Where it fits:** Lecture 2 of the *Advanced AI Agents* track, sitting directly on top of [AI Agents — Foundations](AI%20Agents%20%E2%80%94%20Foundations.md). Foundations answered *"what is an agent"*; this answers *"what shape should the system around it be"*. It is the design vocabulary you need before [Model Context Protocol](Model%20Context%20Protocol.md) (how tools plug in) and before any orchestration framework — LangGraph, CrewAI and friends are just implementations of these five shapes. `(certain)`
 **Prereqs:** [AI Agents — Foundations](AI%20Agents%20%E2%80%94%20Foundations.md) (ReAct, function calling, the Text2SQL build), [Prompt Engineering](Prompt%20Engineering.md) (system prompts, structured JSON output), [LLM](LLM.md) (context window, temperature, cost per token).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 > ⚙️ *Format note: this follows the vault's standard skeleton, with two lecture-specific homes added — **§3 Self-Improvement** (the conceptual engine behind the patterns) and **§8 Cost, Latency & Model Routing** (the "cost of LLMs" thread the lecture kept returning to), because both are load-bearing for production and neither fits cleanly in another section.*
 
 ---

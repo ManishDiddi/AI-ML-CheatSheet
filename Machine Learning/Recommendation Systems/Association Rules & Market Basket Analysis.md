@@ -5,6 +5,8 @@
 **Where it fits:** Unsupervised **pattern mining** on transaction data — the lead-in to [Recommendation Systems](Recommendation%20Systems.md). Related to frequent-pattern mining in bioinformatics, medicine, and web-usage mining.
 **Prereqs:** basic probability (conditional probability, independence), sets/subsets.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

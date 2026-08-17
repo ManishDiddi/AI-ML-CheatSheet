@@ -5,6 +5,8 @@
 **Where it fits:** Supervised tabular ML — still the *default winning approach* on structured/tabular data (boosting wins most Kaggle tabular competitions; deep learning rarely beats it there).
 **Prereqs:** [decision trees](Decision%20Trees.md), [[bias-variance-tradeoff]], [[gradient-descent]], [[cross-validation]].
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

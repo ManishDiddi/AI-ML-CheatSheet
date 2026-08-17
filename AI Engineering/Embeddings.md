@@ -5,6 +5,8 @@
 **Where it fits:** Embeddings are the substrate under semantic search, [RAG](RAG.md) retrieval, clustering, dedup, classification, and recommendation. This note is the **model-level deep dive** that [RAG](RAG.md) forward-points to: it owns the *encoders, how you train/choose/evaluate them*; [RAG](RAG.md) owns the *pipeline around them* (chunking, ANN/vector DBs, hybrid merge, generation). It's the middle rung of the adaptation ladder — **prompt → RAG for knowledge → fine-tune for behavior** — but here we fine-tune the *retriever*, not the generator.
 **Prereqs:** [RNN · LSTM · Transformers](../Machine%20Learning/NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (BERT, attention, `[CLS]`/`[SEP]`, mean-pooling), [RAG](RAG.md) (where retrieval sits), and vectors/cosine from linear algebra. The metric-learning machinery here (triplet/contrastive loss, Siamese towers) is the *same idea* as [Siamese Networks & Image Similarity](../Machine%20Learning/Computer%20Vision/Siamese%20Networks%20&%20Image%20Similarity.md) — text instead of images.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 > ⚙️ *Format note: this adapts the vault's standard topic skeleton. The "Formal Core" is split into **similarity geometry (§2)** and the **architectures (§4)**; a dedicated **§3 (BERT→SBERT)** explains why sentence embeddings need their own model, and **§5 (model choice)** + **§6 (fine-tuning)** + **§7 (evaluation)** are the lecture's three deliverables. Retrieval *pipeline* internals (HNSW, RRF) stay in [RAG](RAG.md); end-to-end RAG answer-quality eval stays deferred to [[RAG Evaluation]].*
 
 ---

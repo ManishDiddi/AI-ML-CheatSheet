@@ -5,6 +5,8 @@
 **Where it fits:** the most *spatially precise* vision task — used where a bounding box isn't enough: medical tumor/organ delineation, portrait-mode background blur, self-driving road/lane/free-space, satellite land cover.
 **Prereqs:** [CNN fundamentals](Convolutional%20Neural%20Networks%20for%20Vision.md) (conv, 1×1 conv, dilated/atrous conv, GAP), [Object Detection](Object%20Detection.md) (Faster R-CNN, RPN, RoI Align, IoU/NMS/mAP — Mask R-CNN builds directly on these), and encoder–decoder intuition ([Autoencoders](../Neural%20Networks/Autoencoders.md)).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

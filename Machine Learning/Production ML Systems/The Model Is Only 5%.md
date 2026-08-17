@@ -7,6 +7,8 @@
 **Where it fits:** Session 01 of the **Production ML Track** (Scaler, *Future with Shivank*) — the map before the hands-on. This is the MLOps overview that later sessions (containers, Kubernetes, pipelines, feature stores, GenAI/RAG) build *on top of*, not instead of.
 **Prereqs:** you can already train + evaluate a model — see [Classification Metrics](../Supervised%20ML/Classification%20Metrics.md) (precision/recall live at the heart of this note), [Object Detection](../Computer%20Vision/Object%20Detection.md) and [Transfer Learning](../Computer%20Vision/Transfer%20Learning.md) (the ID-card project), and [Ensemble Methods that Trade Off Bias vs Variance](../Supervised%20ML/Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md) (imbalanced-fraud handling). No code to write yet — this session is the *architecture*; the wrench-work starts next time.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

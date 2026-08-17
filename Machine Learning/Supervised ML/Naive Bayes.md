@@ -5,6 +5,8 @@
 **Where it fits:** Supervised **classification**, the classic **text** baseline (spam, topic, sentiment). It's the **generative** counterpart to [Logistic Regression](Logistic%20Regression.md)'s discriminative approach — models how the data is generated per class, rather than the boundary directly.
 **Prereqs:** conditional probability & Bayes' theorem, [Classification Metrics](Classification%20Metrics.md), bag-of-words/tokenization (see [Text Preprocessing](../NLP/Text%20Preprocessing.md)).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

@@ -34,6 +34,19 @@ The author is studying ML day by day (Scaler course) and wants one note per topi
 
 **Status of the four legacy notes** (Bagging/Boosting now in `Machine Learning/Supervised ML/`; CNN now in `Machine Learning/Computer Vision/` as `Convolutional Neural Networks for Vision.md`; the NLP note now in `Machine Learning/NLP/` as `RNN · LSTM · Transformers.md` (alongside the newer NLP topic notes); SARIMAX still at the `Machine Learning/` root until its area subfolder exists)**:** all four (`Bagging_Boosting.md`, `CNN.md`, `NLP.md`, `SARIMAX.md`) have been **retrofitted** to this format — they are the reference exemplars. Each demonstrates completeness-by-integration, e.g. an inline **Interpretability** section (SHAP in Bagging, Grad-CAM in CNN, attention-caveat in NLP), calibration/constraints in Production (Bagging), tokenization/KV-cache/decoding/LoRA in Production (NLP), and walk-forward CV/prediction-intervals/global-models in Production (SARIMAX). New topic notes should match this depth and structure.
 
+## How the notes get studied (added 2026-08-15)
+
+The vault outgrew the time available to read it: **45 notes / ~170k words**, against a real budget of ~6 hrs/week across 3 Scaler lectures — roughly **2 hrs per topic** for note + notebook + assignment. The notes are therefore treated as a **reference you consult and get tested from**, never a document read start-to-finish. Two root files own this:
+
+- **`_STUDY LOOP.md`** — the operating manual: the weekly cadence, the Tier 1 / Tier 2 rule (1 topic/week gets the notebook hour, 2 get recall-only), the post-lecture MCQ-as-diagnostic protocol, and the active-notebook protocol.
+- **`_REVIEW QUEUE.md`** — all 44 notes with authored date, last-tested date, and a ⬜/🔴/🟡/🟢 confidence mark. 2 stalest topics get self-tested each weekend.
+
+What this means when authoring or editing:
+- Every topic note carries a **Start-here line** under `**Prereqs:**` pointing at its `#-self-test` anchor — the reader tests first and reads only what they missed. Keep it; adjust the `../` depth to the folder.
+- New notes ship with a **⚡ Fast Pass** block (~150 words: model / core / traps / 🎯 kill-shot) and **must be added to `_REVIEW QUEUE.md`**.
+- Existing notes get their Fast Pass **lazily**, as topics come up — deliberately *not* as a 45-note batch retrofit.
+- The **Self-Test is load-bearing**, not decoration: it's the only free-recall in the system (Scaler assignments are MCQs, which test recognition only). Never trim it, and prefer 6+ questions on dense notes.
+
 ## Conventions that span the vault
 
 - **Author's voice is second-person and opinionated** ("your documented gap," "the sentence that proves you've built one"). Keep that register; don't rewrite into neutral encyclopedia prose.

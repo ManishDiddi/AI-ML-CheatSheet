@@ -5,6 +5,8 @@
 **Where it fits:** The measurement layer of AI engineering — how you choose a model, catch regressions, and prove an LLM app is good enough to ship. Builds directly on [LLM](LLM.md) (decoding, hallucination) and [RNN · LSTM · Transformers](../Machine%20Learning/NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (tokenization, embeddings for BERTScore).
 **Prereqs:** [LLM](LLM.md) (what the model outputs and why it's stochastic), classic classification metrics (accuracy / precision / recall / F1), embeddings & cosine similarity.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 > ⚙️ *Format note: this note adapts the vault's standard topic skeleton for an **AI-engineering** topic — evaluation is a discipline, not a single model, so the "Formal Core / When It Breaks" slots become metric-math and pitfall sections, and Benchmarks / Judge-bias / Online-eval get their own homes.*
 
 ---

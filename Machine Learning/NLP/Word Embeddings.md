@@ -5,6 +5,8 @@
 **Where it fits:** the **representation** stage of NLP — it turns the clean tokens from [Text Preprocessing](Text%20Preprocessing.md) into vectors that models can reason over. Static word vectors are the ancestor of the sentence/contextual embeddings in [Embeddings](../../AI%20Engineering/Embeddings.md) and [BERT](BERT.md), and the input layer of every classic text neural net ([Text Classification with Neural Networks](../Neural%20Networks/Text%20Classification%20with%20Neural%20Networks.md), [RNN · LSTM · Transformers](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)).
 **Prereqs:** [Text Preprocessing](Text%20Preprocessing.md) (tokenization, vocabulary), one-hot/BoW & TF-IDF, softmax + cross-entropy, basic linear algebra (dot products, SVD), cosine similarity.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

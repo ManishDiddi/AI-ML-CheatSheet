@@ -5,6 +5,8 @@
 **Where it fits:** the applied bridge from [neural networks](Neural%20Network%20Fundamentals.md) into **NLP** — how you actually get text *into* a network. Deeper theory lives in the sequence-model note and the future NLP deep-dives.
 **Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (Dense, ReLU, sigmoid, backprop), [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md) (Adam), [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md) (binary output). Deeper token/vector theory → [Text Preprocessing](../NLP/Text%20Preprocessing.md), [Word Embeddings](../NLP/Word%20Embeddings.md); sequence models → [RNN · LSTM · Transformers](../NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

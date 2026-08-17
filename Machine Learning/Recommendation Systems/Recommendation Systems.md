@@ -5,6 +5,8 @@
 **Where it fits:** Personalization for Netflix/Amazon/Spotify/YouTube — the scalable answer to what [Association Rules](Association%20Rules%20&%20Market%20Basket%20Analysis.md) can't do at e-commerce scale. Matrix factorization is [dimensionality reduction](../Unsupervised%20ML/PCA%20&%20t-SNE.md) applied to interactions.
 **Prereqs:** [KNN](../Supervised%20ML/KNN.md)/cosine similarity, [gradient descent & regularization](../Supervised%20ML/Linear%20Regression.md), [PCA/SVD](../Unsupervised%20ML/PCA%20&%20t-SNE.md).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

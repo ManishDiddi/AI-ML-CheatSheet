@@ -5,6 +5,8 @@
 **Where it fits:** Supervised (and self-supervised) learning on grid-structured data — images first, but also audio spectrograms, video, and 1-D signals. Now sharing the SOTA crown with [[Vision Transformers]] (see §11).
 **Prereqs:** [backpropagation](../Neural%20Networks/Neural%20Network%20Fundamentals.md), [gradient descent](../Neural%20Networks/Weight%20Initialization%20&%20Optimizers.md), [activation functions](../Neural%20Networks/Neural%20Network%20Fundamentals.md) (ReLU), [batch normalization](../Neural%20Networks/Batch%20Normalization%20&%20Dropout.md).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

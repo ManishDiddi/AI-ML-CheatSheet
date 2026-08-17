@@ -5,6 +5,8 @@
 **Where it fits:** Unsupervised **dimensionality reduction** — the fix for the curse of dimensionality that hurts [KNN](../Supervised%20ML/KNN.md), [Clustering](Clustering.md), and [GMM](GMM.md). Often a preprocessing step *before* clustering or supervised models.
 **Prereqs:** variance/covariance, the normal distribution, [Clustering](Clustering.md) (for the "reduce dims before clustering" workflow), feature scaling.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

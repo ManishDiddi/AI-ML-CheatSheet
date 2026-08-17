@@ -5,6 +5,8 @@
 **Where it fits:** Lecture 3 of the *Advanced AI Agents* track. [AI Agents — Foundations](AI%20Agents%20%E2%80%94%20Foundations.md) taught **function calling** — the *capability* that lets one model call one app's hand-wired tools. [Agentic Workflows](Agentic%20Workflows.md) taught the *shapes* you build around that loop. MCP is the *interoperability layer* underneath both: it standardises how tools are declared, discovered and invoked, so a tool server written once works with every agent. **Function calling is the mechanism; MCP is the distribution model.** `(certain)`
 **Prereqs:** [AI Agents — Foundations](AI%20Agents%20%E2%80%94%20Foundations.md) (the ReAct loop, tool schemas, the Text2SQL build), [LLM](LLM.md) (context window, tool-calling messages), basic client–server/RPC intuition and Python `async`.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 > ⚙️ *Format note: standard vault skeleton with three lecture-driven additions — **§6 Client Features**, **§7 Transports & the Wire Protocol** (with a currency box on the 2026-07-28 spec), and **§11 Security**, which gets its own home because MCP's whole value proposition is *connecting an LLM to more systems*, i.e. deliberately enlarging the attack surface.*
 
 ---

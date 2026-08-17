@@ -5,6 +5,8 @@
 **Where it fits:** unsupervised **representation learning** — sits next to PCA & t-SNE but learns *non-linear* compressions with a neural net.
 **Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (dense layers, backprop, reconstruction via BCE/MSE), [PCA & t-SNE](../Unsupervised%20ML/PCA%20&%20t-SNE.md) (the linear baseline it generalizes).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

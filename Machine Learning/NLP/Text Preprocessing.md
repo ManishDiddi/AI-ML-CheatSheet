@@ -5,6 +5,8 @@
 **Where it fits:** The **first stage of every NLP pipeline** — the bridge from raw documents to anything downstream: [Naive Bayes](../Supervised%20ML/Naive%20Bayes.md) text classification, [Text Classification with Neural Networks](../Neural%20Networks/Text%20Classification%20with%20Neural%20Networks.md), sequence models ([RNN · LSTM · Transformers](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md)), sentiment, [NER](NER.md), and topic modeling.
 **Prereqs:** basic Python + regular expressions; a feel for high-dimensional sparse vectors. Downstream representation lives in [Word Embeddings](Word%20Embeddings.md).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents
