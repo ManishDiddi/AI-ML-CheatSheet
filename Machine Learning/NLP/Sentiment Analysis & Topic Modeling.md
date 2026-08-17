@@ -5,6 +5,8 @@
 **Where it fits:** the two most common **text-analytics** deliverables on unstructured feedback. They consume clean tokens from [Text Preprocessing](Text%20Preprocessing.md); sentiment is a text **classification/scoring** task (baseline: [Naive Bayes](../Supervised%20ML/Naive%20Bayes.md)); topic modeling is **unsupervised** theme discovery. Both are upgraded by the representations in [Word Embeddings](Word%20Embeddings.md) and [Embeddings](../../AI%20Engineering/Embeddings.md).
 **Prereqs:** [Text Preprocessing](Text%20Preprocessing.md) (tokenize, stopwords, POS), TF-IDF & bag-of-words, [Classification Metrics](../Supervised%20ML/Classification%20Metrics.md) (for evaluating ML sentiment), a feel for probability distributions (for LDA).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

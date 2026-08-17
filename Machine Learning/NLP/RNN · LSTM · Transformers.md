@@ -5,6 +5,8 @@
 **Where it fits:** Any ordered data — text, speech, time series, code, biological sequences. The Transformer is the substrate of all modern LLMs.
 **Prereqs:** [[backpropagation]], [[gradient-descent]], [[softmax]], [word embeddings](Word%20Embeddings.md), [[layer-normalization]].
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

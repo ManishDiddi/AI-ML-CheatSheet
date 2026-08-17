@@ -5,6 +5,8 @@
 **Where it fits:** the vision task one rung above classification — the backbone is still a [CNN](Convolutional%20Neural%20Networks%20for%20Vision.md), but with detection *heads* and a matching loss/metric stack. It's what powers self-driving perception, surveillance, retail analytics, medical screening.
 **Prereqs:** [CNN fundamentals](Convolutional%20Neural%20Networks%20for%20Vision.md) (conv/1×1/GAP, depthwise-separable, architecture evolution), [Transfer Learning](Transfer%20Learning.md) (every detector rides a pretrained backbone), and IoU/NMS (built up in §2–3 here).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

@@ -6,6 +6,7 @@
 - **Shape:** Comprehensive layered — intuition → math → mechanism → example → code → limits → production → interview → alternatives.
 - **Math depth:** *Math-aware, not proof-heavy.* Show the formulas and explain **why** they hold; derive something only when the derivation itself builds intuition. No proofs for their own sake.
 - **Recall aids:** A **TL;DR** at the very top and a **Self-Test** at the very bottom. (No flashcard/cloze lines unless asked.)
+- **Layered entry (added 2026-08-15, see `_STUDY LOOP.md`):** the note is a **reference you consult**, not a document you read start-to-finish. So every note carries a **Start-here line** pointing at the Self-Test (test first, read only what you missed) and a **⚡ Fast Pass** block — ~150 words that are genuinely sufficient for a first encounter. Depth stays uncapped *below* that; the fix is the entry path, never the size. **Reference exemplar:** `Machine Learning/Supervised ML/Classification Metrics.md`.
 - **Completeness by integration (no "gaps" section):** acting as a senior engineer, you still audit for what's missing for production/interview/real-world mastery — but you **teach it inline in the section where it belongs**, not in a terminal flag list. If a missing concept deserves its own home, add a section for it (e.g. *Interpretability* for SHAP). For a big adjacent topic that merits its *own future note*, drop an inline `[[wiki-link]]` pointer at the natural spot rather than a separate list.
 - **Voice:** Second-person, opinionated, dense — "no filler." Reuse the house conventions: 🎯 marks *the single line that wins the question*; confidence tags `(certain)` / `(likely)` / `(guessing)` flag how solid a claim is.
 - **Images:** embed **1–3+ real figures** — at least one, and **no upper cap** (add more wherever a visual speeds understanding; a dense note may want 5–8+) — architecture diagrams, mechanism illustrations, annotated plots, **not** prettier ASCII. Best-image-wins, **licensing is not a gate** (personal educational vault): source *notebook-first* (the topic's Scaler notebook), then any authoritative canonical figure (Wikimedia/papers/blogs/course sites — scraping allowed), then self-made. **Attribution mandatory for third-party images** (one-line italic source credit); quality gate (no watermarks/inappropriate content) still applies. Syntax `![caption-as-alt-text](attachments/kebab.png)`, never `![[ ]]`; keep the ASCII diagram as a companion by default, or **replace it with the image when the image is clearly clearer**. Full process — extractor, sourcing order, quality gate — in **`_IMAGE EMBEDDING WORKFLOW.md`**.
@@ -21,6 +22,16 @@
 
 **Where it fits:** one line placing it in the ML landscape / which problem class it solves.
 **Prereqs:** [[linked]] concepts worth knowing first.
+
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
+---
+
+> ### ⚡ Fast Pass — 5 minutes
+> **Model:** the mental model in one or two lines.
+> **Core:** the 3–5 formulas/facts you must be able to produce from memory.
+> **Traps:** the 3 things that catch people.
+> 🎯 **Kill-shot:** the single line that wins the interview question.
 
 ---
 
@@ -78,4 +89,6 @@ What you'd use instead, and the decision criteria that pick between them.
 - **Link liberally** with `[[wiki-links]]` so the Obsidian graph stays connected; a link to a note that doesn't exist yet is a fine TODO marker.
 - **Formulas inline** as backticked pseudo-math (`s = (b − a) / max(a, b)`), never LaTeX/MathJax.
 - **Long notes (≳150 lines)** get a compact anchored Table of Contents right under the TL;DR.
+- **Every new note gets a row in [`_REVIEW QUEUE.md`](_REVIEW%20QUEUE.md)** the moment it's created — topic, area, question count, authored date, `⬜`. A note that isn't in the queue never gets reviewed and will rot.
+- **Adjust the Start-here line's `../` depth** to the note's folder (`../` for `AI Engineering/`, `../../` for `Machine Learning/<Area>/`).
 - **Fill coverage holes inline, every time.** The author's explicit goal is complete mastery, so when you spot something important that's missing (a metric, a failure mode, an interpretability tool, a production concern), *explain it in the section it belongs to* — never leave it as a bare flag, and never silently skip it.

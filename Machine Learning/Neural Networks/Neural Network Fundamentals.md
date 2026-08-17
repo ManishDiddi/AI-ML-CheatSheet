@@ -5,6 +5,8 @@
 **Where it fits:** The foundation of **deep learning** — every CNN, RNN, and Transformer is this plus structure. It's logistic/softmax regression stacked and made non-linear. Optimizers/initialization get their own note: [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md).
 **Prereqs:** [Logistic Regression](../Supervised%20ML/Logistic%20Regression.md) (sigmoid, log-loss), softmax & [cross-entropy](../Supervised%20ML/Classification%20Metrics.md), [gradient descent & the chain rule](../Supervised%20ML/Linear%20Regression.md), matrix multiplication.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

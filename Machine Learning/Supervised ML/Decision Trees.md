@@ -5,6 +5,8 @@
 **Where it fits:** Supervised **classification and regression** on tabular data. Captures non-linear boundaries that [Logistic Regression](Logistic%20Regression.md) can't, and unlike [KNN](KNN.md) it does its work at *training* time so inference is cheap. The building block of Random Forests & Gradient Boosting.
 **Prereqs:** [Classification Metrics](Classification%20Metrics.md) (confusion matrix), the [bias–variance tradeoff](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md), basic probability (for entropy).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

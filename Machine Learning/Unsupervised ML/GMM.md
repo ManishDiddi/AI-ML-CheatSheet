@@ -5,6 +5,8 @@
 **Where it fits:** The **soft/probabilistic** cousin of [K-Means](Clustering.md) in unsupervised learning — same "find K groups," but a generative density model underneath. Also a density estimator for [anomaly detection](Anomaly%20Detection.md) (low-likelihood points = outliers).
 **Prereqs:** [Clustering](Clustering.md) (K-Means, Lloyd's algorithm), the normal distribution (mean/variance), covariance, [[Maximum Likelihood Estimation]].
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

@@ -5,6 +5,8 @@
 **Where it fits:** the training-dynamics layer of [deep learning](Neural%20Network%20Fundamentals.md) — same forward/backward math, but *how you initialize and step* is what separates a net that diverges or stalls from one that converges in a fraction of the epochs.
 **Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (forward/backprop, `dW`, vanishing/exploding gradients), [gradient descent](../Supervised%20ML/Linear%20Regression.md), basic variance algebra.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

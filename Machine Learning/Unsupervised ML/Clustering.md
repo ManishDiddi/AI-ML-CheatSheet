@@ -5,6 +5,8 @@
 **Where it fits:** The core of **unsupervised learning** — customer segmentation, anomaly pre-screening, feature discovery. Distance intuition comes straight from [KNN](../Supervised%20ML/KNN.md); [GMM](GMM.md) is the soft/probabilistic cousin of K-Means.
 **Prereqs:** distance metrics & feature scaling ([KNN](../Supervised%20ML/KNN.md)), mean/variance, the idea that there's *no ground truth* to check against.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

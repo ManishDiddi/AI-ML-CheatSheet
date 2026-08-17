@@ -5,6 +5,8 @@
 **Where it fits:** The foundation of supervised **regression** (continuous `y`). Everything downstream — [Logistic Regression](Logistic%20Regression.md) (swap the output through a sigmoid), regularized models, even a single neuron in a [Neural Network Fundamentals](../Neural%20Networks/Neural%20Network%20Fundamentals.md) — is this idea with one twist added.
 **Prereqs:** basic linear algebra (dot product, matrix inverse), [[Gradient Descent]], mean/variance, train/test split.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

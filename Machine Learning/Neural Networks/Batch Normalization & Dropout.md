@@ -5,6 +5,8 @@
 **Where it fits:** the regularization + normalization toolkit for [neural networks](Neural%20Network%20Fundamentals.md) — what you reach for when a deep net trains slowly, is unstable, or overfits.
 **Prereqs:** [Neural Network Fundamentals](Neural%20Network%20Fundamentals.md) (activations, overfitting, vanishing/exploding gradients), [Weight Initialization & Optimizers](Weight%20Initialization%20&%20Optimizers.md) (learning rate, why activation scale matters).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

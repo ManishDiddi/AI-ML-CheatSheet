@@ -5,6 +5,8 @@
 **Where it fits:** The on-ramp to forecasting — decomposition + smoothing before the ARIMA family. Its ARIMA-family sequel is [SARIMAX](Seasonal%20ARIMA%20with%20Exogenous%20Regressors.md).
 **Prereqs:** mean/variance, moving average, the idea that time order can't be broken; regression basics ([linear regression](../Supervised%20ML/Linear%20Regression.md)).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

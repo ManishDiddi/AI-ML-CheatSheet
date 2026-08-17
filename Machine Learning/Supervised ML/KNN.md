@@ -5,6 +5,8 @@
 **Where it fits:** Supervised **classification & regression**, plus **missing-value imputation** and **similarity search / recommendations**. The intuitive counterpart to [Logistic Regression](Logistic%20Regression.md) — no learned boundary, just local neighborhoods. Its "store everything" cost is exactly why [Decision Trees](Decision%20Trees.md) exist.
 **Prereqs:** distance/norms, feature scaling, [bias–variance](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md), [Classification Metrics](Classification%20Metrics.md).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

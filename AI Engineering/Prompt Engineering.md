@@ -5,6 +5,8 @@
 **Where it fits:** The cheapest, first-reach lever in AI engineering — you adapt an LLM's behavior with words before touching data or weights. Builds directly on [LLM](LLM.md) (next-token prediction, instruct-tuning, decoding params); pairs with [Evaluating LLMs](Evaluating%20LLMs.md) (how you *measure* whether a prompt is better) and points forward to [RAG](RAG.md) (grounding) and agents.
 **Prereqs:** [LLM](LLM.md) (base vs instruct models, chat roles, temperature/top-p), and the idea that generation is autoregressive.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

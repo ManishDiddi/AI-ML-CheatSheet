@@ -5,6 +5,20 @@
 **Where it fits:** The measurement layer for every classifier — [Logistic Regression](Logistic%20Regression.md), [trees](Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md), [Naive Bayes](Naive%20Bayes.md), [KNN](KNN.md). Choosing the wrong metric is how good-looking models fail in production.
 **Prereqs:** [Logistic Regression](Logistic%20Regression.md) (probabilities, thresholding), the notion of positive/negative class.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
+---
+
+> ### ⚡ Fast Pass — 5 minutes
+>
+> **Model.** Every metric is a ratio of four confusion-matrix cells. **Precision reads a column** (of what I *predicted* positive…), **recall reads a row** (of what's *actually* positive…). Neither uses TN — which is exactly why both survive when negatives swamp the data.
+>
+> **Core.** `Precision = TP/(TP+FP)` · `Recall = TP/(TP+FN)` · `F1 = 2·P·R/(P+R)` — harmonic, so it's dominated by the smaller value and only high when *both* are · `FPR = FP/(FP+TN) = 1 − Specificity`. Precision/recall/F1 are all measured **at one threshold**; ROC-AUC and PR-AUC summarise across *all* of them.
+>
+> **Traps.** ① Accuracy under imbalance — at 3% positives the do-nothing model also scores 97%. ② ROC-AUC under *severe* imbalance flatters the model, because a huge TN count dilutes FPR — switch to **PR-AUC** below ~5% positives. ③ Quoting precision/recall/F1 without stating the threshold they were measured at.
+>
+> 🎯 **Kill-shot.** *"You pick the metric from the cost of the errors — recall when a miss is catastrophic (fraud, cancer), precision when a false alarm is costly (real mail flagged as spam), and PR-AUC when positives are rare enough that ROC-AUC flatters the model."*
+
 ---
 
 ## Table of Contents

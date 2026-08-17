@@ -5,6 +5,8 @@
 **Where it fits:** the training-discipline layer that sits on top of any [CNN](Convolutional%20Neural%20Networks%20for%20Vision.md) (or any deep net). Vision overfits *hard* because image models are huge and labeled images are scarce, so this is where most of a vision project's accuracy is actually won or lost.
 **Prereqs:** [CNN fundamentals](Convolutional%20Neural%20Networks%20for%20Vision.md) (conv/pool/GAP), [Batch Normalization & Dropout](../Neural%20Networks/Batch%20Normalization%20&%20Dropout.md), [Weight Initialization & Optimizers](../Neural%20Networks/Weight%20Initialization%20&%20Optimizers.md) (LR schedules), and L1/L2 penalties (see [Linear Regression](../Supervised%20ML/Linear%20Regression.md)). Bias–variance framing: [Ensemble Methods that Trade Off Bias vs Variance](../Supervised%20ML/Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

@@ -5,6 +5,8 @@
 **Where it fits:** the default starting point for *almost every* real vision task — you rarely train from scratch. It's the escalation you reach for when [augmentation](Tackling%20Overfitting%20in%20CNNs.md) alone can't beat overfitting on a small dataset.
 **Prereqs:** [CNN fundamentals](Convolutional%20Neural%20Networks%20for%20Vision.md) (conv/GAP, the LeNet→EfficientNet architecture evolution), [Tackling Overfitting in CNNs](Tackling%20Overfitting%20in%20CNNs.md), and BatchNorm behaviour at train vs inference ([Batch Normalization & Dropout](../Neural%20Networks/Batch%20Normalization%20&%20Dropout.md)) — critical for the frozen-backbone gotcha in §6.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

@@ -5,6 +5,8 @@
 **Where it fits:** The multimodal rung of [RAG](RAG.md). When your knowledge base is *visual* (product manuals, invoices, slide decks, medical scans, financial reports full of charts), text-only RAG throws away most of the signal. Builds directly on [RAG](RAG.md) (chunk → embed → index → retrieve → ground), [Embeddings](Embeddings.md) (bi-encoders, cosine, contrastive fine-tuning), and [LLM](LLM.md) (hallucination, context window).
 **Prereqs:** [RAG](RAG.md) and [Embeddings](Embeddings.md) (dense vectors, cosine, bi- vs cross-encoder), plus the **contrastive / dual-encoder** idea from [Siamese Networks & Image Similarity](../Machine%20Learning/Computer%20Vision/Siamese%20Networks%20&%20Image%20Similarity.md) and the ViT/transformer backbone in [RNN · LSTM · Transformers](../Machine%20Learning/NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 > ⚙️ *Format note: this adapts the vault's standard skeleton for a **pipeline with two competing retrievers** — "How It Works" fans out into §5 (CLIP), a **building-blocks primer** (§6), §7 (ColPali), and §8 (VLM generation), with the end-to-end run in §9. The **tabular** half of the old `[[Multimodal & Tabular RAG]]` placeholder wasn't taught here — it gets its own future note, `[[Tabular RAG]]`.*
 
 ---

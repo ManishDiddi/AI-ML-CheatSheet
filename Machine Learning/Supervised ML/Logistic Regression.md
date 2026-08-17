@@ -5,6 +5,8 @@
 **Where it fits:** The workhorse of **binary (and multiclass) classification**. It's [Linear Regression](Linear%20Regression.md) + a sigmoid + a new loss — master that note first. Its evaluation lives in [Classification Metrics](Classification%20Metrics.md) (confusion matrix, precision/recall, ROC).
 **Prereqs:** [Linear Regression](Linear%20Regression.md) (hyperplanes, weights, [[Gradient Descent]], regularization), sigmoid, logs, basic probability.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

@@ -5,6 +5,8 @@
 **Where it fits:** the "compare two images" task (verification, retrieval, dedup, clustering, one-shot/few-shot), distinct from "classify one image." Powers face ID, signature/fraud verification, Pinterest/Google reverse-image search, and near-duplicate detection.
 **Prereqs:** [CNN fundamentals](Convolutional%20Neural%20Networks%20for%20Vision.md) (GAP, ResNet/Inception backbones), [Transfer Learning](Transfer%20Learning.md) (the backbone-as-feature-extractor idea), [PCA & t-SNE](../Unsupervised%20ML/PCA%20&%20t-SNE.md) (compress + visualize embeddings), [KNN](../Supervised%20ML/KNN.md) (the search), and [Classification Metrics](../Supervised%20ML/Classification%20Metrics.md) (TP/FP threshold tuning for verification).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

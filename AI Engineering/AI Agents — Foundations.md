@@ -5,6 +5,8 @@
 **Where it fits:** The entry point to the *Advanced AI Agents* track — the first rung above [Prompt Engineering](Prompt%20Engineering.md) (one-shot prompting) and [RAG](RAG.md) (retrieval-grounded answering). RAG *retrieves then answers once*; an agent *decides, acts, observes, and repeats*. It builds directly on the [LLM](LLM.md) (roles, context window, decoding) and is the thing [Prompt Security](Prompt%20Security.md) exists to defend. Later lectures in this track extend it: [Agentic Workflows](Agentic%20Workflows.md) (self-improvement + the five control-flow patterns), [Model Context Protocol](Model%20Context%20Protocol.md) (how tools plug in at all), then [[Agent Orchestration]], [[LoRA & Fine-Tuning]], [[Model Quantization]], [[Dataset Engineering for LLMs]].
 **Prereqs:** [LLM](LLM.md) (system/user roles, context window, next-token prediction, why models hallucinate), [Prompt Engineering](Prompt%20Engineering.md) (system prompts, personas, delimiters), and a working idea of function/tool calling.
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 > ⚙️ *Format note: this adapts the vault's standard topic skeleton. The lecture taught the **foundations** and then **built a Text2SQL agent** as the hands-on — so the build is the running Worked Example (§4) and Code (§5), and the concepts (agent anatomy, ReAct, function calling, MCP) are §1–§3. Security, evaluation, and the build-lifecycle get their own homes (§8–§10) because an interviewer and a production system both expect them.*
 
 ---

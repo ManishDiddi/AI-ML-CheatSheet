@@ -5,6 +5,8 @@
 **Where it fits:** the flagship **generative** model in classic deep learning — *unsupervised* (no labels), learning the data *distribution* to sample new examples, as opposed to the *discriminative* models (classifiers/detectors) in the rest of this folder.
 **Prereqs:** [CNN fundamentals](Convolutional%20Neural%20Networks%20for%20Vision.md) (strided conv, BatchNorm), **transposed convolution** (built up in [Image Segmentation §2](Image%20Segmentation.md#2-the-formal-core--tasks-upsampling-skips-losses-metrics)), [Autoencoders](../Neural%20Networks/Autoencoders.md) (the other encoder-decoder generative model), and binary cross-entropy + Adam ([Weight Initialization & Optimizers](../Neural%20Networks/Weight%20Initialization%20&%20Optimizers.md)).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

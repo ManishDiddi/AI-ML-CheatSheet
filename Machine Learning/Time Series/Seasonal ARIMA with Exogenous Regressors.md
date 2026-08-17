@@ -5,6 +5,8 @@
 **Where it fits:** Univariate forecasting (demand, sales, traffic) with modest data and a need for interpretable coefficients + uncertainty intervals. For many series, multiple seasonalities, or nonlinear drivers, move to the alternatives in §10.
 **Prereqs:** [Time Series Foundations & Smoothing](Time%20Series%20Foundations%20&%20Smoothing.md) (components, decomposition, smoothing, stationarity intro), [linear regression](../Supervised%20ML/Linear%20Regression.md).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ```
 Running example — monthly ice-cream sales (3 yrs), exog = avg temperature (°C):
   has TREND (sales grow yearly) + SEASONALITY (summer spike) + EXOG (temp drives spikes) + NOISE.

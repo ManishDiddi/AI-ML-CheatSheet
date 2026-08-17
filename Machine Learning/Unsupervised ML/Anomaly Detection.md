@@ -5,6 +5,8 @@
 **Where it fits:** Unsupervised (or semi-supervised) outlier/novelty detection — the flip side of [Clustering](Clustering.md). Builds on density ([DBSCAN](Clustering.md)), distance ([KNN](../Supervised%20ML/KNN.md) for LOF), random trees ([ensembles](../Supervised%20ML/Ensemble%20Methods%20that%20Trade%20Off%20Bias%20vs%20Variance.md) for iForest), and likelihood ([GMM](GMM.md)).
 **Prereqs:** [Clustering](Clustering.md) (density, DBSCAN noise), the Gaussian & covariance ([GMM](GMM.md)), [KNN](../Supervised%20ML/KNN.md), [class imbalance & PR-AUC](../Supervised%20ML/Classification%20Metrics.md).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents

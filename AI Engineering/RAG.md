@@ -5,6 +5,8 @@
 **Where it fits:** The default production pattern for *knowledge-grounded* LLM apps (Q&A over docs, support bots, search copilots). It's the middle rung of the adaptation ladder from [Prompt Engineering](Prompt%20Engineering.md): **prompt first → RAG for knowledge → fine-tune for behavior**. Builds on [LLM](LLM.md) (hallucination, context window, decoding) and the embeddings/attention machinery in [RNN · LSTM · Transformers](../Machine%20Learning/NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md).
 **Prereqs:** [LLM](LLM.md) (why models hallucinate, what a context window is), [Prompt Engineering](Prompt%20Engineering.md) (the grounded/"answer only from context" prompt), and **embeddings + cosine similarity** (vectors as meaning).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
+
 > ⚙️ *Format note: this adapts the vault's standard topic skeleton for a **pipeline** — the skeleton's "How It Works" fans out into the two RAG stages (§4 indexing, §5 retrieval+generation), and vector-DB internals get their own home (§6). **Evaluation is deliberately deferred** — the instructor hasn't taught RAG eval yet; a stub pointer sits in §11 → [[RAG Evaluation]]. The faithfulness idea already lives in [Evaluating LLMs](Evaluating%20LLMs.md).*
 
 ---

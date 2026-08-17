@@ -5,6 +5,8 @@
 **Where it fits:** the model that made **transfer learning the default in NLP** — pretrain once on the internet, fine-tune cheaply per task. It's the contextual successor to static [Word Embeddings](Word%20Embeddings.md), the SOTA engine behind [NER](NER.md), sentiment ([Sentiment Analysis & Topic Modeling](Sentiment%20Analysis%20&%20Topic%20Modeling.md)), and the sentence-embedding models in [Embeddings](../../AI%20Engineering/Embeddings.md). Architecture/attention details live in [RNN · LSTM · Transformers](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md); its generative cousins in [LLM](../../AI%20Engineering/LLM.md).
 **Prereqs:** [RNN · LSTM · Transformers](RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (self-attention, positional encoding, encoder blocks), [Word Embeddings](Word%20Embeddings.md) (static vs contextual), [Text Preprocessing](Text%20Preprocessing.md) (subword tokenization), transfer learning ([CV analogy](../Computer%20Vision/Transfer%20Learning.md)).
 
+> 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../../_STUDY%20LOOP.md))*
+
 ---
 
 ## Table of Contents
