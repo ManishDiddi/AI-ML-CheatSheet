@@ -69,6 +69,8 @@
 | [Prompt Engineering](AI%20Engineering/Prompt%20Engineering.md) | AI Engineering | 8 | 2026-08-09 | — | ⬜ | |
 | [Prompt Security](AI%20Engineering/Prompt%20Security.md) | AI Engineering | 8 | 2026-08-09 | — | ⬜ | |
 | [RAG](AI%20Engineering/RAG.md) | AI Engineering | 7 | 2026-08-09 | — | ⬜ | |
+| [Fine-Tuning LLMs](AI%20Engineering/Fine-Tuning%20LLMs.md) | AI Engineering | 8 | 2026-08-15 | — | ⬜ | |
+| [Distributed Training for LLMs](AI%20Engineering/Distributed%20Training%20for%20LLMs.md) | AI Engineering | 8 | 2026-08-15 | — | ⬜ | |
 
 ---
 
