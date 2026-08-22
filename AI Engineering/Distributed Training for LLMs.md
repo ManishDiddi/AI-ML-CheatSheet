@@ -2,7 +2,7 @@
 
 > **TL;DR.** When one GPU isn't enough there are **three different problems**, and the mistake is treating them as one. *"Training is too slow"* → **data parallelism**: replicate the model on every GPU, give each a different mini-batch, **all-reduce the gradients** so every replica applies an identical update. *"The model doesn't fit"* → **model/pipeline parallelism**: put different **layers** on different GPUs, then split the batch into **micro-batches** so the GPUs aren't idle waiting in a chain (naive layer-splitting leaves ~75% of your GPU-time in the "bubble"). *"A single layer doesn't fit"* → **tensor parallelism**: split one weight matrix across GPUs and all-reduce *inside* every layer — enormous communication, so keep it inside one NVLink-connected node. *"I'm data-parallel but the optimizer state is eating my VRAM"* → **ZeRO / FSDP**: same math as data parallelism, but each GPU stores only `1/N` of the optimizer states, gradients, and eventually parameters. Real 70B+ runs combine all of them (**3D parallelism**). 🎯 The line that wins the question: *"Data parallelism scales **throughput**; model, pipeline and tensor parallelism scale **capacity** — you only reach for the second kind when the model genuinely doesn't fit, because every one of them buys memory with communication."* `(certain)`
 
-**Where it fits:** The back half of the *Advanced Fine-Tuning* lecture, and the direct sequel to [Fine-Tuning LLMs](Fine-Tuning%20LLMs.md) — which ends at exactly the wall this note starts from: full fine-tuning a 7B needs ≈168 GB, a 70B needs **>1.1 TB**, and no single GPU exists at that size. [PEFT/LoRA](Fine-Tuning%20LLMs.md#5-peft-and-lora--the-mechanism) is how you *avoid* this problem; distributed training is how you *solve* it when avoiding isn't an option (pre-training, full fine-tuning, or a model too big to load at all).
+**Where it fits:** The back half of the *Advanced Fine-Tuning* lecture, and the direct sequel to [Fine-Tuning LLMs](Fine-Tuning%20LLMs.md) — which ends at exactly the wall this note starts from: full fine-tuning a 7B needs ≈168 GB, a 70B needs **>1.1 TB**, and no single GPU exists at that size. [PEFT/LoRA](Fine-Tuning%20LLMs.md#5-peft-and-lora--the-mechanism) is how you *avoid* this problem; distributed training is how you *solve* it when avoiding isn't an option (pre-training, full fine-tuning, or a model too big to load at all). Its sequel is [Model Quantization](Model%20Quantization.md) — the **third** answer to the same wall: instead of splitting the bytes across GPUs, make every byte smaller.
 **Prereqs:** [Fine-Tuning LLMs](Fine-Tuning%20LLMs.md) (the memory arithmetic, gradient accumulation), [Weight Initialization & Optimizers](../Machine%20Learning/Neural%20Networks/Weight%20Initialization%20&%20Optimizers.md) (what Adam stores), [RNN · LSTM · Transformers](../Machine%20Learning/NLP/RNN%20%C2%B7%20LSTM%20%C2%B7%20Transformers.md) (the layer stack you're about to cut up).
 
 > 🧠 **Start here, not at the top.** Jump straight to the [Self-Test](#-self-test), answer cold, then read **only** the sections you missed — a 5-minute pass instead of 30. *([why](../_STUDY%20LOOP.md))*
@@ -103,7 +103,40 @@ Tensor parallelism is the opposite: **two all-reduces per transformer block**, o
 
 🎯 *"Data parallelism communicates once per step and hides it behind the backward pass; tensor parallelism communicates twice per layer and can't hide it. That's the whole reason TP stays inside a node."* `(certain)`
 
-### 2.3 Scaling efficiency
+### 2.3 The NCCL collectives — the five primitives everything is built from
+
+Every parallelism strategy in this note is assembled from a handful of **collective operations**, implemented by **NCCL** (NVIDIA Collective Communications Library) on GPU. Knowing the five by name — and knowing which one each strategy calls — is the fastest way to reason about communication cost, and it's a common interview probe.
+
+```
+                 GPU0   GPU1   GPU2   GPU3
+  start          [1]    [2]    [3]    [4]
+
+① Reduce         [10]    ·      ·      ·      combine → ONE destination rank
+② All-Reduce     [10]   [10]   [10]   [10]    combine → EVERY rank gets the result
+③ Broadcast      [w]    [w]    [w]    [w]     one rank's buffer copied to all
+④ All-Gather     [1234][1234][1234][1234]     concatenate → every rank holds all pieces
+⑤ Reduce-Scatter [10ₐ]  [10_b] [10_c] [10_d]  combine, but each rank keeps only ITS slice
+```
+
+| Collective | What it does | Who uses it |
+|---|---|---|
+| **Reduce** | sum/average across ranks, result on **one** rank | old parameter-server designs; debugging |
+| **All-Reduce** | sum/average, result on **all** ranks | **DDP's gradient sync** — the workhorse |
+| **Broadcast** | copy one rank's tensor to everyone | initial weight sync at startup, so all replicas start identical |
+| **All-Gather** | each rank contributes a shard, everyone ends up with the whole | **FSDP/ZeRO-3** reconstructing a layer's parameters before its forward |
+| **Reduce-Scatter** | reduce, then each rank keeps only the slice it owns | **FSDP/ZeRO** gradient sync — you only need the gradient for *your* shard |
+
+**The identity worth memorizing:**
+
+```
+all-reduce  =  reduce-scatter  +  all-gather
+```
+
+This is not trivia — it's *why ring all-reduce has the cost it does* (it's literally implemented as those two phases, which is where the `2·(N−1)/N` factor comes from), and it explains the **FSDP communication premium**: DDP does one all-reduce per step, while ZeRO-3 does a reduce-scatter on gradients **plus** all-gathers of parameters on every layer in both forward and backward — roughly **1.5× DDP's volume**, which is the price of the memory you saved. `(certain)`
+
+> 🚩 **The deadlock rule that follows from this:** collectives are **synchronizing** — every rank must call every collective, in the same order. A single `if rank == 0: dist.all_reduce(x)` hangs the entire job until the NCCL timeout fires, which is the single most common distributed-training bug (§9).
+
+### 2.4 Scaling efficiency
 
 ```
 speedup(N)  =  T(1) / T(N)          efficiency  =  speedup(N) / N
@@ -221,7 +254,28 @@ The insight behind **ZeRO** (Zero Redundancy Optimizer, DeepSpeed) is embarrassi
 
 **ZeRO-3 / FSDP mechanics:** before a layer's forward pass, **all-gather** that layer's full parameters from the shards; compute; **immediately free** the non-owned shards; repeat for the backward. So at any instant a GPU holds full parameters for only *one layer*, plus its `1/N` shard of everything else.
 
+Stated as the four-beat cycle that repeats for every unit, in both the forward and the backward pass:
+
+```
+  all-gather  →  compute  →  free  →  reduce-scatter
+  (rebuild the    (fwd or    (drop the      (each rank keeps only
+   full params)    bwd)       non-owned      the gradient slice
+                              shards)        it owns)
+```
+
+**The knob this exposes is the FSDP *unit*** — the granularity at which you wrap the model (`auto_wrap_policy`, usually one transformer block per unit). It sets the memory/communication trade directly: **more units = smaller all-gathers = less peak memory, but more separate collectives**; wrapping the whole model as one unit degenerates to DDP's memory. One transformer block per unit is the sane default, and it's why FSDP can overlap the next unit's all-gather with the current unit's compute.
+
 **FSDP (Fully Sharded Data Parallel)** is PyTorch's native implementation of essentially the ZeRO-3 algorithm. In practice: **FSDP** if you're in pure PyTorch/HF, **DeepSpeed** if you want the mature stage-by-stage config, CPU/NVMe offload, and its pipeline integration.
+
+**The one-line contrast to keep:**
+
+```
+DDP :  same model everywhere  +  different data
+FSDP:  sharded model (params + grads + optimizer states)  +  different data
+       +  temporary reconstruction of one unit at a time
+```
+
+> 🎯 *"FSDP buys memory with communication, and the exchange rate is roughly 1.5× DDP's traffic — so it's the right call exactly when you're memory-bound and have the interconnect to pay for it (NVLink good, PCIe painful)."* `(certain)`
 
 > **Why this is the modern default.** ZeRO-3 is *data* parallelism — the programming model is unchanged, no model surgery, no rewriting your layers — but with per-GPU memory falling as `1/N`. You get capacity scaling with the simplicity of DP. Reach for pipeline/tensor parallelism only when ZeRO-3 still isn't enough. `(certain)`
 
@@ -399,6 +453,7 @@ fsdp_config:
 | **Tensor parallelism** | a single layer won't fit; NVLink available | across nodes on commodity networking |
 | **Pipeline parallelism** | very deep model, limited interconnect between nodes | few micro-batches available (bubble eats it) |
 | **3D parallelism** | 70B+ pre-training on a real cluster | anything smaller — the complexity isn't free |
+| **[Quantization](Model%20Quantization.md)** | shrinking the bytes rather than splitting them — the only lever that also helps at **inference** | you need full-precision weight updates |
 | **Rent a bigger GPU** | honestly, often | you need more than one node's worth |
 
 **The decision in four questions:**
@@ -406,6 +461,18 @@ fsdp_config:
 2. Do you need *full*-model updates, or will [LoRA/QLoRA](Fine-Tuning%20LLMs.md) do? → usually LoRA.
 3. Does it fit on one GPU? → DDP for speed only.
 4. It doesn't fit → ZeRO-3/FSDP → then TP within a node → then PP across nodes.
+
+**The lecture's own version of that tree, which folds in the quantization branch:**
+
+```
+Model + training state fits on one GPU?
+├─ YES ──→ DDP
+└─ NO  ──→ Can you afford FULL training memory, spread across GPUs?
+           ├─ YES ──→ FSDP / ZeRO-3
+           └─ NO  ──→ LoRA  ──→  still doesn't fit?  ──→  QLoRA (4-bit NF4 base)
+```
+
+That last branch is where this note hands off to [Model Quantization](Model%20Quantization.md).
 
 ---
 
