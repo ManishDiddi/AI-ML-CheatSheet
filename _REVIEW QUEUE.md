@@ -1,6 +1,6 @@
 # 🗓️ Review Queue — what's due, what's weak, what's next
 
-*The retention layer for [`_STUDY LOOP.md`](_STUDY%20LOOP.md). **44 notes · 316 recall questions already written.** Nothing new to author — this queue just makes sure they get used.*
+*The retention layer for [`_STUDY LOOP.md`](_STUDY%20LOOP.md). **47 notes · 340 recall questions already written.** Nothing new to author — this queue just makes sure they get used.*
 
 ---
 
@@ -71,6 +71,7 @@
 | [RAG](AI%20Engineering/RAG.md) | AI Engineering | 7 | 2026-08-09 | — | ⬜ | |
 | [Fine-Tuning LLMs](AI%20Engineering/Fine-Tuning%20LLMs.md) | AI Engineering | 8 | 2026-08-15 | — | ⬜ | |
 | [Distributed Training for LLMs](AI%20Engineering/Distributed%20Training%20for%20LLMs.md) | AI Engineering | 8 | 2026-08-15 | — | ⬜ | |
+| [Model Quantization](AI%20Engineering/Model%20Quantization.md) | AI Engineering | 8 | 2026-08-20 | — | ⬜ | |
 
 ---
 

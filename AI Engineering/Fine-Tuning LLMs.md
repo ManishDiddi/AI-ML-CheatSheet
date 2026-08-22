@@ -267,7 +267,7 @@ Three ingredients, each solving a specific problem:
 
 > 🎯 *"LoRA reduces what you **train**; QLoRA reduces what you **store**. They're orthogonal, which is why they stack."*
 
-For quantization as a topic in its own right — post-training quantization, GPTQ/AWQ, and the serving-side story — see [[Model Quantization]].
+For quantization as a topic in its own right — post-training quantization, GPTQ/AWQ, and the serving-side story — see [Model Quantization](Model%20Quantization.md).
 
 ---
 
@@ -381,6 +381,13 @@ The lecture build: **Qwen2.5-1.5B (base, not Instruct)** + **`yahma/alpaca-clean
 > - `packing`, `dataset_text_field` and friends belong on **`SFTConfig`**, not on the trainer.
 >
 > As of **TRL 1.6.0 (June 2026)** that is the shape. The lecture notebook uses the pre-0.16 form (`tokenizer=`, `max_seq_length=` on the trainer) and will raise `TypeError: SFTTrainer.__init__() got an unexpected keyword argument` on any current install. Most SFT tutorials online are still on the old signature — check your installed version, don't trust the blog. `(certain — per the TRL docs and issue tracker; see Sources at the bottom of this section)`
+>
+> **`transformers` v5 moved three more things** (the corrected lecture notebook, *Finetuning_final*, broke on exactly these):
+> - **`torch_dtype=` → `dtype=`** on `from_pretrained`.
+> - **`warmup_ratio` was removed** → use **`warmup_steps`**, which now takes a *float < 1* as a ratio of total steps (same behavior) or an *int ≥ 1* as an absolute count.
+> - **`logging_dir` was removed** → set the **`TENSORBOARD_LOGGING_DIR`** environment variable *before* building the config; the TensorBoard callback reads it at startup.
+>
+> **Pin your versions.** A working, verified-end-to-end set: `transformers==5.15.0`, `trl==1.10.0`, `peft==0.20.0`, `datasets==5.0.1`, `accelerate==1.14.0`. And **don't `pip install -U torch` on Colab** — the runtime already ships a driver-matched build, and reinstalling can pull a mismatched CUDA wheel.
 
 ### 9.1 Configuration
 
@@ -403,7 +410,8 @@ LEARNING_RATE   = 2e-4                    # ~10× a full fine-tune's LR: few par
                                           # and the frozen base can't be damaged by a big step
 BATCH_SIZE      = 4
 GRAD_ACCUM      = 4                       # effective batch = 4 × 4 = 16
-WARMUP_RATIO    = 0.03
+WARMUP_RATIO    = 0.03                    # passed as `warmup_steps=0.03` on transformers v5:
+                                          # a float < 1 is still read as a ratio of total steps
 ```
 
 **Why `lr=2e-4` and not `2e-5`.** Full fine-tuning uses a tiny LR because you are perturbing pre-trained weights that took millions of dollars to produce — overshoot and you destroy them. In LoRA those weights are **frozen and unreachable**; you're training a small, randomly-initialized module from scratch. There is nothing delicate to break, so you can move ~10× faster. 🎯 `(certain)`
@@ -453,7 +461,10 @@ That printed percentage is your sanity check. **If it reads 100%, your `target_m
 ### 9.4 Training
 
 ```python
+import os, torch
 from trl import SFTConfig, SFTTrainer
+
+os.environ["TENSORBOARD_LOGGING_DIR"] = "./sft-lora-qwen/runs"   # ← replaces logging_dir (v5)
 
 args = SFTConfig(
     output_dir="./sft-lora-qwen",
@@ -462,9 +473,14 @@ args = SFTConfig(
     gradient_accumulation_steps=4,         # effective batch 16 at the memory cost of 4
     learning_rate=2e-4,
     lr_scheduler_type="cosine",
-    warmup_ratio=0.03,                     # avoid a huge first step into a fresh adapter
+    warmup_steps=0.03,                     # ← was warmup_ratio; a float < 1 still means "ratio".
+                                           # Avoids a huge first step into a fresh adapter.
+    max_grad_norm=1.0,                     # clip — cheap insurance against an exploding step
     optim="paged_adamw_8bit",              # 8-bit states + CPU paging on spikes
-    fp16=True,
+    bf16=torch.cuda.is_bf16_supported(),   # prefer bf16; fall back to fp16 only on old cards
+    fp16=not torch.cuda.is_bf16_supported(),
+    gradient_checkpointing=True,           # trade ~30% compute for a large activation saving
+    gradient_checkpointing_kwargs={"use_reentrant": False},
     max_length=512,                        # ← was max_seq_length; moved here
     packing=True,                          # concatenate short examples to fill the window —
                                            # big throughput win, but see the caveat below
