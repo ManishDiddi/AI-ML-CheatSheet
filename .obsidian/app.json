@@ -1,5 +1,13 @@
 {
   "promptDelete": false,
   "attachmentFolderPath": "./attachments",
-  "alwaysUpdateLinks": true
+  "alwaysUpdateLinks": true,
+  "defaultViewMode": "source",
+  "livePreview": true,
+  "readableLineLength": false,
+  "strictLineBreaks": false,
+  "rightToLeft": false,
+  "tabSize": 4,
+  "showLineNumber": true,
+  "showIndentGuide": true
 }
