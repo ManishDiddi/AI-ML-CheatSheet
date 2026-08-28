@@ -235,7 +235,7 @@ Rule of thumb: **small + similar → freeze more; large + different → freeze l
 
 ## 7. Architecture Evolution
 
-Know the **one key innovation** of each (interviewers test depth here, not full details):
+Know the **one key innovation** of each (interviewers test depth here, not full details). 🎯 This is the *summary*; the full treatment — what problem each net solved, its numbers, its gotchas, and **which one to transfer from** — lives in [Transfer Learning §5–§6](Transfer%20Learning.md#5-the-backbone-zoo--what-each-architecture-actually-solved).
 
 ```
 LeNet (1998)      First CNN (digits). Conv + AvgPool + FC. Proved CNNs work for vision.

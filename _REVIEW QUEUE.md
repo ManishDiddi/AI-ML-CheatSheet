@@ -1,6 +1,6 @@
 # 🗓️ Review Queue — what's due, what's weak, what's next
 
-*The retention layer for [`_STUDY LOOP.md`](_STUDY%20LOOP.md). **47 notes · 347 recall questions already written.** Nothing new to author — this queue just makes sure they get used.*
+*The retention layer for [`_STUDY LOOP.md`](_STUDY%20LOOP.md). **47 notes · 354 recall questions already written.** Nothing new to author — this queue just makes sure they get used.*
 
 ---
 
@@ -37,7 +37,7 @@
 | [Siamese Networks & Image Similarity](Machine%20Learning/Computer%20Vision/Siamese%20Networks%20&%20Image%20Similarity.md) | Computer Vision | 8 | 2026-07-24 | — | ⬜ | |
 | [Tackling Overfitting in CNNs](Machine%20Learning/Computer%20Vision/Tackling%20Overfitting%20in%20CNNs.md) | Computer Vision | 7 | 2026-07-24 | — | ⬜ | |
 | [Text Preprocessing](Machine%20Learning/NLP/Text%20Preprocessing.md) | NLP | 6 | 2026-07-24 | — | ⬜ | |
-| [Transfer Learning](Machine%20Learning/Computer%20Vision/Transfer%20Learning.md) | Computer Vision | 7 | 2026-07-24 | — | ⬜ | |
+| [Transfer Learning](Machine%20Learning/Computer%20Vision/Transfer%20Learning.md) | Computer Vision | 14 | 2026-08-28 | — | ⬜ | *expanded 2026-08-28: full backbone zoo (AlexNet→EfficientNet) + how to choose one* |
 | [Word Embeddings](Machine%20Learning/NLP/Word%20Embeddings.md) | NLP | 6 | 2026-07-24 | — | ⬜ | |
 | [Anomaly Detection](Machine%20Learning/Unsupervised%20ML/Anomaly%20Detection.md) | Unsupervised ML | 7 | 2026-07-25 | — | ⬜ | |
 | [Clustering](Machine%20Learning/Unsupervised%20ML/Clustering.md) | Unsupervised ML | 7 | 2026-07-25 | — | ⬜ | |
