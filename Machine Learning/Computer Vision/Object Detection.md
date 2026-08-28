@@ -277,6 +277,8 @@ For training/fine-tuning use **`ultralytics`** (`YOLO("yolov5s.pt").train(data=.
 - **MobileNet V1:** depthwise-separable everywhere + two knobs — **width multiplier α** (scales channel counts; params/ops ∝ α²) and **resolution multiplier ρ** (scales input size; ops ∝ ρ²) — to dial any speed/accuracy point. (4.2M params, 569M ops, 70.6% ImageNet top-1.)
 - **MobileNet V2** adds two ideas: the **inverted residual block** — *expand* channels (×6) → depthwise-filter in that *rich, wide* space → *compress* back (narrow→wide→narrow, opposite of ResNet's bottleneck) — and the **linear bottleneck** — **no ReLU after the final compression**, because ReLU zeroing on a *low*-dimensional (narrow) output destroys too much information. Plus ResNet-style skip connections when shapes match. Result: *smaller AND faster AND more accurate* than V1 (3.4M params, 300M ops, 72.0%). `(certain)`
 
+> Full MobileNet lineage (V1 → V2 → V3), the depthwise cost arithmetic, and **when to pick it over ResNet/EfficientNet as a detection backbone**: [Transfer Learning §5.5](Transfer%20Learning.md#55-mobilenet-v1--v2--v3-201719--the-phone-budget) and [§6](Transfer%20Learning.md#6-choosing--fine-tuning-a-backbone).
+
 **Beyond anchors and NMS (know these exist):**
 - **FPN (Feature Pyramid Network)** — fuse features top-down across scales → detect small and large objects well; now standard in Faster R-CNN, RetinaNet, YOLO.
 - **Anchor-free detectors** — **FCOS, CenterNet** predict boxes per-pixel/as keypoints, dropping anchor tuning entirely.
