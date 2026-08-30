@@ -1,6 +1,6 @@
 # 🗓️ Review Queue — what's due, what's weak, what's next
 
-*The retention layer for [`_STUDY LOOP.md`](_STUDY%20LOOP.md). **47 notes · 354 recall questions already written.** Nothing new to author — this queue just makes sure they get used.*
+*The retention layer for [`_STUDY LOOP.md`](_STUDY%20LOOP.md). **48 notes · 364 recall questions already written.** Nothing new to author — this queue just makes sure they get used.*
 
 ---
 
@@ -72,6 +72,7 @@
 | [Fine-Tuning LLMs](AI%20Engineering/Fine-Tuning%20LLMs.md) | AI Engineering | 8 | 2026-08-15 | — | ⬜ | |
 | [Distributed Training for LLMs](AI%20Engineering/Distributed%20Training%20for%20LLMs.md) | AI Engineering | 12 | 2026-08-23 | — | ⬜ | *rewritten 2026-08-23 — GPT-2-anchored arithmetic, FSDP2, sequence/expert parallelism* |
 | [Model Quantization](AI%20Engineering/Model%20Quantization.md) | AI Engineering | 11 | 2026-08-20 | — | ⬜ | expanded 2026-08-22 with lecture 6 — calibration, static/dynamic PTQ, the implementation ladder |
+| [Serving LLMs at Scale](AI%20Engineering/Serving%20LLMs%20at%20Scale.md) | AI Engineering | 10 | 2026-08-30 | — | ⬜ | *prefill vs decode roofline · KV-cache sizing · PagedAttention & continuous batching · goodput* |
 
 ---
 
