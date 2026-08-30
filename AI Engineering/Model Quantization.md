@@ -863,9 +863,9 @@ Quantization is one of four ways to make a model cheaper, and they compose:
 | **Quantization** | bits per weight | minutes–hours, no data | low at 8-bit, low-moderate at 4-bit |
 | **Pruning / sparsity** | whole weights | needs retraining to recover; 2:4 structured sparsity for real speedup | moderate |
 | **Distillation** | parameters (train a small student) | weeks + a big data pipeline | high, but the ceiling is best |
-| **Better serving** (paged attention, continuous batching, speculative decoding) | wasted memory & idle time | integration only, **no quality cost** | none |
+| **Better serving** ([paged attention, continuous batching, speculative decoding](Serving%20LLMs%20at%20Scale.md)) | wasted memory & idle time | integration only, **no quality cost** | none |
 
-> **The order to try things:** better serving first (free), then quantization (cheap), then distillation (expensive). Pruning is a distant fourth for LLMs — the accuracy/speedup ratio is worse than quantization's and the tooling is thinner. `(likely)`
+> **The order to try things:** better serving first (free — see [Serving LLMs at Scale](Serving%20LLMs%20at%20Scale.md)), then quantization (cheap), then distillation (expensive). Pruning is a distant fourth for LLMs — the accuracy/speedup ratio is worse than quantization's and the tooling is thinner. `(likely)`
 
 **The decision tree the lecture drew, completed:**
 

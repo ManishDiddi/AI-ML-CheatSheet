@@ -257,7 +257,7 @@ Top-k / Top-p random sample from top k / nucleus mass p  → the default for ope
 
 ### Inference efficiency
 - **KV cache** — `P0`. During autoregressive generation, cache each token's K,V so you don't recompute the whole prefix every step → per-token cost drops from `O(n²)` to `O(n)`. The cache memory **grows linearly with context length** and dominates serving memory.
-- **FlashAttention** (IO-aware exact attention), **paged attention / vLLM** (efficient KV-cache memory), **quantization** (8-/4-bit weights), **distillation** → the levers that make LLM serving affordable.
+- **FlashAttention** (IO-aware exact attention), **paged attention / vLLM** (efficient KV-cache memory), **quantization** (8-/4-bit weights), **distillation** → the levers that make LLM serving affordable. Full treatment in [Serving LLMs at Scale](../../AI%20Engineering/Serving%20LLMs%20at%20Scale.md).
 
 ### Adapting models
 - **Fine-tuning:** full FT (update all weights) vs **PEFT/LoRA** (train tiny low-rank adapters, ~0.1% of params, swap per task) — LoRA is the practical default. **Instruction tuning** + **RLHF/DPO** align base LMs to follow instructions/preferences.
