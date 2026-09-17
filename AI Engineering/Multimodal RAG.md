@@ -50,6 +50,8 @@ The failure is concrete: run a text-RAG pipeline over an IKEA PDF and the retrie
 
 🎯 *"Multimodal RAG is what you reach for the moment your corpus's information lives in diagrams, tables, or scanned layout — where OCR-then-text-RAG silently discards the very signal the user is asking about."*
 
+> **The moving-picture case is its own note.** When the corpus is *video*, the retrieval unit is a **moment**, not a page — you sample frames, transcribe the audio, and index what was *said* alongside what was *shown*. See [Video for AI Engineers](Video%20for%20AI%20Engineers.md#10-video-rag--indexing-what-was-said-and-what-was-shown).
+
 ---
 
 ## 2. OCR vs Vision-Based Extraction from PDFs

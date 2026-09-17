@@ -205,7 +205,7 @@ At `k = 10`, **10% of user actions hit a P99 path** — the service's P99 became
 
 ## 5. The KV Cache — the thing that actually caps concurrency
 
-Attention caches every token's `K` and `V` so the next step doesn't recompute the prefix — turning generation from `O(n²)` to `O(n)` compute. The bill arrives as memory:
+Attention caches every token's `K` and `V` so the next step doesn't recompute the prefix — turning generation from `O(n²)` to `O(n)` compute. *(Derived from the causal mask, with the measured memory growth, in [LLM Inference Optimization](LLM%20Inference%20Optimization.md#4-the-kv-cache--derived-not-memorised).)* The bill arrives as memory:
 
 ```
 KV_bytes = 2 × layers × kv_heads × head_dim × ctx_len × batch × bytes_per_elem
@@ -386,7 +386,7 @@ Batching and paging are the foundation. These are what you reach for next, rough
 
 **Quantization** — fewer bytes per weight is directly fewer bytes decode must move, so it is a *decode-latency* lever as much as a memory lever. AWQ/GPTQ 4-bit for memory-constrained serving, FP8 on Hopper+ for throughput. Full treatment in [Model Quantization](Model%20Quantization.md).
 
-**Speculative decoding** — a cheap **draft** proposes `k` tokens; the target model **verifies all `k` in a single forward pass** and keeps the longest correct prefix. It works precisely *because* decode is memory-bound: verifying 5 tokens costs one weight-read, not five. Expected speedup rises with the **acceptance rate** `α`; a bad draft model is worse than none (you pay draft cost and reject). Flavours: separate small draft model, **n-gram / prompt lookup** (free, great when the output quotes the input — summarisation, code edit, RAG), **EAGLE / Medusa** (extra heads on the target model). Note it **cannot** help a compute-bound prefill, and gives up its advantage at large batch sizes, where you're already off the memory-bound floor. `(certain)`
+**Speculative decoding** — a cheap **draft** proposes `k` tokens; the target model **verifies all `k` in a single forward pass** and keeps the longest correct prefix. It works precisely *because* decode is memory-bound: verifying 5 tokens costs one weight-read, not five. Expected speedup rises with the **acceptance rate** `α`; a bad draft model is worse than none (you pay draft cost and reject). Flavours: separate small draft model, **n-gram / prompt lookup** (free, great when the output quotes the input — summarisation, code edit, RAG), **EAGLE / Medusa** (extra heads on the target model). Note it **cannot** help a compute-bound prefill, and gives up its advantage at large batch sizes, where you're already off the memory-bound floor. `(certain)` *(Full treatment — the exactness guarantee, the `a + 1` law, and the time-vs-compute ledger — in [LLM Inference Optimization](LLM%20Inference%20Optimization.md#6-speculative-decoding--two-dead-ends-then-the-idea).)*
 
 **Disaggregated prefill/decode** — run prefill on one pool of GPUs and decode on another, streaming the KV cache between them (over RDMA, via NVIDIA's **NIXL** transfer library in current vLLM / Dynamo builds). Because the two phases stop competing, you can tune TTFT and ITL **independently** and give each phase its own parallelism degree. This is the frontier answer to §2's contention problem; it's operationally heavy (two clusters, a KV transport, a scheduler on top) and pays off at large scale. `(likely — moving fast; verify against current vLLM docs before quoting flags)`
 
