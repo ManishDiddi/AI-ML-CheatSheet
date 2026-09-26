@@ -1,6 +1,6 @@
 # 🗓️ Review Queue — what's due, what's weak, what's next
 
-*The retention layer for [`_STUDY LOOP.md`](_STUDY%20LOOP.md). **51 notes · 388 recall questions already written.** Nothing new to author — this queue just makes sure they get used.*
+*The retention layer for [`_STUDY LOOP.md`](_STUDY%20LOOP.md). **54 notes · 411 recall questions already written.** Nothing new to author — this queue just makes sure they get used.*
 
 ---
 
@@ -76,6 +76,9 @@
 | [Speech & Audio for AI Engineers](AI%20Engineering/Speech%20&%20Audio%20for%20AI%20Engineers.md) | AI Engineering | 8 | 2026-09-17 | — | ⬜ | *sample rate & Nyquist · log-mel front-end · Whisper hallucination & VAD · WER · voice-agent latency* |
 | [Video for AI Engineers](AI%20Engineering/Video%20for%20AI%20Engineers.md) | AI Engineering | 8 | 2026-09-17 | — | ⬜ | *tile vs patch image pricing · frame sampling · timestamps · tubelets · audio fusion · video RAG* |
 | [LLM Inference Optimization](AI%20Engineering/LLM%20Inference%20Optimization.md) | AI Engineering | 8 | 2026-09-17 | — | ⬜ | *KV cache derived from causality · speculative decoding, the a+1 law & the exactness guarantee* |
+| [Introduction to MLOps](Machine%20Learning/Production%20ML%20Systems/Introduction%20to%20MLOps.md) | Production ML Systems | 8 | 2026-09-26 | — | ⬜ | *six principles · DevOps-vs-MLOps three axes · maturity 0/1/2 · drift kinds, shapes & label-free detection · MRR/NDCG* |
+| [Hyperparameter Tuning with Optuna](Machine%20Learning/Production%20ML%20Systems/Hyperparameter%20Tuning%20with%20Optuna.md) | Production ML Systems | 8 | 2026-09-26 | — | ⬜ | *metric stability before tuning · sampler vs pruner · TPE's n_startup_trials trap · trial budget ≠ time budget* |
+| [Streamlit and Gradio](Machine%20Learning/Production%20ML%20Systems/Streamlit%20and%20Gradio.md) | Production ML Systems | 7 | 2026-09-26 | — | ⬜ | *the re-run rule · cache_data vs cache_resource · the shared model layer · where Streamlit structurally runs out* |
 
 ---
 
