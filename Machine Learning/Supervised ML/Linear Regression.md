@@ -194,6 +194,8 @@ grid.fit(X_tr, y_tr)
 print(grid.best_params_, grid.score(X_te, y_te))
 ```
 
+> A five-value grid over one parameter is exactly the right tool here. It stops being the right tool the moment you have four or more hyperparameters, or one that is genuinely continuous — see [Hyperparameter Tuning with Optuna](../Production%20ML%20Systems/Hyperparameter%20Tuning%20with%20Optuna.md).
+
 ---
 
 ## 6. Evaluating the Fit — R², Adjusted R², and friends
